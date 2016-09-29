@@ -1,0 +1,137 @@
+defmodule Plaid.Utilities do
+  @moduledoc """
+  Utility functions for Plaid.
+  """
+
+  alias Plaid.{Account, AccountBalance, AccountMeta, Connect, Error, Message, MfaMessage,
+               MfaQuestion, Question, MfaMask, Mask, Transaction, TransactionMeta,
+               TransactionType, TransactionScore, TransactionMetaLocation,
+               TransactionScoreLocation, TransactionMetaLocationCoordinates, Token}
+
+  @doc """
+  Merges Plaid credentials with supplied parameters and encodes the result`
+  for submission as the HTTP request body.
+
+  ## Example
+
+    cred = %{client_id: "test_id", secret: "test_secret"}
+    params = %{username: "plaid_test", password: "plaid_good", type: "wells",
+               options: %{webhook: "http://requestb.in/", login_only: true,
+               pending: true, list: true, start_date: "2015-01-01",
+               end_date: "2015-03-31"}}
+
+    "username=plaid_test&password=plaid_good&..." = Plaid.Utilities.encode_params(cred, params)
+
+  """
+  @spec encode_params(map, map) :: binary
+  def encode_params(cred, params) do
+    cred
+    |> Map.merge(params)
+    |> Map.to_list
+    |> Enum.map_join("&", fn x -> pair(x) end)
+  end
+
+  @doc """
+  Handles the Plaid response.
+
+  Routes success responses to the decoder, and unsuccessful response to
+  the Plaid.Error struct.
+
+  ## Example
+
+    {:ok, "test_bofa"} = Plaid.Utilities.handle_plaid_response(%HTTPoison.Response{body: "{...}"}, :token)
+
+  """
+  @spec handle_plaid_response(map, atom) :: {atom, binary | map}
+  def handle_plaid_response(response, schema) do
+    cond do
+      response.status_code in [200,201] ->
+        {:ok, decode_response(response.body, schema)}
+      true ->
+        {:error, Poison.decode!(response.body, as: %Error{})}
+    end
+  end
+
+  # Maps the HTTP response body to the corresponding schema based on the schema
+  # and HTTP response body format.
+  defp decode_response(body, schema) do
+    case schema do
+      :token ->
+        Poison.decode!(body, as: %Token{}) |> Map.get(:access_token)
+      :connect ->
+        case Poison.decode!(body) do
+          %{"access_token" => _, "accounts" => _, "transactions" => _} ->
+            map_transactions(body)
+          %{"access_token" => _, "accounts" => _} ->
+            map_accounts(body)
+          %{"access_token" => _, "mfa" => [%{"question" => _}|_], "type" => _} ->
+            map_mfa_question(body)
+          %{"access_token" => _, "mfa" => [%{"mask" => _, "type" => _}|_], "type" => _} ->
+            map_mfa_mask(body)
+          %{"access_token" => _, "mfa" => %{"message" => _}, "type" => _} ->
+            map_mfa_message(body)
+          %{"message" => _} ->
+            map_message(body)
+        end
+    end
+  end
+
+  # Separates map key-value pairs into encoded strings to form the HTTP
+  # request body.
+  defp pair({key, value}) do
+    param_name = to_string(key) |> URI.encode_www_form
+    param_value =
+      cond do
+        is_map(value) ->
+          param_value = value |> Poison.encode!
+        true ->
+          param_value = to_string(value) |> URI.encode_www_form
+      end
+    "#{param_name}=#{param_value}"
+  end
+
+  # Decodes Plaid response body into struct for accounts and transactions.
+  defp map_transactions(body) do
+    Poison.decode!(body, as: %Connect{
+      accounts: [%Account{
+        balance: %AccountBalance{},
+        meta: %AccountMeta{}}],
+      transactions: [%Transaction{
+        meta: %TransactionMeta{
+          location: %TransactionMetaLocation{
+            coordinates: %TransactionMetaLocationCoordinates{}}},
+        type: %TransactionType{},
+        score: %TransactionScore{
+          location: %TransactionScoreLocation{}}}]
+      })
+  end
+
+  # Decodes Plaid response body into struct for accounts only.
+  defp map_accounts(body) do
+    Poison.decode!(body, as: %Connect{
+      accounts: [%Account{
+        balance: %AccountBalance{},
+        meta: %AccountMeta{}}]
+      })
+  end
+
+  # Decodes Plaid response body into struct for MFA question request.
+  defp map_mfa_question(body) do
+    Poison.decode!(body, as: %MfaQuestion{mfa: [%Question{}]})
+  end
+
+  # Decodes Plaid response body into struct for MFA mask message.
+  defp map_mfa_mask(body) do
+    Poison.decode!(body, as: %MfaMask{mfa: [%Mask{}]})
+  end
+
+  # Decodes Plaid response body into struct for MFA message.
+  defp map_mfa_message(body) do
+    Poison.decode!(body, as: %MfaMessage{mfa: %Message{}})
+  end
+
+  # Decodes Plaid response body into struct for message reponses.
+  defp map_message(body) do
+    Poison.decode!(body, as: %Message{})
+  end
+end

@@ -1,0 +1,30 @@
+[
+  {
+    "request": {
+      "body": "client_id=test_id&public_token=badvalue&secret=test_secret",
+      "headers": {
+        "Content-Type": "application/x-www-form-urlencoded"
+      },
+      "method": "post",
+      "options": {
+        "recv_timeout": 10000,
+        "connect_timeout": 10000
+      },
+      "request_body": "",
+      "url": "https://tartan.plaid.com/exchange_token"
+    },
+    "response": {
+      "body": "{\n  \"code\": 1109,\n  \"message\": \"unauthorized product\",\n  \"resolve\": \"The sandbox client_id and secret can only be used with sandbox credentials and access tokens. See https://plaid.com/docs/api#sandbox.\"\n}",
+      "headers": {
+        "Content-Type": "application/json; charset=utf-8",
+        "Date": "Thu, 29 Sep 2016 20:11:32 GMT",
+        "Vary": "X-HTTP-Method-Override, Accept-Encoding",
+        "X-Request-Id": "ca92e075b1dd4bd4b68c3026a8968766",
+        "Content-Length": "205",
+        "Connection": "keep-alive"
+      },
+      "status_code": 401,
+      "type": "ok"
+    }
+  }
+]
