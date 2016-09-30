@@ -1,24 +1,21 @@
 # Plaid
 
-**TODO: Add description**
+An Elixir library for working with Plaid.
 
 ## Installation
 
-If [available in Hex](https://hex.pm/docs/publish), the package can be installed as:
+Add to your list of dependencies in `mix.exs`:
 
-  1. Add `plaid` to your list of dependencies in `mix.exs`:
+```elixir
+def deps do
+  [{:plaid, "~> 0.1.0"}]
+end
+```
 
-    ```elixir
-    def deps do
-      [{:plaid, "~> 0.1.0"}]
-    end
-    ```
+Add to your application:
 
-  2. Ensure `plaid` is started before your application:
-
-    ```elixir
-    def application do
-      [applications: [:plaid]]
-    end
-    ```
-
+```elixir
+def application do
+  [applications: [:plaid]]
+end
+```

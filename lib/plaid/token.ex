@@ -2,12 +2,11 @@ defmodule Plaid.Token do
   @moduledoc """
   Functions for working with a Plaid token. Through this API you can:
 
-    * Exchange a public token for an access_token
+  * Exchange a public token for an access_token
 
   Plaid API Reference: https://plaid.com/docs/quickstart/#-exchange_token-endpoint
 
   ** Need to add account_id payload **
-
   """
 
   alias Plaid.Utilities
@@ -22,18 +21,18 @@ defmodule Plaid.Token do
   Exchanges a user's public token for an access token. Uses credentials in the
   configuration. Accepts params as a binary or a map.
 
-  Returns an access token or Plaid.Error struct.
+  Returns an access token or `Plaid.Error` struct.
 
   Payload
-    `params` - user's public_token - string or map; required
+  * `params` - user public_token - `string` or `map` - required
 
   ## Example
+  ```
+  params = "test,bofa,connected" OR %{public_token: "test,bofa,connected"}
 
-    params = "test,bofa,connected" OR %{public_token: "test,bofa,connected"}
-
-    {:ok, access_token} = Plaid.Token.exchange(params)
-    {:error, %Plaid.Error{...}} = Plaid.Token.exchange(params)
-
+  {:ok, access_token} = Plaid.Token.exchange(params)
+  {:error, %Plaid.Error{...}} = Plaid.Token.exchange(params)
+  ```
   """
   @spec exchange(binary | map) :: {atom | map}
   def exchange(params) do

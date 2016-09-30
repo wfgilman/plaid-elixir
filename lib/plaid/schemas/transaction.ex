@@ -1,6 +1,5 @@
 defmodule Plaid.Transaction do
   @moduledoc false
-
   use Ecto.Schema
 
   @primary_key false
@@ -11,27 +10,29 @@ defmodule Plaid.Transaction do
     field :amount, :decimal
     field :date, :string # Ecto.Date
     field :name, :string
-    embeds_one :meta, Plaid.TransactionMeta
+    embeds_one :meta, Plaid.Transaction.Meta
     field :pending, :boolean
     embeds_one :type, Plaid.TransactionType
     field :category, {:array, :string}
     field :category_id, :string
-    embeds_one :score, Plaid.TransactionScore
+    embeds_one :score, Plaid.Transaction.Score
   end
 end
 
-defmodule Plaid.TransactionMeta do
+defmodule Plaid.Transaction.Meta do
+  @moduledoc false
   use Ecto.Schema
 
   @primary_key false
 
   embedded_schema do
-    embeds_one :location, Plaid.TransactionMetaLocation
+    embeds_one :location, Plaid.Transaction.Meta.Location
     field :contact, :string
   end
 end
 
-defmodule Plaid.TransactionMetaLocation do
+defmodule Plaid.Transaction.Meta.Location do
+  @moduledoc false
   use Ecto.Schema
 
   @primary_key false
@@ -39,14 +40,15 @@ defmodule Plaid.TransactionMetaLocation do
   embedded_schema do
     field :address, :string
     field :city, :string
-    embeds_one :coordinates, Plaid.TransactionMetaLocationCoordinates
+    embeds_one :coordinates, Plaid.Transaction.Meta.Location.Coordinates
     field :state, :string
     field :store_number, :string
     field :zip, :string
   end
 end
 
-defmodule Plaid.TransactionMetaLocationCoordinates do
+defmodule Plaid.Transaction.Meta.Location.Coordinates do
+  @moduledoc false
   use Ecto.Schema
 
   @primary_key false
@@ -58,6 +60,7 @@ defmodule Plaid.TransactionMetaLocationCoordinates do
 end
 
 defmodule Plaid.TransactionType do
+  @moduledoc false
   use Ecto.Schema
 
   @primary_key false
@@ -67,18 +70,20 @@ defmodule Plaid.TransactionType do
   end
 end
 
-defmodule Plaid.TransactionScore do
+defmodule Plaid.Transaction.Score do
+  @moduledoc false
   use Ecto.Schema
 
   @primary_key false
 
   embedded_schema do
-    embeds_one :location, Plaid.TransactionScoreLocation
+    embeds_one :location, Plaid.Transaction.Score.Location
     field :name, :float
   end
 end
 
-defmodule Plaid.TransactionScoreLocation do
+defmodule Plaid.Transaction.Score.Location do
+  @moduledoc false
   use Ecto.Schema
 
   @primary_key false

@@ -1,6 +1,5 @@
 defmodule Plaid.Account do
   @moduledoc false
-
   use Ecto.Schema
 
   @primary_key false
@@ -17,7 +16,8 @@ defmodule Plaid.Account do
   end
 end
 
-defmodule Plaid.AccountBalance do
+defmodule Plaid.Account.Balance do
+  @moduledoc false
   use Ecto.Schema
 
   @primary_key false
@@ -28,7 +28,8 @@ defmodule Plaid.AccountBalance do
   end
 end
 
-defmodule Plaid.AccountMeta do
+defmodule Plaid.Account.Meta do
+  @moduledoc false
   use Ecto.Schema
 
   @primary_key false

@@ -3,25 +3,36 @@ defmodule Plaid.Utilities do
   Utility functions for Plaid.
   """
 
-  alias Plaid.{Account, AccountBalance, AccountMeta, Connect, Error, Message, MfaMessage,
-               MfaQuestion, Question, MfaMask, Mask, Transaction, TransactionMeta,
-               TransactionType, TransactionScore, TransactionMetaLocation,
-               TransactionScoreLocation, TransactionMetaLocationCoordinates, Token}
+  alias Plaid.{Account, Connect, Error, Message, Question, Mask, Transaction, TransactionType, Token}
+  alias Plaid.Account.Balance, as: AccountBalance
+  alias Plaid.Account.Meta, as: AccountMeta
+  alias Plaid.Mfa.Message, as: MfaMessage
+  alias Plaid.Mfa.Question, as: MfaQuestion
+  alias Plaid.Mfa.Mask, as: MfaMask
+  alias Plaid.Transaction.Meta, as: TransactionMeta
+  alias Plaid.Transaction.Meta.Location, as: TransactionMetaLocation
+  alias Plaid.Transaction.Meta.Location.Coordinates, as: TransactionMetaLocationCoordinates
+  alias Plaid.Transaction.Score, as: TransactionScore
+  alias Plaid.Transaction.Score.Location, as: TransactionScoreLocation
 
   @doc """
-  Merges Plaid credentials with supplied parameters and encodes the result`
+  Encodes parameters for HTTP request body.
+
+  Merges Plaid credentials with supplied parameters and encodes the result
   for submission as the HTTP request body.
 
+  Returns string.
+
   ## Example
+  ```
+  cred = %{client_id: "test_id", secret: "test_secret"}
+  params = %{username: "plaid_test", password: "plaid_good", type: "wells",
+             options: %{webhook: "http://requestb.in/", login_only: true,
+             pending: true, list: true, start_date: "2015-01-01",
+             end_date: "2015-03-31"}}
 
-    cred = %{client_id: "test_id", secret: "test_secret"}
-    params = %{username: "plaid_test", password: "plaid_good", type: "wells",
-               options: %{webhook: "http://requestb.in/", login_only: true,
-               pending: true, list: true, start_date: "2015-01-01",
-               end_date: "2015-03-31"}}
-
-    "username=plaid_test&password=plaid_good&..." = Plaid.Utilities.encode_params(cred, params)
-
+  "username=plaid_test&password=plaid_good&..." = Plaid.Utilities.encode_params(cred, params)
+  ```
   """
   @spec encode_params(map, map) :: binary
   def encode_params(cred, params) do
@@ -32,15 +43,18 @@ defmodule Plaid.Utilities do
   end
 
   @doc """
-  Handles the Plaid response.
+  Handles Plaid response.
 
-  Routes success responses to the decoder, and unsuccessful response to
+  Routes success responses to the decoder which maps them to pre-defined structs
+  based on the schema provided as an `atom`. Unsuccessful responses are mapped to
   the Plaid.Error struct.
 
+  Returns `Plaid.Connect`, `Plaid.Mfa`, `Plaid.Message` or `Plaid.Error` struct.
+
   ## Example
-
-    {:ok, "test_bofa"} = Plaid.Utilities.handle_plaid_response(%HTTPoison.Response{body: "{...}"}, :token)
-
+  ```
+  {:ok, "test_bofa"} = Plaid.Utilities.handle_plaid_response(%HTTPoison.Response{body: "{...}"}, :token)
+  ```
   """
   @spec handle_plaid_response(map, atom) :: {atom, binary | map}
   def handle_plaid_response(response, schema) do

@@ -3,16 +3,17 @@ defmodule Plaid do
   An HTTP Client for Plaid.
 
   ## Configuring
-  All calls to plaid require a root_uri (production or development), a client_id
-  and secret. These values are configured in the config.exs file of your
+  All calls to plaid require a `ROOT_URI` (production or development), a `CLIENT_ID`
+  and `SECRET`. These values are configured in the `config.exs` file of your
   application.
 
-  The environment variables for PLAID_CLIENT_ID and PLAID_SECRET will be used
+  The environment variables for `PLAID_CLIENT_ID` and `PLAID_SECRET` will be used
   if no variables are configured.
-
-    config :plaid, client_id: YOUR_CLIENT_ID
-    config :plaid, secret: YOUR_SECRET
-    config :plaid, root_uri: DEV_OR_PROD_URI
+  ```
+  config :plaid, client_id: "YOUR_CLIENT_ID"
+  config :plaid, secret: "YOUR_SECRET"
+  config :plaid, root_uri: "DEV_OR_PROD_URI"
+  ```
   """
 
   alias Plaid.Utilities
@@ -54,7 +55,9 @@ defmodule Plaid do
   end
 
   @doc """
-  Fetches credentials from config.exs. Returns a map.
+  Fetches credentials from `config.exs`.
+
+  Returns a map or raises if not found.
   """
   @spec config_or_env_cred() :: binary | map
   def config_or_env_cred() do
@@ -62,7 +65,8 @@ defmodule Plaid do
   end
 
   @doc """
-  Fetches url using the root_uri specified in config.exs (dev or prod).
+  Fetches url using the root_uri specified in `config.exs` (dev or prod).
+
   Returns binary.
   """
   @spec process_url(binary) :: binary
@@ -80,13 +84,14 @@ defmodule Plaid do
 
   @doc """
   Boiler plate code to make calls to the Plaid API. Credentials are read from
-  the configuration file using Plaid.config_or_env_cred/0.
-  Arguments:
-  * method - request method
-  * endpoint - request endpoint
-  * body - request body (excluding credentials)
-  * headers - request headers
-  * options - HTTPoison options
+  the configuration file using `Plaid.config_or_env_cred/0`.
+
+  Arguments
+  * `method` - request method - `atom`
+  * `endpoint` - request endpoint - `string`
+  * `body` - request body (excluding credentials) - `map`
+  * `headers` - request headers - `map`
+  * `options` - HTTPoison options - `list`
   """
   @spec make_request(atom, binary, map, map, list) :: tuple
   def make_request(method, endpoint, body \\ %{}, headers \\ %{}, options \\ []) do
@@ -95,13 +100,14 @@ defmodule Plaid do
 
   @doc """
   Boiler plate code to make calls to the Plaid API. Credentials are supplied.
-  Arguments:
-  * method - request method
-  * endpoint - request endpoint
-  * cred - Plaid credentials
-  * body - request body (excluding credentials)
-  * headers - request headers
-  * options - HTTPoison options
+
+  Arguments
+  * `method` - request method - `atom`
+  * `endpoint` - request endpoint - `string`
+  * `cred` - Plaid credentials - `map`
+  * `body` - request body (excluding credentials) - `map`
+  * `headers` - request headers - `map`
+  * `options` - HTTPoison options - `list`
   """
   @spec make_request_with_cred(atom, binary, map, map, map, list) :: tuple
   def make_request_with_cred(method, endpoint, cred, body \\ %{}, headers \\ %{}, options \\ []) do
