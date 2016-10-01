@@ -11,6 +11,7 @@ defmodule Plaid.Mixfile do
      elixir: "~> 1.3",
      deps: deps(),
      description: @description,
+     package: package(),
      preferred_cli_env: [
        vcr: :test, "vcr.delete": :test, "vcr.check": :test, "vcr.show": :test
      ]
@@ -18,7 +19,7 @@ defmodule Plaid.Mixfile do
   end
 
   def application do
-    [applications: [:logger, :httpoison, :ecto, :poison]]
+    [applications: [:httpoison]]
   end
 
   defp deps do
@@ -31,4 +32,10 @@ defmodule Plaid.Mixfile do
     ]
   end
 
+  defp package do
+    [
+      files: ["lib", "mix.exs", "README*"],
+      links: %{"Github" => "https://github.com/wfgilman/plaid"}
+    ]
+  end
 end

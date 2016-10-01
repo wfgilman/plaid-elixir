@@ -3,9 +3,13 @@ defmodule Plaid.Utilities do
   Utility functions for Plaid.
   """
 
-  alias Plaid.{Account, Connect, Error, Message, Question, Mask, Transaction, TransactionType, Token}
+  alias Plaid.{Account, Connect, Error, Institutions, LongTailInstitutions,
+              Message, Mask, Question, Transaction, TransactionType, Token}
   alias Plaid.Account.Balance, as: AccountBalance
   alias Plaid.Account.Meta, as: AccountMeta
+  alias Plaid.Institutions.Credentials, as: InstitutionsCredentials
+  alias Plaid.LongTailInstitutions.Fields, as: LongTailInstitutionsFields
+  alias Plaid.LongTailInstitutions.Products, as: LongTailInstitutionsProducts
   alias Plaid.Mfa.Message, as: MfaMessage
   alias Plaid.Mfa.Question, as: MfaQuestion
   alias Plaid.Mfa.Mask, as: MfaMask
@@ -25,19 +29,19 @@ defmodule Plaid.Utilities do
 
   ## Example
   ```
-  cred = %{client_id: "test_id", secret: "test_secret"}
   params = %{username: "plaid_test", password: "plaid_good", type: "wells",
              options: %{webhook: "http://requestb.in/", login_only: true,
              pending: true, list: true, start_date: "2015-01-01",
              end_date: "2015-03-31"}}
+  cred = %{client_id: "test_id", secret: "test_secret"}
 
-  "username=plaid_test&password=plaid_good&..." = Plaid.Utilities.encode_params(cred, params)
+  "username=plaid_test&password=plaid_good&..." = Plaid.Utilities.encode_params(params, cred)
   ```
   """
   @spec encode_params(map, map) :: binary
-  def encode_params(cred, params) do
-    cred
-    |> Map.merge(params)
+  def encode_params(params, cred \\ %{}) do
+    params
+    |> Map.merge(cred)
     |> Map.to_list
     |> Enum.map_join("&", fn x -> pair(x) end)
   end
@@ -45,17 +49,20 @@ defmodule Plaid.Utilities do
   @doc """
   Handles Plaid response.
 
-  Routes success responses to the decoder which maps them to pre-defined structs
-  based on the schema provided as an `atom`. Unsuccessful responses are mapped to
-  the Plaid.Error struct.
+  Routes success responses to the decoder which explicitly maps them to
+  pre-defined structs based on the schema (provided as a parameter).
+  Unsuccessful responses are mapped to the Plaid.Error struct.
 
-  Returns `Plaid.Connect`, `Plaid.Mfa`, `Plaid.Message` or `Plaid.Error` struct.
+  Returns a Plaid data struct or `HTTPoison.Error` struct.
 
   ## Example
   ```
   {:ok, "test_bofa"} = Plaid.Utilities.handle_plaid_response(%HTTPoison.Response{body: "{...}"}, :token)
   ```
   """
+  @spec handle_plaid_response({atom, any}, atom) :: {atom, any}
+  def handle_plaid_response({:error, httpoison_error}, _schema), do: {:error, httpoison_error}
+
   @spec handle_plaid_response(map, atom) :: {atom, binary | map}
   def handle_plaid_response(response, schema) do
     cond do
@@ -65,6 +72,7 @@ defmodule Plaid.Utilities do
         {:error, Poison.decode!(response.body, as: %Error{})}
     end
   end
+
 
   # Maps the HTTP response body to the corresponding schema based on the schema
   # and HTTP response body format.
@@ -87,6 +95,28 @@ defmodule Plaid.Utilities do
           %{"message" => _} ->
             map_message(body)
         end
+      :categories ->
+        case Poison.decode!(body) do
+          [_|_] ->
+            Poison.decode!(body, as: [%Plaid.Categories{}])
+          _ ->
+            Poison.decode!(body, as: %Plaid.Categories{})
+        end
+      :institutions ->
+        case Poison.decode!(body) do
+          [_|_] ->
+            map_institutions(body)
+          _ ->
+            map_institution(body)
+        end
+      :long_tail ->
+        case Poison.decode!(body) do
+          [_|_] ->
+            map_long_tail_institutions(body)
+          _ ->
+            map_long_tail_institution(body)
+        end
+
     end
   end
 
@@ -104,7 +134,6 @@ defmodule Plaid.Utilities do
     "#{param_name}=#{param_value}"
   end
 
-  # Decodes Plaid response body into struct for accounts and transactions.
   defp map_transactions(body) do
     Poison.decode!(body, as: %Connect{
       accounts: [%Account{
@@ -120,7 +149,6 @@ defmodule Plaid.Utilities do
       })
   end
 
-  # Decodes Plaid response body into struct for accounts only.
   defp map_accounts(body) do
     Poison.decode!(body, as: %Connect{
       accounts: [%Account{
@@ -129,23 +157,41 @@ defmodule Plaid.Utilities do
       })
   end
 
-  # Decodes Plaid response body into struct for MFA question request.
   defp map_mfa_question(body) do
     Poison.decode!(body, as: %MfaQuestion{mfa: [%Question{}]})
   end
 
-  # Decodes Plaid response body into struct for MFA mask message.
   defp map_mfa_mask(body) do
     Poison.decode!(body, as: %MfaMask{mfa: [%Mask{}]})
   end
 
-  # Decodes Plaid response body into struct for MFA message.
   defp map_mfa_message(body) do
     Poison.decode!(body, as: %MfaMessage{mfa: %Message{}})
   end
 
-  # Decodes Plaid response body into struct for message reponses.
   defp map_message(body) do
     Poison.decode!(body, as: %Message{})
+  end
+
+  defp map_institutions(body) do
+    Poison.decode!(body, as: [%Institutions{credentials: %InstitutionsCredentials{}}])
+  end
+
+  defp map_institution(body) do
+    Poison.decode!(body, as: %Institutions{credentials: %InstitutionsCredentials{}})
+  end
+
+  defp map_long_tail_institutions(body) do
+    Poison.decode!(body, as: [%LongTailInstitutions{
+      products: %LongTailInstitutionsProducts{},
+      fields: [%LongTailInstitutionsFields{}]
+      }])
+  end
+
+  defp map_long_tail_institution(body) do
+    Poison.decode!(body, as: %LongTailInstitutions{
+      products: %LongTailInstitutionsProducts{},
+      fields: [%LongTailInstitutionsFields{}]
+      })
   end
 end

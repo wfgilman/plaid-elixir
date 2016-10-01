@@ -3,7 +3,7 @@ defmodule Plaid do
   An HTTP Client for Plaid.
 
   ## Configuring
-  All calls to plaid require a `ROOT_URI` (production or development), a `CLIENT_ID`
+  All calls to Plaid require a `ROOT_URI` (production or development), a `CLIENT_ID`
   and `SECRET`. These values are configured in the `config.exs` file of your
   application.
 
@@ -59,7 +59,7 @@ defmodule Plaid do
 
   Returns a map or raises if not found.
   """
-  @spec config_or_env_cred() :: binary | map
+  @spec config_or_env_cred() :: map
   def config_or_env_cred() do
     require_plaid_credentials()
   end
@@ -83,42 +83,48 @@ defmodule Plaid do
   end
 
   @doc """
-  Boiler plate code to make calls to the Plaid API. Credentials are read from
-  the configuration file using `Plaid.config_or_env_cred/0`.
+  Boiler plate code to make calls to the Plaid API.
+
+  Calls `Plaid.make_request_with_cred/6` and passes an empty map as credentials.
+  For endpoints not requiring authentication.
 
   Arguments
-  * `method` - request method - `atom`
-  * `endpoint` - request endpoint - `string`
-  * `body` - request body (excluding credentials) - `map`
-  * `headers` - request headers - `map`
-  * `options` - HTTPoison options - `list`
+  * `method` - request method - `atom` - required
+  * `endpoint` - request endpoint - `string` - required
+  * `body` - request body - `map` - optional
+  * `headers` - request headers - `map` - optional
+  * `options` - HTTPoison options - `list` - optional
   """
   @spec make_request(atom, binary, map, map, list) :: tuple
   def make_request(method, endpoint, body \\ %{}, headers \\ %{}, options \\ []) do
-    make_request_with_cred(method, endpoint, config_or_env_cred(), body, headers, options)
+    make_request_with_cred(method, endpoint, %{}, body, headers, options)
   end
 
   @doc """
-  Boiler plate code to make calls to the Plaid API. Credentials are supplied.
+  Boiler plate code to make calls to the Plaid API for endpoints requiring
+  authentication.
 
   Arguments
-  * `method` - request method - `atom`
-  * `endpoint` - request endpoint - `string`
-  * `cred` - Plaid credentials - `map`
-  * `body` - request body (excluding credentials) - `map`
-  * `headers` - request headers - `map`
-  * `options` - HTTPoison options - `list`
+  * `method` - request method - `atom` - required
+  * `endpoint` - request endpoint - `string` - required
+  * `cred` - Plaid credentials - `map` - required
+  * `body` - request body - `map` - optional
+  * `headers` - request headers - `map` - optional
+  * `options` - HTTPoison options - `list` - optional
   """
   @spec make_request_with_cred(atom, binary, map, map, map, list) :: tuple
   def make_request_with_cred(method, endpoint, cred, body \\ %{}, headers \\ %{}, options \\ []) do
-    rb = Utilities.encode_params(cred, body)
-    rh = request_headers |> Map.merge(headers) |> Map.to_list
+    rb = Utilities.encode_params(body, cred)
+    rh = request_headers() |> Map.merge(headers) |> Map.to_list
     options = httpoison_request_options() ++ options
-    {:ok, response} = request(method, endpoint, rb, rh, options)
-    response
+    case request(method, endpoint, rb, rh, options) do
+      {:ok, response} ->
+        response
+      {:error, httpoison_error} ->
+        {:error, httpoison_error}
+    end
   end
 
-  ## Private functions.
 
   defp require_plaid_credentials() do
     client_id = Application.get_env(:plaid, :client_id, System.get_env("PLAID_CLIENT_ID")) || :not_found

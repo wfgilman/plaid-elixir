@@ -49,10 +49,8 @@ defmodule Plaid.Connect do
   * `login_only` - add user only, does not return transactions - `boolean`
   * `webhook` - url to which webhook messages will be sent - `string`
   * `pending` - return pending transactions - `boolean`
-  * `start_date` - if `login_only` is false, earliest date for which transactions
-        will be returned - `string` formatted "YYYY-MM-DD"
-  * `end_date` - if `login_only` is false, latest date for which transactions
-        will be returned - `string` format "YYYY-MM-DD"
+  * `start_date` - if `login_only` is false, earliest date for which transactions will be returned - `string` formatted "YYYY-MM-DD"
+  * `end_date` - if `login_only` is false, latest date for which transactions will be returned - `string` format "YYYY-MM-DD"
   * `list` - MFA delivery methods - `boolean`
 
   ## Example

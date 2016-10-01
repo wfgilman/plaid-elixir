@@ -8,7 +8,7 @@ defmodule Plaid.Transaction do
     field :_account, :string
     field :_id, :string
     field :amount, :decimal
-    field :date, :string # Ecto.Date
+    field :date, :string
     field :name, :string
     embeds_one :meta, Plaid.Transaction.Meta
     field :pending, :boolean
