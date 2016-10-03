@@ -47,7 +47,7 @@ defmodule Plaid.Mixfile do
       files: ["lib", "mix.exs", "README*", "LICENSE*"],
       licenses: ["MIT"],
       maintainers: ["Will Gilman"],
-      links: %{"Github" => "https://github.com/wfgilman/plaid"}
+      links: %{"Github" => "https://github.com/wfgilman/plaid-elixir"}
     ]
   end
 end
