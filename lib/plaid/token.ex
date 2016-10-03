@@ -1,6 +1,8 @@
 defmodule Plaid.Token do
   @moduledoc """
-  Functions for working with a Plaid token. Through this API you can:
+  Functions for working with a Plaid token.
+
+  Through this API you can:
 
   * Exchange a public token for an access token
 
