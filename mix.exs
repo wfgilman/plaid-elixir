@@ -43,6 +43,7 @@ defmodule Plaid.Mixfile do
 
   defp package do
     [
+      name: :plaid_elixir,
       files: ["lib", "mix.exs", "README*", "LICENSE*"],
       licenses: ["MIT"],
       maintainers: ["Will Gilman"],
