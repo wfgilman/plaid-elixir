@@ -1,6 +1,8 @@
 defmodule Plaid.Connect do
   @moduledoc """
-  Functions for working with Plaid Connect endpoint. Through this API you can:
+  Functions for working with Plaid Connect endpoint.
+
+  Through this API you can:
 
   * Add a Plaid Connect user
   * Register a webhook for a user

@@ -6,11 +6,11 @@ Plaid products supported by this library:
 
 * [Exchange Token](https://plaid.com/docs/quickstart/#-exchange_token-endpoint)
 * [Connect](https://plaid.com/docs/api/#connect)
-* ~Auth~
-* ~Info~
-* ~Balance~
-* ~Risk~
-* ~Income~
+* ~~Auth~~
+* ~~Info~~
+* ~~Balance~~
+* ~~Risk~~
+* ~~Income~~
 * [Institutions](https://plaid.com/docs/api/#institutions)
 * [Long Tail Institutions](https://plaid.com/docs/api/#long-tail-institutions)
 * [Categories](https://plaid.com/docs/api/#categories)
