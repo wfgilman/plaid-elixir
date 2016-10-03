@@ -26,7 +26,7 @@ defmodule Plaid.Token do
   Returns an access token or `Plaid.Error` struct.
 
   Payload
-  * `params` - user public_token - `string` or `map` - required
+  * `params` - user public token - `string` or `map` - required
 
   ## Example
   ```
@@ -68,7 +68,7 @@ defmodule Plaid.Token do
   Params are supplied as a map.
 
   Payload
-    `public_token` - user public token - `string` - required
+  * `public_token` - user public token - `string` - required
 
   ## Example
   ```
