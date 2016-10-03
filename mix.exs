@@ -8,13 +8,21 @@ defmodule Plaid.Mixfile do
   def project do
     [app: :plaid,
      version: "0.1.0",
-     elixir: "~> 1.3",
-     deps: deps(),
      description: @description,
      package: package(),
+     elixir: "~> 1.3",
+     test_coverage: [tool: ExCoveralls],
      preferred_cli_env: [
-       vcr: :test, "vcr.delete": :test, "vcr.check": :test, "vcr.show": :test
-     ]
+       "coveralls": :test,
+       "coveralls.detail": :test,
+       "coveralls.post": :test,
+       "coveralls.html": :test,
+       vcr: :test,
+       "vcr.delete": :test,
+       "vcr.check": :test,
+       "vcr.show": :test
+     ],
+     deps: deps()
     ]
   end
 
@@ -28,13 +36,16 @@ defmodule Plaid.Mixfile do
      {:ecto, "~> 2.0.0"},
      {:poison, "~> 2.0"},
      {:exvcr, "~> 0.7", only: :test},
-     {:ex_doc, "~> 0.13", only: :dev}
+     {:ex_doc, "~> 0.13", only: :dev},
+     {:excoveralls, "~> 0.5", only: :test}
     ]
   end
 
   defp package do
     [
-      files: ["lib", "mix.exs", "README*"],
+      files: ["lib", "mix.exs", "README*", "LICENSE*"],
+      licenses: ["MIT"],
+      maintainers: ["Will Gilman"],
       links: %{"Github" => "https://github.com/wfgilman/plaid"}
     ]
   end
