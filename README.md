@@ -15,7 +15,7 @@ Plaid products supported by this library:
 * [Long Tail Institutions](https://plaid.com/docs/api/#long-tail-institutions)
 * [Categories](https://plaid.com/docs/api/#categories)
 
-Documentation is available on [Hex](https://hexdocs.pm/plaid).
+Documentation is available on [Hex](https://hexdocs.pm/plaid_elixir/0.1.0).
 
 The architecture of this product is largely inspired (if not copied :flushed:) by Rob Conery's [stripity-stripe](https://github.com/robconery/stripity-stripe) - it's an awesome project.
 
