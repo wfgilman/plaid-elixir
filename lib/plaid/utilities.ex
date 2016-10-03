@@ -111,6 +111,8 @@ defmodule Plaid.Utilities do
         end
       :long_tail ->
         case Poison.decode!(body) do
+          [] ->
+            []
           [_|_] ->
             map_long_tail_institutions(body)
           _ ->
