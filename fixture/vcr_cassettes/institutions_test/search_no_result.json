@@ -1,0 +1,33 @@
+[
+  {
+    "request": {
+      "body": "",
+      "headers": {
+        "Content-Type": "application/x-www-form-urlencoded"
+      },
+      "method": "get",
+      "options": {
+        "recv_timeout": 10000,
+        "connect_timeout": 10000
+      },
+      "request_body": "",
+      "url": "https://tartan.plaid.com/institutions/search/?p=prod&q=wells"
+    },
+    "response": {
+      "body": "[]",
+      "headers": {
+        "Access-Control-Allow-Headers": "Origin, X-Requested-With, Content-Type, Accept",
+        "Access-Control-Allow-Origin": "*",
+        "Content-Type": "application/json; charset=utf-8",
+        "Date": "Wed, 05 Oct 2016 15:24:47 GMT",
+        "ETag": "W/\"2-223132457\"",
+        "Vary": "Accept-Encoding",
+        "X-Request-Id": "4ea0e29ce14f42b896fc2b3fd0ed4c3f",
+        "Content-Length": "2",
+        "Connection": "keep-alive"
+      },
+      "status_code": 200,
+      "type": "ok"
+    }
+  }
+]

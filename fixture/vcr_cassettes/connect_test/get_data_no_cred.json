@@ -1,0 +1,30 @@
+[
+  {
+    "request": {
+      "body": "access_token=test_bofa&client_id=test_id&options={\"pending\":false,\"lte\":\"2016-01-01\",\"gte\":\"2012-01-01\",\"account\":\"QPO8Jo8vdDHMepg41PBwckXm4KdK1yUdmXOwK\"}&secret=test_secret",
+      "headers": {
+        "Content-Type": "application/x-www-form-urlencoded"
+      },
+      "method": "post",
+      "options": {
+        "recv_timeout": 10000,
+        "connect_timeout": 10000
+      },
+      "request_body": "",
+      "url": "https://tartan.plaid.com/connect/get"
+    },
+    "response": {
+      "body": "{\n  \"accounts\": [\n    {\n      \"_id\": \"QPO8Jo8vdDHMepg41PBwckXm4KdK1yUdmXOwK\",\n      \"_item\": \"KdDjmojBERUKx3JkDd9RuxA5EvejA4SENO4AA\",\n      \"_user\": \"eJXpMzpR65FP4RYno6rzuA7OZjd9n3Hna0RYa\",\n      \"balance\": {\n        \"available\": 1203.42,\n        \"current\": 1274.93\n      },\n      \"institution_type\": \"fake_institution\",\n      \"meta\": {\n        \"name\": \"Plaid Savings\",\n        \"number\": \"9606\"\n      },\n      \"subtype\": \"savings\",\n      \"type\": \"depository\"\n    },\n    {\n      \"_id\": \"nban4wnPKEtnmEpaKzbYFYQvA7D7pnCaeDBMy\",\n      \"_item\": \"KdDjmojBERUKx3JkDd9RuxA5EvejA4SENO4AA\",\n      \"_user\": \"eJXpMzpR65FP4RYno6rzuA7OZjd9n3Hna0RYa\",\n      \"balance\": {\n        \"available\": 1081.78,\n        \"current\": 1253.32\n      },\n      \"institution_type\": \"fake_institution\",\n      \"meta\": {\n        \"name\": \"Plaid Checking\",\n        \"number\": \"1702\"\n      },\n      \"subtype\": \"checking\",\n      \"type\": \"depository\"\n    },\n    {\n      \"_id\": \"XARE85EJqKsjxLp6XR8ocg8VakrkXpTXmRdOo\",\n      \"_item\": \"KdDjmojBERUKx3JkDd9RuxA5EvejA4SENO4AA\",\n      \"_user\": \"eJXpMzpR65FP4RYno6rzuA7OZjd9n3Hna0RYa\",\n      \"balance\": {\n        \"available\": 7205.23,\n        \"current\": 7255.23\n      },\n      \"institution_type\": \"fake_institution\",\n      \"meta\": {\n        \"name\": \"Plaid Premier Checking\",\n        \"number\": \"5204\"\n      },\n      \"subtype\": \"checking\",\n      \"type\": \"depository\"\n    },\n    {\n      \"_id\": \"pJPM4LMBNQFrOwp0jqEyTwyxJQrQbgU6kq37k\",\n      \"_item\": \"KdDjmojBERUKx3JkDd9RuxA5EvejA4SENO4AA\",\n      \"_user\": \"eJXpMzpR65FP4RYno6rzuA7OZjd9n3Hna0RYa\",\n      \"balance\": {\n        \"available\": 9930,\n        \"current\": 2275.58\n      },\n      \"institution_type\": \"fake_institution\",\n      \"meta\": {\n        \"limit\": 12500,\n        \"name\": \"Plaid Credit Card\",\n        \"number\": \"3002\"\n      },\n      \"type\": \"credit\"\n    }\n  ],\n  \"transactions\": [\n    {\n      \"_account\": \"QPO8Jo8vdDHMepg41PBwckXm4KdK1yUdmXOwK\",\n      \"_id\": \"zq7MLAM4N3cjeKvXP9YqtBJXvZeajJCkjQakYv\",\n      \"amount\": -240,\n      \"date\": \"2014-06-02\",\n      \"name\": \"Online Transfer from Chk ...1702\",\n      \"meta\": {\n        \"location\": {}\n      },\n      \"pending\": false,\n      \"type\": {\n        \"primary\": \"special\"\n      },\n      \"category\": [\n        \"Transfer\",\n        \"Account Transfer\"\n      ],\n      \"category_id\": \"21001000\",\n      \"score\": {\n        \"location\": {},\n        \"name\": 1\n      }\n    },\n    {\n      \"_account\": \"QPO8Jo8vdDHMepg41PBwckXm4KdK1yUdmXOwK\",\n      \"_id\": \"eJXpMzpR65FP4RYno6yjhBDxgkM6pXC9RKM9o3\",\n      \"amount\": -3042.44,\n      \"date\": \"2014-03-27\",\n      \"name\": \"Company Payroll\",\n      \"meta\": {\n        \"location\": {}\n      },\n      \"pending\": false,\n      \"type\": {\n        \"primary\": \"special\"\n      },\n      \"category\": [\n        \"Transfer\",\n        \"Payroll\"\n      ],\n      \"category_id\": \"21009000\",\n      \"score\": {\n        \"location\": {},\n        \"name\": 1\n      }\n    }\n  ],\n  \"access_token\": \"test_bofa\"\n}",
+      "headers": {
+        "Content-Type": "application/json; charset=utf-8",
+        "Date": "Wed, 05 Oct 2016 16:12:53 GMT",
+        "Vary": "X-HTTP-Method-Override, Accept-Encoding",
+        "X-Request-Id": "130a0c0ef17e4d6fa3ea556b82fdd20c",
+        "Content-Length": "2910",
+        "Connection": "keep-alive"
+      },
+      "status_code": 200,
+      "type": "ok"
+    }
+  }
+]

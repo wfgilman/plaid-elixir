@@ -63,12 +63,12 @@ defmodule Plaid.Institutions do
   Returns long-tail institutions.
 
   Returns the universe of institutions supported through Plaid's partnerships.
-  Results are paginated. This endpoint requires authentication; uses credentials
-  supplied in configuration.
+  Results are paginated. This endpoint requires authentication. If credentials
+  are not supplied, credentials in the default configuration are used.
 
   Returns list of `Plaid.LongTailInstitutions` or `Plaid.Error` struct.
 
-  The `%Plaid.LongTailInstitutions{}` struct does not map all the data elements
+  The `Plaid.LongTailInstitutions` struct does not map all the data elements
   returned in the Plaid JSON response. The values ommitted are:
   * video
   * colors
@@ -77,33 +77,19 @@ defmodule Plaid.Institutions do
 
   ## Example
   ```
-  {:ok, [%Plaid.LongTailInstitutions{...}]} = Plaid.Institutions.long_tail(50, 0)
-  {:error, %Plaid.Error{...}} = Plaid.Institutions.long_tail(50, 0)
-  ```
-  Plaid API Reference: https://plaid.com/docs/api/#all-long-tail-institutions
-  """
-  @spec long_tail(integer, integer) :: {atom, list}
-  def long_tail(count, offset) do
-    long_tail count, offset, Plaid.config_or_env_cred()
-  end
-
-  @doc """
-  Returns long-tail institutions with user-supplied credentials.
-
-  ## Example
-  ```
   cred = %{client_id: "test_id", secret: "test_secret"}
 
+  {:ok, [%Plaid.LongTailInstitutions{...}]} = Plaid.Institutions.long_tail(50, 0)
   {:ok, [%Plaid.LongTailInstitutions{...}]} = Plaid.Institutions.long_tail(50, 0, cred)
   {:error, %Plaid.Error{...}} = Plaid.Institutions.long_tail(50, 0, cred)
   ```
   Plaid API Reference: https://plaid.com/docs/api/#all-long-tail-institutions
   """
   @spec long_tail(integer, integer, map) :: {atom, list}
-  def long_tail(count, offset, cred) do
+  def long_tail(count, offset, cred \\ nil) do
     endpoint = @endpoint <> "/longtail"
     params = %{count: count, offset: offset}
-    Plaid.make_request_with_cred(:post, endpoint, cred, params)
+    Plaid.make_request_with_cred(:post, endpoint, cred || Plaid.config_or_env_cred(), params)
     |> Utilities.handle_plaid_response(:long_tail)
   end
 
@@ -113,7 +99,7 @@ defmodule Plaid.Institutions do
   Returns the long-tail institution supported through Plaid's partnerships based
   on the id provided. This endpoint requires no authentication.
 
-  The `%Plaid.LongTailInstitutions{}` struct does not map all the data elements
+  The `Plaid.LongTailInstitutions` struct does not map all the data elements
   returned in the Plaid JSON response. The values ommitted are:
   * video
   * colors
@@ -145,7 +131,7 @@ defmodule Plaid.Institutions do
   match search and product parameter as options. This endpoint does not
   require authentication.
 
-  The `%Plaid.LongTailInstitutions{}` does not map all the data elements returned
+  The `Plaid.LongTailInstitutions` does not map all the data elements returned
   in the Plaid JSON response. The values ommitted are:
   * video
   * colors

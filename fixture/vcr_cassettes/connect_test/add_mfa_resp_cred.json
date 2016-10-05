@@ -1,0 +1,30 @@
+[
+  {
+    "request": {
+      "body": "client_id=test_id&list=true&options={\"webhook\":\"http://requestb.in/\",\"start_date\":\"2015-01-01\",\"pending\":false,\"login_only\":true,\"end_date\":\"2015-03-31\"}&password=plaid_good&secret=test_secret&type=bofa&username=plaid_test",
+      "headers": {
+        "Content-Type": "application/x-www-form-urlencoded"
+      },
+      "method": "post",
+      "options": {
+        "recv_timeout": 10000,
+        "connect_timeout": 10000
+      },
+      "request_body": "",
+      "url": "https://tartan.plaid.com/connect"
+    },
+    "response": {
+      "body": "{\n  \"type\": \"questions\",\n  \"mfa\": [\n    {\n      \"question\": \"You say tomato, I say...?\"\n    }\n  ],\n  \"access_token\": \"test_bofa\"\n}",
+      "headers": {
+        "Content-Type": "application/json; charset=utf-8",
+        "Date": "Wed, 05 Oct 2016 15:24:47 GMT",
+        "Vary": "X-HTTP-Method-Override, Accept-Encoding",
+        "X-Request-Id": "efe8af41431a4e12813296725d4666f0",
+        "Content-Length": "130",
+        "Connection": "keep-alive"
+      },
+      "status_code": 201,
+      "type": "ok"
+    }
+  }
+]

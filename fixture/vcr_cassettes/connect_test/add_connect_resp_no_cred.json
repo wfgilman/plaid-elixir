@@ -1,0 +1,30 @@
+[
+  {
+    "request": {
+      "body": "client_id=test_id&list=true&options={\"webhook\":\"http://requestb.in/\",\"start_date\":\"2015-01-01\",\"pending\":false,\"login_only\":true,\"end_date\":\"2015-03-31\"}&password=plaid_good&secret=test_secret&type=wells&username=plaid_test",
+      "headers": {
+        "Content-Type": "application/x-www-form-urlencoded"
+      },
+      "method": "post",
+      "options": {
+        "recv_timeout": 10000,
+        "connect_timeout": 10000
+      },
+      "request_body": "",
+      "url": "https://tartan.plaid.com/connect"
+    },
+    "response": {
+      "body": "{\n  \"accounts\": [\n    {\n      \"_id\": \"QPO8Jo8vdDHMepg41PBwckXm4KdK1yUdmXOwK\",\n      \"_item\": \"KdDjmojBERUKx3JkDd9RuxA5EvejA4SENO4AA\",\n      \"_user\": \"eJXpMzpR65FP4RYno6rzuA7OZjd9n3Hna0RYa\",\n      \"balance\": {\n        \"available\": 1203.42,\n        \"current\": 1274.93\n      },\n      \"institution_type\": \"fake_institution\",\n      \"meta\": {\n        \"name\": \"Plaid Savings\",\n        \"number\": \"9606\"\n      },\n      \"subtype\": \"savings\",\n      \"type\": \"depository\"\n    },\n    {\n      \"_id\": \"nban4wnPKEtnmEpaKzbYFYQvA7D7pnCaeDBMy\",\n      \"_item\": \"KdDjmojBERUKx3JkDd9RuxA5EvejA4SENO4AA\",\n      \"_user\": \"eJXpMzpR65FP4RYno6rzuA7OZjd9n3Hna0RYa\",\n      \"balance\": {\n        \"available\": 1081.78,\n        \"current\": 1253.32\n      },\n      \"institution_type\": \"fake_institution\",\n      \"meta\": {\n        \"name\": \"Plaid Checking\",\n        \"number\": \"1702\"\n      },\n      \"subtype\": \"checking\",\n      \"type\": \"depository\"\n    },\n    {\n      \"_id\": \"XARE85EJqKsjxLp6XR8ocg8VakrkXpTXmRdOo\",\n      \"_item\": \"KdDjmojBERUKx3JkDd9RuxA5EvejA4SENO4AA\",\n      \"_user\": \"eJXpMzpR65FP4RYno6rzuA7OZjd9n3Hna0RYa\",\n      \"balance\": {\n        \"available\": 7205.23,\n        \"current\": 7255.23\n      },\n      \"institution_type\": \"fake_institution\",\n      \"meta\": {\n        \"name\": \"Plaid Premier Checking\",\n        \"number\": \"5204\"\n      },\n      \"subtype\": \"checking\",\n      \"type\": \"depository\"\n    },\n    {\n      \"_id\": \"pJPM4LMBNQFrOwp0jqEyTwyxJQrQbgU6kq37k\",\n      \"_item\": \"KdDjmojBERUKx3JkDd9RuxA5EvejA4SENO4AA\",\n      \"_user\": \"eJXpMzpR65FP4RYno6rzuA7OZjd9n3Hna0RYa\",\n      \"balance\": {\n        \"available\": 9930,\n        \"current\": 2275.58\n      },\n      \"institution_type\": \"fake_institution\",\n      \"meta\": {\n        \"limit\": 12500,\n        \"name\": \"Plaid Credit Card\",\n        \"number\": \"3002\"\n      },\n      \"type\": \"credit\"\n    }\n  ],\n  \"access_token\": \"test_wells\"\n}",
+      "headers": {
+        "Content-Type": "application/json; charset=utf-8",
+        "Date": "Wed, 05 Oct 2016 15:20:34 GMT",
+        "Vary": "X-HTTP-Method-Override, Accept-Encoding",
+        "X-Request-Id": "b40f6e5ad1614210ac219f6bbaba9b0e",
+        "Content-Length": "1851",
+        "Connection": "keep-alive"
+      },
+      "status_code": 200,
+      "type": "ok"
+    }
+  }
+]

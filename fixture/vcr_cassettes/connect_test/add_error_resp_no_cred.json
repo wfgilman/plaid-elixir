@@ -1,0 +1,30 @@
+[
+  {
+    "request": {
+      "body": "client_id=test_id&password=plaid_bad&secret=test_secret&type=bofa&username=plaid_test",
+      "headers": {
+        "Content-Type": "application/x-www-form-urlencoded"
+      },
+      "method": "post",
+      "options": {
+        "recv_timeout": 10000,
+        "connect_timeout": 10000
+      },
+      "request_body": "",
+      "url": "https://tartan.plaid.com/connect"
+    },
+    "response": {
+      "body": "{\n  \"code\": 1200,\n  \"message\": \"invalid credentials\",\n  \"resolve\": \"The username or password provided were not correct.\"\n}",
+      "headers": {
+        "Content-Type": "application/json; charset=utf-8",
+        "Date": "Wed, 05 Oct 2016 15:24:46 GMT",
+        "Vary": "X-HTTP-Method-Override, Accept-Encoding",
+        "X-Request-Id": "05c9a53cf91e47ef8938db0672e41913",
+        "Content-Length": "122",
+        "Connection": "keep-alive"
+      },
+      "status_code": 402,
+      "type": "ok"
+    }
+  }
+]

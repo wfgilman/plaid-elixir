@@ -1,0 +1,30 @@
+[
+  {
+    "request": {
+      "body": "access_token=test_bofa&client_id=test_id&secret=test_secret",
+      "headers": {
+        "Content-Type": "application/x-www-form-urlencoded"
+      },
+      "method": "delete",
+      "options": {
+        "recv_timeout": 10000,
+        "connect_timeout": 10000
+      },
+      "request_body": "",
+      "url": "https://tartan.plaid.com/connect"
+    },
+    "response": {
+      "body": "{\n  \"message\": \"Successfully removed from your account\"\n}",
+      "headers": {
+        "Content-Type": "application/json; charset=utf-8",
+        "Date": "Wed, 05 Oct 2016 16:20:56 GMT",
+        "Vary": "Accept-Encoding",
+        "X-Request-Id": "3d22777fa8964cd3a20fe9356ec6c245",
+        "Content-Length": "57",
+        "Connection": "keep-alive"
+      },
+      "status_code": 200,
+      "type": "ok"
+    }
+  }
+]

@@ -1,0 +1,30 @@
+[
+  {
+    "request": {
+      "body": "client_id=foo&list=true&options={\"webhook\":\"http://requestb.in/\",\"start_date\":\"2015-01-01\",\"pending\":false,\"login_only\":true,\"end_date\":\"2015-03-31\"}&password=plaid_good&secret=bar&type=bofa&username=plaid_test",
+      "headers": {
+        "Content-Type": "application/x-www-form-urlencoded"
+      },
+      "method": "post",
+      "options": {
+        "recv_timeout": 10000,
+        "connect_timeout": 10000
+      },
+      "request_body": "",
+      "url": "https://tartan.plaid.com/connect"
+    },
+    "response": {
+      "body": "{\n  \"code\": 1102,\n  \"message\": \"secret or client_id invalid\",\n  \"resolve\": \"The Client ID does not exist or the Secret does not match the Client ID you provided.\"\n}",
+      "headers": {
+        "Content-Type": "application/json; charset=utf-8",
+        "Date": "Wed, 05 Oct 2016 15:24:47 GMT",
+        "Vary": "X-HTTP-Method-Override, Accept-Encoding",
+        "X-Request-Id": "6f7cecd42e0c44c4b9cf110a09ec0c71",
+        "Content-Length": "164",
+        "Connection": "keep-alive"
+      },
+      "status_code": 401,
+      "type": "ok"
+    }
+  }
+]

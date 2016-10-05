@@ -7,7 +7,7 @@ defmodule Plaid.Mixfile do
 
   def project do
     [app: :plaid,
-     version: "0.2.0",
+     version: "0.3.0",
      description: @description,
      package: package(),
      elixir: "~> 1.3",

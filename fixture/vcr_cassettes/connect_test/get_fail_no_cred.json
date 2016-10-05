@@ -1,0 +1,30 @@
+[
+  {
+    "request": {
+      "body": "access_token=bad_token&client_id=test_id&options={\"pending\":false,\"lte\":\"2016-01-01\",\"gte\":\"2012-01-01\",\"account\":\"QPO8Jo8vdDHMepg41PBwckXm4KdK1yUdmXOwK\"}&secret=test_secret",
+      "headers": {
+        "Content-Type": "application/x-www-form-urlencoded"
+      },
+      "method": "post",
+      "options": {
+        "recv_timeout": 10000,
+        "connect_timeout": 10000
+      },
+      "request_body": "",
+      "url": "https://tartan.plaid.com/connect/get"
+    },
+    "response": {
+      "body": "{\n  \"code\": 1105,\n  \"message\": \"bad access_token\",\n  \"resolve\": \"This access_token appears to be corrupted.\",\n  \"access_token\": \"bad_token\"\n}",
+      "headers": {
+        "Content-Type": "application/json; charset=utf-8",
+        "Date": "Wed, 05 Oct 2016 16:12:52 GMT",
+        "Vary": "X-HTTP-Method-Override, Accept-Encoding",
+        "X-Request-Id": "607081c33dfb4cd99099ca1aff2fb86c",
+        "Content-Length": "141",
+        "Connection": "keep-alive"
+      },
+      "status_code": 401,
+      "type": "ok"
+    }
+  }
+]

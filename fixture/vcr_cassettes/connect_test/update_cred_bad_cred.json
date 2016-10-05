@@ -1,0 +1,30 @@
+[
+  {
+    "request": {
+      "body": "access_token=test_bofa&client_id=foo&password=plaid_good&secret=bar&username=plaid_test",
+      "headers": {
+        "Content-Type": "application/x-www-form-urlencoded"
+      },
+      "method": "patch",
+      "options": {
+        "recv_timeout": 10000,
+        "connect_timeout": 10000
+      },
+      "request_body": "",
+      "url": "https://tartan.plaid.com/connect"
+    },
+    "response": {
+      "body": "{\n  \"code\": 1102,\n  \"message\": \"secret or client_id invalid\",\n  \"resolve\": \"The Client ID does not exist or the Secret does not match the Client ID you provided.\"\n}",
+      "headers": {
+        "Content-Type": "application/json; charset=utf-8",
+        "Date": "Wed, 05 Oct 2016 17:29:46 GMT",
+        "Vary": "Accept-Encoding",
+        "X-Request-Id": "54733b65bbee4d0b867b97364a2f1c0e",
+        "Content-Length": "164",
+        "Connection": "keep-alive"
+      },
+      "status_code": 401,
+      "type": "ok"
+    }
+  }
+]

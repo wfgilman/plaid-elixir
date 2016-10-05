@@ -1,0 +1,30 @@
+[
+  {
+    "request": {
+      "body": "access_token=test_chase&client_id=test_id&options={\"send_method\":{\"type\":\"phone\"}}&secret=test_secret",
+      "headers": {
+        "Content-Type": "application/x-www-form-urlencoded"
+      },
+      "method": "post",
+      "options": {
+        "recv_timeout": 10000,
+        "connect_timeout": 10000
+      },
+      "request_body": "",
+      "url": "https://tartan.plaid.com/connect/step"
+    },
+    "response": {
+      "body": "{\n  \"type\": \"device\",\n  \"mfa\": {\n    \"message\": \"Code sent to xxx-xxx-5309\"\n  },\n  \"access_token\": \"test_chase\"\n}",
+      "headers": {
+        "Content-Type": "application/json; charset=utf-8",
+        "Date": "Wed, 05 Oct 2016 15:57:27 GMT",
+        "Vary": "X-HTTP-Method-Override, Accept-Encoding",
+        "X-Request-Id": "d548f9253f5c49d080f69f60182a5c12",
+        "Content-Length": "113",
+        "Connection": "keep-alive"
+      },
+      "status_code": 201,
+      "type": "ok"
+    }
+  }
+]

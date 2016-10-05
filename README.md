@@ -17,7 +17,7 @@ Plaid products supported by this library:
 
 Documentation is available on [Hex](https://hexdocs.pm/plaid_elixir/0.1.0).
 
-The architecture of this product is largely inspired (if not copied :flushed:) by Rob Conery's [stripity-stripe](https://github.com/robconery/stripity-stripe) - it's an awesome project.
+The architecture of this product is largely inspired by Rob Conery's [stripity-stripe](https://github.com/robconery/stripity-stripe) - it's an awesome project.
 
 ## Installation
 
@@ -74,14 +74,14 @@ Each function in the module performs a specific action available in the product.
 For example:
 
 * Token
- * [Exchange Token](https://plaid.com/docs/quickstart/#-exchange_token-endpoint): `Plaid.Token.exchange/1`
+ * [Exchange Token](https://plaid.com/docs/quickstart/#-exchange_token-endpoint): `Plaid.Token.exchange/2`
 
 * Connect
- * [Add Connect User](https://plaid.com/docs/api/#add-connect-user): `Plaid.Connect.add/1`
- * [Connect MFA](https://plaid.com/docs/api/#connect-mfa): `Plaid.Connect.mfa/1`
- * [Get Transactions](https://plaid.com/docs/api/#get-transactions): `Plaid.Connect.get/1`
- * [Update Connect User](https://plaid.com/docs/api/#update-connect-user): `Plaid.Connect.update/1`
- * [Delete Connect User](https://plaid.com/docs/api/#delete-connect-user): `Plaid.Connect.delete/1`
+ * [Add Connect User](https://plaid.com/docs/api/#add-connect-user): `Plaid.Connect.add/2`
+ * [Connect MFA](https://plaid.com/docs/api/#connect-mfa): `Plaid.Connect.mfa/2`
+ * [Get Transactions](https://plaid.com/docs/api/#get-transactions): `Plaid.Connect.get/2`
+ * [Update Connect User](https://plaid.com/docs/api/#update-connect-user): `Plaid.Connect.update/2`
+ * [Delete Connect User](https://plaid.com/docs/api/#delete-connect-user): `Plaid.Connect.delete/2`
 
 The response from Plaid is highly determined by the parameters submitted. Please read
 the [Plaid API documentation](https://plaid.com/docs/api) and Hex docs closely.

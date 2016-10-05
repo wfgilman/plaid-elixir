@@ -20,7 +20,7 @@ defmodule Plaid.Categories do
   Returns all Plaid categories.
 
   Returns the universe of Plaid categories in it's current state. Category
-  taxnomy is updated periodically, so caching the data locally is useful.
+  taxnomy is updated periodically, so refreshing data cached locally is useful.
 
   Returns a list of `Plaid.Categories` or `Plaid.Error` struct.
 

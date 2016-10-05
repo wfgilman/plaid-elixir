@@ -8,7 +8,7 @@ defmodule Plaid.Token do
 
   Plaid API Reference: https://plaid.com/docs/quickstart/#-exchange_token-endpoint
 
-  * TO-DO: incorporate account `_id` in payload.
+  * TODO: incorporate account `_id` in payload.
   """
 
   alias Plaid.Utilities
@@ -27,7 +27,7 @@ defmodule Plaid.Token do
 
   Args
   * `params`  - `map` or `string `  - req - public token or Payload
-  * `cred`    - `map`               - opt - Credentials
+  * `cred`    - `map`               - opt - Plaid credentials
 
   Payload
   * `public_token` - `string` - req - Public token returned from Plaid Link
