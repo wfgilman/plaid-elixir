@@ -12,19 +12,7 @@ defmodule Plaid.Institutions do
 
   alias Plaid.Utilities
 
-  use Ecto.Schema
-
-  @primary_key false
-
-  embedded_schema do
-    embeds_one :credentials, Plaid.Institutions.Credentials
-    field :has_mfa, :boolean
-    field :id, :string
-    field :mfa, {:array, :string}
-    field :name, :string
-    field :products, {:array, :string}
-    field :type, :string
-  end
+  defstruct [:credentials, :has_mfa, :id, :mfa, :name, :product, :type]
 
   @endpoint "institutions"
 
@@ -191,13 +179,5 @@ end
 
 defmodule Plaid.Institutions.Credentials do
   @moduledoc false
-  use Ecto.Schema
-
-  @primary_key false
-
-  embedded_schema do
-    field :username, :string
-    field :password, :string
-    field :pin, :string
-  end
+  defstruct [:username, :password, :pin]
 end

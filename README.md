@@ -115,10 +115,8 @@ Plaid responses are in JSON format. Responses are explicitly defined as structs
 in this library for consistency and to avoid issues with dynamically converting
 keys to atoms.
 
-This library uses [Ecto.Schema](https://hexdocs.pm/ecto/Ecto.Schema.html) to model
-the nested data structures in the JSON responses. Modules related to modeling the
-JSON data structures are in the `/schemas` folder in the application with the
-exception of the Categories and Institutions products.
+Modules related to modeling the JSON data structures are in the `/schemas` folder
+in the application with the exception of the Categories and Institutions products.
 
 ## Contributions
 

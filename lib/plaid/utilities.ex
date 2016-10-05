@@ -3,14 +3,13 @@ defmodule Plaid.Utilities do
   Utility functions for Plaid.
   """
 
-  alias Plaid.{Account, Connect, Error, Institutions, LongTailInstitutions,
-              Message, Mask, Question, Transaction, TransactionType, Token}
+  alias Plaid.{Account, Connect, Error, Institutions, LongTailInstitutions, Mfa,
+              Message, Transaction, TransactionType, Token}
   alias Plaid.Account.Balance, as: AccountBalance
   alias Plaid.Account.Meta, as: AccountMeta
   alias Plaid.Institutions.Credentials, as: InstitutionsCredentials
   alias Plaid.LongTailInstitutions.Fields, as: LongTailInstitutionsFields
   alias Plaid.LongTailInstitutions.Products, as: LongTailInstitutionsProducts
-  alias Plaid.Mfa.Message, as: MfaMessage
   alias Plaid.Mfa.Question, as: MfaQuestion
   alias Plaid.Mfa.Mask, as: MfaMask
   alias Plaid.Transaction.Meta, as: TransactionMeta
@@ -160,15 +159,15 @@ defmodule Plaid.Utilities do
   end
 
   defp map_mfa_question(body) do
-    Poison.decode!(body, as: %MfaQuestion{mfa: [%Question{}]})
+    Poison.decode!(body, as: %Mfa{mfa: [%MfaQuestion{}]})
   end
 
   defp map_mfa_mask(body) do
-    Poison.decode!(body, as: %MfaMask{mfa: [%Mask{}]})
+    Poison.decode!(body, as: %Mfa{mfa: [%MfaMask{}]})
   end
 
   defp map_mfa_message(body) do
-    Poison.decode!(body, as: %MfaMessage{mfa: %Message{}})
+    Poison.decode!(body, as: %Mfa{mfa: %Message{}})
   end
 
   defp map_message(body) do

@@ -33,7 +33,6 @@ defmodule Plaid.Mixfile do
   defp deps do
     [
      {:httpoison, "~> 0.9.0"},
-     {:ecto, "~> 2.0.0"},
      {:poison, "~> 2.0"},
      {:exvcr, "~> 0.7", only: :test},
      {:ex_doc, "~> 0.13", only: :dev},
