@@ -46,7 +46,7 @@ or using the publicly available ones: `CLIENT_ID: "test_id"` and `SECRET: "test_
 use Mix.Config
 
 config :plaid, client_id: "YOUR_CLIENT_ID"
-config :plaid, client_id: "YOUR_SECRET"
+config :plaid, secret: "YOUR_SECRET"
 config :plaid, root_uri: "https://tartan.plaid.com/"
 ```
 Developer keys can also be set in the System environment, although the application will
