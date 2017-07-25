@@ -10,9 +10,9 @@ defmodule Plaid do
   The environment variables for `PLAID_CLIENT_ID` and `PLAID_SECRET` will be used
   if no variables are configured.
   ```
-  config :plaid, client_id: "YOUR_CLIENT_ID"
-  config :plaid, secret: "YOUR_SECRET"
-  config :plaid, root_uri: "DEV_OR_PROD_URI"
+  config :plaid_elixir, client_id: "YOUR_CLIENT_ID"
+  config :plaid_elixir, secret: "YOUR_SECRET"
+  config :plaid_elixir, root_uri: "DEV_OR_PROD_URI"
   ```
   """
 
@@ -24,11 +24,11 @@ defmodule Plaid do
     defexception message: """
     The secret is required for all calls to Plaid. Please configure secret
     in your config.exs and environment specific config files.
-    config :plaid, secret: YOUR_SECRET
+    config :plaid_elixir, secret: YOUR_SECRET
 
     If you haven't registered with Plaid for a secret, you can still test
     the API with the following test credentials:
-    config: :plaid, secret: "plaid_good"
+    config: :plaid_elixir, secret: "plaid_good"
     """
   end
 
@@ -36,11 +36,11 @@ defmodule Plaid do
     defexception message: """
     The client_id is required for all call to Plaid. Please configure client_id
     in your config.exs and environment specific config files.
-    config :plaid, client_id: YOUR_CLIENT_ID
+    config :plaid_elixir, client_id: YOUR_CLIENT_ID
 
     If you haven't registered with Plaid for a client_id, you can still test
     the API with the following test credentials:
-    config: :plaid, client_id: "plaid_test"
+    config: :plaid_elixir, client_id: "plaid_test"
     """
   end
 
@@ -49,8 +49,8 @@ defmodule Plaid do
     The root_uri is required to specify the Plaid environment to which you are
     making calls, i.e. development or production. Please configure root_uri in
     your config.exs file.
-    config :plaid, root_uri: "https://tartan.plaid.com/" (development)
-    config :plaid, root_uri: "https://api.plaid.com/" (production)
+    config :plaid_elixir, root_uri: "https://tartan.plaid.com/" (development)
+    config :plaid_elixir, root_uri: "https://api.plaid.com/" (production)
     """
   end
 
@@ -79,7 +79,7 @@ defmodule Plaid do
   """
   def request_headers() do
     Map.new
-    |> Map.put("Content-Type", "application/x-www-form-urlencoded")
+    |> Map.put("Content-Type", "application/json")
   end
 
   @doc """
@@ -114,9 +114,20 @@ defmodule Plaid do
   """
   @spec make_request_with_cred(atom, binary, map, map, map, list) :: tuple
   def make_request_with_cred(method, endpoint, cred, body \\ %{}, headers \\ %{}, options \\ []) do
-    rb = Utilities.encode_params(body, cred)
+
+    rb = if (method == :post) do
+      {:ok, body} = body
+        |> Map.merge(cred)
+        |> Utilities.stringify_keys()
+        |> Poison.encode()
+      body
+    else
+      Utilities.encode_params(body, cred)
+    end
+
     rh = request_headers() |> Map.merge(headers) |> Map.to_list
     options = httpoison_request_options() ++ options
+
     case request(method, endpoint, rb, rh, options) do
       {:ok, response} ->
         response
@@ -125,10 +136,9 @@ defmodule Plaid do
     end
   end
 
-
   defp require_plaid_credentials() do
-    client_id = Application.get_env(:plaid, :client_id, System.get_env("PLAID_CLIENT_ID")) || :not_found
-    secret = Application.get_env(:plaid, :secret, System.get_env("PLAID_SECRET")) || :not_found
+    client_id = Application.get_env(:plaid_elixir, :client_id, System.get_env("PLAID_CLIENT_ID")) || :not_found
+    secret = Application.get_env(:plaid_elixir, :secret, System.get_env("PLAID_SECRET")) || :not_found
     case {client_id, secret} do
       {:not_found, _} ->
         raise MissingClientIdError
@@ -140,7 +150,7 @@ defmodule Plaid do
   end
 
   defp require_root_uri() do
-    case Application.get_env(:plaid, :root_uri) || :not_found do
+    case Application.get_env(:plaid_elixir, :root_uri) || :not_found do
       :not_found ->
         raise MissingRootUriError
       value ->
@@ -149,6 +159,6 @@ defmodule Plaid do
   end
 
   defp httpoison_request_options() do
-    Application.get_env(:plaid, :httpoison_options, [])
+    Application.get_env(:plaid_elixir, :httpoison_options, [])
   end
 end

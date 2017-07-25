@@ -15,7 +15,7 @@ defmodule Plaid.Token do
 
   defstruct [:access_token, :sandbox]
 
-  @endpoint "exchange_token"
+  @endpoint "item/public_token/exchange"
 
   @doc """
   Exchanges a public token for an access token.
@@ -52,6 +52,7 @@ defmodule Plaid.Token do
         true ->
           params
       end
+
     Plaid.make_request_with_cred(:post, @endpoint, cred || Plaid.config_or_env_cred(), params)
     |> Utilities.handle_plaid_response(:token)
   end
