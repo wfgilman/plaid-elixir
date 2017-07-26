@@ -72,6 +72,16 @@ defmodule Plaid.Utilities do
     end
   end
 
+  @doc """
+  Transforms %{a: 2} into %{"a" => 2}
+  """
+  @spec stringify_keys(map) :: map
+  def stringify_keys(map) do
+    map
+    |> Enum.map(fn {k, v} -> {Atom.to_string(k), v} end)
+    |> Enum.into(%{})
+  end
+
 
   # Maps the HTTP response body to the corresponding schema based on the schema
   # and HTTP response body format.

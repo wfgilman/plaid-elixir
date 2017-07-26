@@ -1,9 +1,9 @@
 [
   {
     "request": {
-      "body": "client_id=foo&public_token=test%2Cbofa%2Cconnected&secret=bar",
+      "body": "{\"secret\":\"foo\",\"public_token\":\"test\",\"client_id\":\"bar\"}",
       "headers": {
-        "Content-Type": "application/x-www-form-urlencoded"
+        "Content-Type": "application/json"
       },
       "method": "post",
       "options": {
@@ -11,7 +11,7 @@
         "connect_timeout": 10000
       },
       "request_body": "",
-      "url": "https://tartan.plaid.com/exchange_token"
+      "url": "https://tartan.plaid.com/item/public_token/exchange"
     },
     "response": {
       "body": "{\n  \"code\": 1102,\n  \"message\": \"secret or client_id invalid\",\n  \"resolve\": \"The Client ID does not exist or the Secret does not match the Client ID you provided.\"\n}",

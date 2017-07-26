@@ -1,9 +1,9 @@
 [
   {
     "request": {
-      "body": "client_id=test_id&public_token=test%2Cbofa%2Cconnected&secret=test_secret",
+      "body": "{\"secret\":\"test_secret\",\"public_token\":\"test%2Cbofa%2Cconnected\",\"client_id\":\"test_id\"}",
       "headers": {
-        "Content-Type": "application/x-www-form-urlencoded"
+        "Content-Type": "application/json"
       },
       "method": "post",
       "options": {
@@ -11,7 +11,7 @@
         "connect_timeout": 10000
       },
       "request_body": "",
-      "url": "https://tartan.plaid.com/exchange_token"
+      "url": "https://tartan.plaid.com/item/public_token/exchange"
     },
     "response": {
       "body": "{\n  \"sandbox\": true,\n  \"access_token\": \"test_bofa\"\n}",
