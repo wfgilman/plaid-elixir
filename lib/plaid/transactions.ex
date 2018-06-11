@@ -73,8 +73,7 @@ defmodule Plaid.Transactions do
              end_date: "2017-03-31", options: %{count: 20, offset: 0}}
   ```
   """
-  @spec get(map, map | nil) ::
-    {:ok, Plaid.Transactions.t} | {:error, Plaid.Error.t}
+  @spec get(map, map | nil) :: {:ok, Plaid.Transactions.t} | {:error, Plaid.Error.t}
   def get(params, cred \\ get_cred()) do
     endpoint = "#{@endpoint}/get"
     make_request_with_cred(:post, endpoint, cred, params)

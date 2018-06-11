@@ -10,7 +10,7 @@ defmodule Plaid do
   defmodule MissingSecretError do
     defexception message: """
     The secret is required for all calls to Plaid. Please configure secret
-    in your environment variable.
+    in your environment variable or the environment specific config file.
     $export PLAID_SECRET="your_secret"
     """
   end
@@ -18,7 +18,7 @@ defmodule Plaid do
   defmodule MissingClientIdError do
     defexception message: """
     The client_id is required for all call to Plaid. Please configure client_id
-    in your environment variable.
+    in your environment variable or the environment specific config file.
     $export PLAID_CLIENT_ID="your_client_id"
     """
   end
@@ -26,7 +26,7 @@ defmodule Plaid do
   defmodule MissingPublicKeyError do
     defexception message: """
     The public_key is required for some unauthenticated endpoints. Please
-    configure public_key in your environment variable.
+    configure public_key in your environment variable or the environment specific config file.
     $export PLAID_PUBLIC_KEY="your_public_key"
     """
   end
@@ -59,22 +59,20 @@ defmodule Plaid do
   end
 
   @doc """
-  Makes request without credentials. Raises on failure.
+  Makes request without credentials.
   """
   @spec make_request(atom, String.t, map, map, Keyword.t) ::
     HTTPoison.Response.t | no_return
-  def make_request(method, endpoint, body \\ %{}, headers \\ %{},
-                                                    options \\ []) do
+  def make_request(method, endpoint, body \\ %{}, headers \\ %{}, options \\ []) do
     make_request_with_cred(method, endpoint, %{}, body, headers, options)
   end
 
   @doc """
-  Makes request with credentials. Raises on failure.
+  Makes request with credentials.
   """
   @spec make_request_with_cred(atom, String.t, map, map, map, Keyword.t) ::
     {:ok, HTTPoison.Response.t} | {:error, HTTPoison.Error.t}
-  def make_request_with_cred(method, endpoint, cred, body \\ %{},
-                                      headers \\ %{}, options \\ []) do
+  def make_request_with_cred(method, endpoint, cred, body \\ %{}, headers \\ %{}, options \\ []) do
     rb = Map.merge(body, cred) |> Poison.encode!()
     rh = get_request_headers() |> Map.merge(headers) |> Map.to_list()
     options = httpoison_request_options() ++ options

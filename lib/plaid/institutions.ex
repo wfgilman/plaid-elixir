@@ -40,8 +40,7 @@ defmodule Plaid.Institutions do
 
   `params = %{count: 50, offset: 0}`
   """
-  @spec get(map, map | nil) ::
-    {:ok, Plaid.Institutions.t} | {:error, Plaid.Error.t}
+  @spec get(map, map | nil) :: {:ok, Plaid.Institutions.t} | {:error, Plaid.Error.t}
   def get(params, cred \\ get_cred()) do
     endpoint = "#{@endpoint}/get"
     make_request_with_cred(:post, endpoint, cred, params)
@@ -51,8 +50,7 @@ defmodule Plaid.Institutions do
   @doc """
   Gets an institution by id.
   """
-  @spec get_by_id(String.t, map | nil) ::
-    {:ok, Plaid.Institutions.Institution.t} | {:error, Plaid.Error.t}
+  @spec get_by_id(String.t, map | nil) :: {:ok, Plaid.Institutions.Institution.t} | {:error, Plaid.Error.t}
   def get_by_id(id, key \\ get_key()) do
     params = %{institution_id: id}
     endpoint = "#{@endpoint}/get_by_id"
@@ -65,8 +63,7 @@ defmodule Plaid.Institutions do
 
   `params = %{query: "Wells", products: ["transactions"]}`
   """
-  @spec search(map, map | nil) ::
-    {:ok, Plaid.Institutions.t} | {:error, Plaid.Error.t}
+  @spec search(map, map | nil) :: {:ok, Plaid.Institutions.t} | {:error, Plaid.Error.t}
   def search(params, key \\ get_key()) do
     endpoint = "#{@endpoint}/search"
     make_request_with_cred(:post, endpoint, key, params)

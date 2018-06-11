@@ -7,18 +7,11 @@ defmodule Plaid.Mixfile do
 
   def project do
     [app: :plaid,
-     version: "0.1.0",
-     build_path: "../../_build",
-     config_path: "../../config/config.exs",
-     deps_path: "../../deps",
-     lockfile: "../../mix.lock",
+     version: "1.0.0",
      description: @description,
      elixir: "~> 1.5",
      elixirc_paths: elixirc_paths(Mix.env),
-     build_embedded: Mix.env in [:prod, :sandbox],
-     start_permanent: Mix.env in [:prod, :sandbox],
      deps: deps(),
-     dialyzer: [plt_add_deps: false],
      test_coverage: [tool: ExCoveralls],
      preferred_cli_env: ["coveralls": :test, "coveralls.detail": :test]
     ]
@@ -36,7 +29,18 @@ defmodule Plaid.Mixfile do
       {:httpoison, "~> 0.13"},
       {:poison, "~> 3.0"},
       {:bypass, "~> 0.8", only: [:test]},
-      {:common, in_umbrella: true}
+      {:credo, "~> 0.5", only: [:dev], runtime: false},
+      {:excoveralls, "~> 0.6", only: [:test]}
+    ]
+  end
+
+  defp package do
+    [
+      name: :plaid_elixir,
+      files: ["lib", "mix.exs", "README*", "LICENSE*"],
+      licenses: ["MIT"],
+      maintainers: ["Will Gilman"],
+      links: %{"Github" => "https://github.com/wfgilman/plaid-elixir"}
     ]
   end
 end

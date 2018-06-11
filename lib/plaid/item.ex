@@ -38,8 +38,7 @@ defmodule Plaid.Item do
 
   `params = %{public_token: "public-env-identifier"}`
   """
-  @spec exchange_public_token(map, map | nil) ::
-    {:ok, map} | {:error, Plaid.Error.t}
+  @spec exchange_public_token(map, map | nil) :: {:ok, map} | {:error, Plaid.Error.t}
   def exchange_public_token(params, cred \\ get_cred()) do
     endpoint = "#{@endpoint}/public_token/exchange"
     make_request_with_cred(:post, endpoint, cred, params)
@@ -51,8 +50,7 @@ defmodule Plaid.Item do
 
   `params = %{access_token: "access-env-identifier"}`
   """
-  @spec create_public_token(map, map | nil) ::
-    {:ok, map} | {:error, Plaid.Error.t}
+  @spec create_public_token(map, map | nil) :: {:ok, map} | {:error, Plaid.Error.t}
   def create_public_token(params, cred \\ get_cred()) do
     endpoint = "#{@endpoint}/public_token/create"
     make_request_with_cred(:post, endpoint, cred, params)
@@ -64,8 +62,7 @@ defmodule Plaid.Item do
 
   `params = %{access_webhook: "access-env-identifier", webhook: "http://mywebsite/api"}`
   """
-  @spec update_webhook(map, map | nil) ::
-    {:ok, Plaid.Item.t} | {:error, Plaid.Error.t}
+  @spec update_webhook(map, map | nil) :: {:ok, Plaid.Item.t} | {:error, Plaid.Error.t}
   def update_webhook(params, cred \\ get_cred()) do
     endpoint = "#{@endpoint}/webhook/update"
     make_request_with_cred(:post, endpoint, cred, params)
@@ -77,8 +74,7 @@ defmodule Plaid.Item do
 
   `params = %{access_token: "access-env-identifier"}`
   """
-  @spec rotate_access_token(map, map | nil) ::
-    {:ok, map} | {:error, Plaid.Error.t}
+  @spec rotate_access_token(map, map | nil) :: {:ok, map} | {:error, Plaid.Error.t}
   def rotate_access_token(params, cred \\ get_cred()) do
     endpoint = "#{@endpoint}/access_token/invalidate"
     make_request_with_cred(:post, endpoint, cred, params)
@@ -90,8 +86,7 @@ defmodule Plaid.Item do
 
   `params = %{access_token_v1: "test_wells"}`
   """
-  @spec update_version_access_token(map, map | nil) ::
-    {:ok, map} | {:error, Plaid.Error.t}
+  @spec update_version_access_token(map, map | nil) :: {:ok, map} | {:error, Plaid.Error.t}
   def update_version_access_token(params, cred \\ get_cred()) do
     endpoint = "#{@endpoint}/access_token/update_version"
     make_request_with_cred(:post, endpoint, cred, params)

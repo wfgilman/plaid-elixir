@@ -1,22 +1,34 @@
 # Plaid
 
-Elixir library for Plaid.
+Elixir library for Plaid's V2 API.
 
-## Installation
+Supported Plaid products:
+- [x] Transactions
+- [x] Auth
+- [ ] Identity
+- [x] Balance
+- [ ] Income
+- [ ] Assets
 
-Plaid is an application within an umbrella application. It can be added as a
-dependency as follows:
+## Usage
+
+Add to your dependencies in `mix.exs`.
 
 ```elixir
 def deps do
-  [{:plaid, in_umbrella: true}]
+  [{:plaid, "~> 1.0"}]
 end
 ```
 
 ## Configuration
 
-The following environment variables must be set for Plaid to run outside of
-testing: `PLAID_CLIENT_ID`, `PLAID_SECRET`, `PLAID_PUBLIC_KEY`.
+The following variables must be set for Plaid to run outside of testing:
+`client_id`, `secret` and `public_key`.
+
+You can set these in the config files directly, or export them as environment
+variables: `PLAID_CLIENT_ID`, `PLAID_SECRET`, `PLAID_PUBLIC_KEY`.
+
+If exported, they will override the values in the config files.
 
 ## Tests and Style
 
@@ -24,9 +36,14 @@ Plaid uses [bypass](https://github.com/PSPDFKit-labs/bypass) to simulate HTTP re
 
 Run tests using `mix test`.
 
-Before making pull requests, run the coverage, style and typespec checks.
+Before making pull requests, run the coverage and style checks.
 ```elixir
 mix coveralls
 mix credo
-mix dialyzer
 ```
+
+## Support
+
+I shut down the company I was using this library in production for, so I've got
+a little more time to make this a robust library. Hit me up with any bugs or
+feature requests.
