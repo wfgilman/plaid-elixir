@@ -26,9 +26,8 @@ The following variables must be set for Plaid to run outside of testing:
 `client_id`, `secret` and `public_key`.
 
 You can set these in the config files directly, or export them as environment
-variables: `PLAID_CLIENT_ID`, `PLAID_SECRET`, `PLAID_PUBLIC_KEY`.
-
-If exported, they will override the values in the config files.
+variables: `PLAID_CLIENT_ID`, `PLAID_SECRET`, `PLAID_PUBLIC_KEY`. If exported,
+they will override the values in the config files.
 
 ## Tests and Style
 
