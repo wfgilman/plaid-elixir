@@ -25,16 +25,28 @@ end
 
 ## Configuration
 
-The following variables must be set for Plaid to run outside of testing:
-`client_id`, `secret` and `public_key`.
+All calls to Plaid require either your client id and secret, or public key. Add the
+following configuration to your project to set the values.
 
-You can set these in the config files directly, or export them as environment
-variables: `PLAID_CLIENT_ID`, `PLAID_SECRET`, `PLAID_PUBLIC_KEY`. If exported,
-they will override the values in the config files.
+```elixir
+config :plaid,
+  root_uri: "https://development.plaid.com/"
+  client_id: "your_client_id",
+  secret: "your_secret",
+  public_key: "your_public_key",
+  httpoison_options: [timeout: 10_000, recv_timeout: 30_000]
+```
+
+By default, `root_uri` is set by `mix` environment. You can override it in your config.
+- `dev` - development.plaid.com
+- `prod`- production.plaid.com
+
+Finally, you can pass in custom configuration for [HTTPoison](https://github.com/edgurgel/httpoison). It's recommended you
+extend the receive timeout for Plaid, especially for retrieving historical transactions.
 
 ## Tests and Style
 
-Plaid uses [bypass](https://github.com/PSPDFKit-labs/bypass) to simulate HTTP responses from Plaid.
+This library uses [bypass](https://github.com/PSPDFKit-labs/bypass) to simulate HTTP responses from Plaid.
 
 Run tests using `mix test`.
 

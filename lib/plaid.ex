@@ -9,33 +9,37 @@ defmodule Plaid do
 
   defmodule MissingSecretError do
     defexception message: """
-    The secret is required for all calls to Plaid. Please configure secret
-    in your environment variable or the environment specific config file.
-    $export PLAID_SECRET="your_secret"
+    The secret is required for calls to Plaid. Please configure secret
+    in your config.exs file.
+
+    config :plaid, client_id: "your_client_id"
     """
   end
 
   defmodule MissingClientIdError do
     defexception message: """
-    The client_id is required for all call to Plaid. Please configure client_id
-    in your environment variable or the environment specific config file.
-    $export PLAID_CLIENT_ID="your_client_id"
+    The client_id is required for calls to Plaid. Please configure client_id
+    in your config.exs file.
+
+    config :plaid, secret: "your_secret"
     """
   end
 
   defmodule MissingPublicKeyError do
     defexception message: """
     The public_key is required for some unauthenticated endpoints. Please
-    configure public_key in your environment variable or the environment specific config file.
-    $export PLAID_PUBLIC_KEY="your_public_key"
+    configure public_key in your config.exs.
+
+    config :plaid, public_key: "your_public_key"
     """
   end
 
   defmodule MissingRootUriError do
     defexception message: """
     The root_uri is required to specify the Plaid environment to which you are
-    making calls, i.e. development or production. Please configure root_uri in
+    making calls, i.e. sandbox, development or production. Please configure root_uri in
     your config.exs file.
+
     config :plaid, root_uri: "https://sandbox.plaid.com/" (test)
     config :plaid, root_uri: "https://development.plaid.com/" (development)
     config :plaid, root_uri: "https://production.plaid.com/" (production)
