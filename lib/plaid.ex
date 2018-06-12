@@ -65,8 +65,7 @@ defmodule Plaid do
   @doc """
   Makes request without credentials.
   """
-  @spec make_request(atom, String.t, map, map, Keyword.t) ::
-    HTTPoison.Response.t | no_return
+  @spec make_request(atom, String.t, map, map, Keyword.t) :: {:ok, HTTPoison.Response.t} | {:error, HTTPoison.Error.t}
   def make_request(method, endpoint, body \\ %{}, headers \\ %{}, options \\ []) do
     make_request_with_cred(method, endpoint, %{}, body, headers, options)
   end
@@ -74,8 +73,7 @@ defmodule Plaid do
   @doc """
   Makes request with credentials.
   """
-  @spec make_request_with_cred(atom, String.t, map, map, map, Keyword.t) ::
-    {:ok, HTTPoison.Response.t} | {:error, HTTPoison.Error.t}
+  @spec make_request_with_cred(atom, String.t, map, map, map, Keyword.t) :: {:ok, HTTPoison.Response.t} | {:error, HTTPoison.Error.t}
   def make_request_with_cred(method, endpoint, cred, body \\ %{}, headers \\ %{}, options \\ []) do
     rb = Map.merge(body, cred) |> Poison.encode!()
     rh = get_request_headers() |> Map.merge(headers) |> Map.to_list()
