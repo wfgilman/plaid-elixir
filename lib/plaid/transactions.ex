@@ -17,7 +17,7 @@ defmodule Plaid.Transactions do
   @endpoint "transactions"
 
   defmodule Transaction do
-    @moduledoc false
+
     defstruct account_id: nil, account_owner: nil, amount: nil, category: nil,
               category_id: nil, date: nil, location: nil, name: nil,
               payment_meta: nil, pending: false, pending_transaction_id: nil,
@@ -38,7 +38,7 @@ defmodule Plaid.Transactions do
                           }
 
     defmodule Location do
-      @moduledoc false
+
       defstruct address: nil, city: nil, state: nil, zip: nil, lat: nil, lon: nil
       @type t :: %__MODULE__{address: String.t,
                              city: String.t,
@@ -50,7 +50,7 @@ defmodule Plaid.Transactions do
     end
 
     defmodule PaymentMeta do
-      @moduledoc false
+
       defstruct by_order_of: nil, payee: nil, payer: nil, payment_method: nil,
                 payment_processor: nil, ppd_id: nil, reason: nil,
                 reference_number: nil

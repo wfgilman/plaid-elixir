@@ -1,5 +1,4 @@
 defmodule Plaid.Error do
-  @moduledoc false
 
   defstruct error_type: nil, error_code: nil, error_message: nil,
             display_message: nil, request_id: nil, http_code: nil

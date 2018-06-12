@@ -16,7 +16,7 @@ defmodule Plaid.Institutions do
   @endpoint "institutions"
 
   defmodule Institution do
-    @moduledoc false
+
     defstruct credentials: [], has_mfa: nil, institution_id: nil, mfa: [],
               name: nil, products: [], request_id: nil
     @type t :: %__MODULE__{credentials: [Plaid.Institutions.Institution.Credentials.t],
@@ -28,7 +28,7 @@ defmodule Plaid.Institutions do
                            request_id: String.t}
 
     defmodule Credentials do
-      @moduledoc false
+
       defstruct label: nil, name: nil, type: nil
       @type t :: %__MODULE__{label: String.t, name: String.t, type: String.t}
     end

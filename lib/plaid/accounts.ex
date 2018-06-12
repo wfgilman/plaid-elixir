@@ -16,7 +16,7 @@ defmodule Plaid.Accounts do
   @endpoint "accounts"
 
   defmodule Account do
-    @moduledoc false
+
     defstruct account_id: nil, balances: nil, name: nil, mask: nil,
               official_name: nil, type: nil, subtype: nil
     @type t :: %__MODULE__{account_id: String.t,
@@ -29,7 +29,7 @@ defmodule Plaid.Accounts do
                           }
 
     defmodule Balance do
-      @moduledoc false
+
       defstruct available: nil, current: nil, limit: nil
       @type t :: %__MODULE__{available: float, current: float, limit: float}
     end
