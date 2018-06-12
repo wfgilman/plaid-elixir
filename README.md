@@ -1,5 +1,7 @@
 # Plaid
 
+[![Build Status](https://travis-ci.org/wfgilman/plaid-elixir.svg?branch=master)](https://travis-ci.org/wfgilman/plaid-elixir)
+
 Elixir library for Plaid's V2 API.
 
 Supported Plaid products:
