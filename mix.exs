@@ -7,12 +7,14 @@ defmodule Plaid.Mixfile do
 
   def project do
     [app: :plaid,
-     version: "1.1.0",
+     version: "1.1.1",
      description: @description,
      elixir: "~> 1.5",
      elixirc_paths: elixirc_paths(Mix.env),
      package: package(),
      deps: deps(),
+     docs: docs(),
+     source_url: "https://github.com/wfgilman/plaid-elixir",
      test_coverage: [tool: ExCoveralls],
      preferred_cli_env: ["coveralls": :test, "coveralls.detail": :test]
     ]
@@ -43,6 +45,12 @@ defmodule Plaid.Mixfile do
       licenses: ["MIT"],
       maintainers: ["Will Gilman"],
       links: %{"Github" => "https://github.com/wfgilman/plaid-elixir"}
+    ]
+  end
+
+  defp docs do
+    [
+      extras: ["parameters.md"]
     ]
   end
 end

@@ -12,10 +12,16 @@ defmodule Plaid.Institutions do
   @type t :: %__MODULE__{institutions: [Plaid.Institutions.Institution.t],
                          request_id: String.t,
                          total: integer}
+  @type params :: %{required(atom) => integer | String.t | list}
+  @type cred :: %{required(atom) => String.t}
+  @type key :: %{public_key: String.t}
 
   @endpoint "institutions"
 
   defmodule Institution do
+    @moduledoc """
+    Plaid Institution data structure.
+    """
 
     defstruct credentials: [], has_mfa: nil, institution_id: nil, mfa: [],
               name: nil, products: [], request_id: nil
@@ -28,6 +34,9 @@ defmodule Plaid.Institutions do
                            request_id: String.t}
 
     defmodule Credentials do
+      @moduledoc """
+      Plaid Institution Credentials data structure.
+      """
 
       defstruct label: nil, name: nil, type: nil
       @type t :: %__MODULE__{label: String.t, name: String.t, type: String.t}
@@ -38,9 +47,12 @@ defmodule Plaid.Institutions do
   @doc """
   Gets all institutions. Results paginated.
 
-  `params = %{count: 50, offset: 0}`
+  Parameters
+  ```
+  %{count: 50, offset: 0}
+  ```
   """
-  @spec get(map, map | nil) :: {:ok, Plaid.Institutions.t} | {:error, Plaid.Error.t}
+  @spec get(params, cred | nil) :: {:ok, Plaid.Institutions.t} | {:error, Plaid.Error.t}
   def get(params, cred \\ get_cred()) do
     endpoint = "#{@endpoint}/get"
     make_request_with_cred(:post, endpoint, cred, params)
@@ -50,7 +62,7 @@ defmodule Plaid.Institutions do
   @doc """
   Gets an institution by id.
   """
-  @spec get_by_id(String.t, map | nil) :: {:ok, Plaid.Institutions.Institution.t} | {:error, Plaid.Error.t}
+  @spec get_by_id(String.t, key | nil) :: {:ok, Plaid.Institutions.Institution.t} | {:error, Plaid.Error.t}
   def get_by_id(id, key \\ get_key()) do
     params = %{institution_id: id}
     endpoint = "#{@endpoint}/get_by_id"
@@ -61,9 +73,12 @@ defmodule Plaid.Institutions do
   @doc """
   Searches institutions by name and product.
 
-  `params = %{query: "Wells", products: ["transactions"]}`
+  Parameters
+  ```
+  %{query: "Wells", products: ["transactions"]}
+  ```
   """
-  @spec search(map, map | nil) :: {:ok, Plaid.Institutions.t} | {:error, Plaid.Error.t}
+  @spec search(params, key | nil) :: {:ok, Plaid.Institutions.t} | {:error, Plaid.Error.t}
   def search(params, key \\ get_key()) do
     endpoint = "#{@endpoint}/search"
     make_request_with_cred(:post, endpoint, key, params)

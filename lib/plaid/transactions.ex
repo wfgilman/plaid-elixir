@@ -13,10 +13,15 @@ defmodule Plaid.Transactions do
                          item: Plaid.Item.t,
                          total_transactions: integer,
                          transactions: [Plaid.Transactions.Transaction.t]}
+  @type params :: %{required(atom) => String.t | map}
+  @type cred :: %{required(atom) => String.t}
 
   @endpoint "transactions"
 
   defmodule Transaction do
+    @moduledoc """
+    Plaid Transaction data structure.
+    """
 
     defstruct account_id: nil, account_owner: nil, amount: nil, category: nil,
               category_id: nil, date: nil, location: nil, name: nil,
@@ -38,6 +43,9 @@ defmodule Plaid.Transactions do
                           }
 
     defmodule Location do
+      @moduledoc """
+      Plaid Transaction Location data structure.
+      """
 
       defstruct address: nil, city: nil, state: nil, zip: nil, lat: nil, lon: nil
       @type t :: %__MODULE__{address: String.t,
@@ -50,6 +58,9 @@ defmodule Plaid.Transactions do
     end
 
     defmodule PaymentMeta do
+      @moduledoc """
+      Plaid Transaction Payment Metadata data structure.
+      """
 
       defstruct by_order_of: nil, payee: nil, payer: nil, payment_method: nil,
                 payment_processor: nil, ppd_id: nil, reason: nil,
@@ -68,12 +79,21 @@ defmodule Plaid.Transactions do
 
   @doc """
   Gets transactions data associated with an Item.
+
+  Parameters
   ```
-  params = %{access_token: "access-env-identifier", start_date: "2017-01-01",
-             end_date: "2017-03-31", options: %{count: 20, offset: 0}}
+  %{
+    access_token: "access-env-identifier",
+    start_date: "2017-01-01",
+    end_date: "2017-03-31",
+    options: %{
+      count: 20,
+      offset: 0
+    }
+  }
   ```
   """
-  @spec get(map, map | nil) :: {:ok, Plaid.Transactions.t} | {:error, Plaid.Error.t}
+  @spec get(params, cred | nil) :: {:ok, Plaid.Transactions.t} | {:error, Plaid.Error.t}
   def get(params, cred \\ get_cred()) do
     endpoint = "#{@endpoint}/get"
     make_request_with_cred(:post, endpoint, cred, params)

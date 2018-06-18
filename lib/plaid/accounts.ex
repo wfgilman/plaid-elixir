@@ -12,10 +12,15 @@ defmodule Plaid.Accounts do
   @type t :: %__MODULE__{accounts: [Plaid.Accounts.Account.t],
                          item: Plaid.Item.t,
                          request_id: String.t}
+  @type params :: %{required(atom) => String.t | map}
+  @type cred :: %{required(atom) => String.t}
 
   @endpoint "accounts"
 
   defmodule Account do
+    @moduledoc """
+    Plaid Account data structure.
+    """
 
     defstruct account_id: nil, balances: nil, name: nil, mask: nil,
               official_name: nil, type: nil, subtype: nil
@@ -29,6 +34,9 @@ defmodule Plaid.Accounts do
                           }
 
     defmodule Balance do
+      @moduledoc """
+      Plaid Account Balance data structure.
+      """
 
       defstruct available: nil, current: nil, limit: nil
       @type t :: %__MODULE__{available: float, current: float, limit: float}
@@ -39,9 +47,12 @@ defmodule Plaid.Accounts do
   @doc """
   Gets account data associated with Item.
 
-  `params = %{access_token: "access-token"}`
+  Parameters
+  ```
+  %{access_token: "access-token"}
+  ```
   """
-  @spec get(map, map | nil) :: {:ok, Plaid.Accounts.t} | {:error, Plaid.Error.t}
+  @spec get(params, cred | nil) :: {:ok, Plaid.Accounts.t} | {:error, Plaid.Error.t}
   def get(params, cred \\ get_cred()) do
     endpoint = "#{@endpoint}/get"
     make_request_with_cred(:post, endpoint, cred, params)
@@ -49,11 +60,14 @@ defmodule Plaid.Accounts do
   end
 
   @doc """
-  Gets real-time balance for specifed accounts associated with Item.
+  Gets balance for specifed accounts associated with Item.
 
-  `params = %{access_token: "access-token", options: %{account_ids: ["account-id"]}}`
+  Parameters
+  ```
+  %{access_token: "access-token", options: %{account_ids: ["account-id"]}}
+  ```
   """
-  @spec get_balance(map, map | nil) :: {:ok, Plaid.Accounts.t} | {:error, Plaid.Error.t}
+  @spec get_balance(params, cred | nil) :: {:ok, Plaid.Accounts.t} | {:error, Plaid.Error.t}
   def get_balance(params, cred \\ get_cred()) do
     endpoint = "#{@endpoint}/balance/get"
     make_request_with_cred(:post, endpoint, cred, params)

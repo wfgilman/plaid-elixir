@@ -13,6 +13,8 @@ Supported Plaid products:
 - [ ] Income
 - [ ] Assets
 
+[Plaid Documentation](https://plaid.com/docs/api)
+
 ## Usage
 
 Add to your dependencies in `mix.exs`.
@@ -47,17 +49,3 @@ extend the receive timeout for Plaid, especially for retrieving historical trans
 ## Tests and Style
 
 This library uses [bypass](https://github.com/PSPDFKit-labs/bypass) to simulate HTTP responses from Plaid.
-
-Run tests using `mix test`.
-
-Before making pull requests, run the coverage and style checks.
-```elixir
-mix coveralls
-mix credo
-```
-
-## Support
-
-I shut down the company I was using this library in production for, so I've got
-a little more time to make this a robust library. Hit me up with any bugs or
-feature requests.

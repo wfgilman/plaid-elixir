@@ -1,6 +1,6 @@
 defmodule Plaid.Item do
   @moduledoc """
-  Functions for Plaid `Item` endpoint.
+  Functions for Plaid `item` endpoint.
   """
 
   import Plaid, only: [make_request_with_cred: 4, get_cred: 0]
@@ -18,15 +18,20 @@ defmodule Plaid.Item do
                          webhook: String.t,
                          request_id: String.t
                         }
+  @type params :: %{required(atom) => String.t}
+  @type cred :: %{required(atom) => String.t}
 
   @endpoint "item"
 
   @doc """
   Gets an Item.
 
-  `params = %{access_token: "access-env-identifier"}`
+  Parameters
+  ```
+  %{access_token: "access-env-identifier"}
+  ```
   """
-  @spec get(map, map | nil) :: {:ok, Plaid.Item.t} | {:error, Plaid.Error.t}
+  @spec get(params, cred | nil) :: {:ok, Plaid.Item.t} | {:error, Plaid.Error.t}
   def get(params, cred \\ get_cred()) do
     endpoint = "#{@endpoint}/get"
     make_request_with_cred(:post, endpoint, cred, params)
@@ -34,11 +39,19 @@ defmodule Plaid.Item do
   end
 
   @doc """
-  Exchanges a public token for an access token and item_id.
+  Exchanges a public token for an access token and item id.
 
-  `params = %{public_token: "public-env-identifier"}`
+  Parameters
+  ```
+  %{public_token: "public-env-identifier"}
+  ```
+
+  Response
+  ```
+  {:ok, %{access_token: "access-env-identifier", item_id: "some-id", request_id: "f24wfg"}}
+  ```
   """
-  @spec exchange_public_token(map, map | nil) :: {:ok, map} | {:error, Plaid.Error.t}
+  @spec exchange_public_token(params, cred | nil) :: {:ok, map} | {:error, Plaid.Error.t}
   def exchange_public_token(params, cred \\ get_cred()) do
     endpoint = "#{@endpoint}/public_token/exchange"
     make_request_with_cred(:post, endpoint, cred, params)
@@ -48,9 +61,17 @@ defmodule Plaid.Item do
   @doc """
   Creates a public token. To be used to put Plaid Link into update mode.
 
-  `params = %{access_token: "access-env-identifier"}`
+  Parameters
+  ```
+  %{access_token: "access-env-identifier"}
+  ```
+
+  Response
+  ```
+  {:ok, %{public_token: "access-env-identifier", expiration: 3600, request_id: "kg414f"}}
+  ```
   """
-  @spec create_public_token(map, map | nil) :: {:ok, map} | {:error, Plaid.Error.t}
+  @spec create_public_token(params, cred | nil) :: {:ok, map} | {:error, Plaid.Error.t}
   def create_public_token(params, cred \\ get_cred()) do
     endpoint = "#{@endpoint}/public_token/create"
     make_request_with_cred(:post, endpoint, cred, params)
@@ -60,9 +81,12 @@ defmodule Plaid.Item do
   @doc """
   Updates an Item's webhook.
 
-  `params = %{access_webhook: "access-env-identifier", webhook: "http://mywebsite/api"}`
+  Parameters
+  ```
+  %{access_webhook: "access-env-identifier", webhook: "http://mywebsite/api"}
+  ```
   """
-  @spec update_webhook(map, map | nil) :: {:ok, Plaid.Item.t} | {:error, Plaid.Error.t}
+  @spec update_webhook(params, cred | nil) :: {:ok, Plaid.Item.t} | {:error, Plaid.Error.t}
   def update_webhook(params, cred \\ get_cred()) do
     endpoint = "#{@endpoint}/webhook/update"
     make_request_with_cred(:post, endpoint, cred, params)
@@ -72,9 +96,17 @@ defmodule Plaid.Item do
   @doc """
   Invalidates access token and returns a new one.
 
-  `params = %{access_token: "access-env-identifier"}`
+  Parameters
+  ```
+  %{access_token: "access-env-identifier"}
+  ```
+
+  Response
+  ```
+  {:ok, %{new_access_token: "access-env-identifier", request_id: "gag8fs"}}
+  ```
   """
-  @spec rotate_access_token(map, map | nil) :: {:ok, map} | {:error, Plaid.Error.t}
+  @spec rotate_access_token(params, cred | nil) :: {:ok, map} | {:error, Plaid.Error.t}
   def rotate_access_token(params, cred \\ get_cred()) do
     endpoint = "#{@endpoint}/access_token/invalidate"
     make_request_with_cred(:post, endpoint, cred, params)
@@ -84,9 +116,17 @@ defmodule Plaid.Item do
   @doc """
   Updates a V1 access token to V2.
 
-  `params = %{access_token_v1: "test_wells"}`
+  Parameters
+  ```
+  %{access_token_v1: "test_wells"}
+  ```
+
+  Response
+  ```
+  {:ok, %{access_token: "access-env-identifier", item_id: "some-id", request_id: "f24wfg"}}
+  ```
   """
-  @spec update_version_access_token(map, map | nil) :: {:ok, map} | {:error, Plaid.Error.t}
+  @spec update_version_access_token(params, cred | nil) :: {:ok, map} | {:error, Plaid.Error.t}
   def update_version_access_token(params, cred \\ get_cred()) do
     endpoint = "#{@endpoint}/access_token/update_version"
     make_request_with_cred(:post, endpoint, cred, params)
@@ -96,9 +136,12 @@ defmodule Plaid.Item do
   @doc """
   Deletes an Item.
 
-  `params = %{access_token: "access-env-identifier"}`
+  Parameters
+  ```
+  %{access_token: "access-env-identifier"}
+  ```
   """
-  @spec delete(map, map | nil) :: {:ok, map} | {:error, Plaid.Error.t}
+  @spec delete(params, cred | nil) :: {:ok, map} | {:error, Plaid.Error.t}
   def delete(params, cred \\ get_cred()) do
     endpoint = "#{@endpoint}/delete"
     make_request_with_cred(:post, endpoint, cred, params)
@@ -106,11 +149,20 @@ defmodule Plaid.Item do
   end
 
   @doc """
-  Creates a processor token used to create an authenticated funding source with Dwolla.
+  [Creates a processor token](https://developers.dwolla.com/resources/dwolla-plaid-integration.html)
+  used to create an authenticated funding source with Dwolla.
 
-  `params = %{access_token: "access-env-identifier", account_id: "plaid-account-id"}`
+  Parameters
+  ```
+  %{access_token: "access-env-identifier", account_id: "plaid-account-id"}
+  ```
+
+  Response
+  ```
+  {:ok, %{processor_token: "some-token", request_id: "k522f2"}}
+  ```
   """
-  @spec create_processor_token(map, map | nil) :: {:ok, map} | {:error, Plaid.Error.t}
+  @spec create_processor_token(params, cred | nil) :: {:ok, map} | {:error, Plaid.Error.t}
   def create_processor_token(params, cred \\ get_cred()) do
     endpoint = "processor/dwolla/processor_token/create"
     make_request_with_cred(:post, endpoint, cred, params)

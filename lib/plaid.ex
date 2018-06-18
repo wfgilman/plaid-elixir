@@ -2,7 +2,7 @@ defmodule Plaid do
   @moduledoc """
   An HTTP Client for Plaid.
 
-  Plaid API Docs: https://plaid.com/docs/api/#api-keys-and-access
+  [Plaid API Docs](https://plaid.com/docs/api)
   """
 
   use HTTPoison.Base

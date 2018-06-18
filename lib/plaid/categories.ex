@@ -11,6 +11,9 @@ defmodule Plaid.Categories do
   @endpoint "categories"
 
   defmodule Category do
+    @moduledoc """
+    Plaid Category data structure.
+    """
 
     defstruct category_id: nil, hierarchy: [], group: nil
     @type t :: %__MODULE__{category_id: String.t,
