@@ -17,11 +17,11 @@ Supported Plaid products:
 
 ## Usage
 
-Add to your dependencies in `mix.exs`.
+Add to your dependencies in `mix.exs`. The hex specification is required.
 
 ```elixir
 def deps do
-  [{:plaid, "~> 1.0"}]
+  [{:plaid, "~> 1.0", hex: :plaid_elixir}]
 end
 ```
 
@@ -45,6 +45,18 @@ By default, `root_uri` is set by `mix` environment. You can override it in your 
 
 Finally, you can pass in custom configuration for [HTTPoison](https://github.com/edgurgel/httpoison). It's recommended you
 extend the receive timeout for Plaid, especially for retrieving historical transactions.
+
+## Obtaining Access Tokens
+
+Access tokens are required for almost all calls to Plaid. However, they can only be obtained
+using [Plaid Link](https://plaid.com/docs/link/transition-guide/#creating-items-with-link).
+
+Once a user successfully connects to his institution using Plaid Link, a
+public token is returned to the client. This single-use public token can be exchanged
+for an access token and item id (both of which should be stored) using
+`Plaid.Item.exchange_public_token/1`.
+
+Consult Plaid's documentation for additional detail on this process.
 
 ## Tests and Style
 
