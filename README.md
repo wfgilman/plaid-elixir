@@ -7,7 +7,7 @@ Elixir library for Plaid's V2 API.
 
 Supported Plaid products:
 - [x] Transactions
-- [ ] Auth
+- [x] Auth
 - [ ] Identity
 - [x] Balance
 - [ ] Income
