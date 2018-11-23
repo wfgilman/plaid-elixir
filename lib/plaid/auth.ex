@@ -15,7 +15,12 @@ defmodule Plaid.Auth do
           numbers: [Plaid.Auth.Number.ACH.t()],
           request_id: String.t()
         }
-  @type account_ids :: list(Integer.t() | String.t())
+  @type params :: %{
+          required(:access_token) => String.t(),
+          optional(:options) => %{
+            optional(:account_ids) => [String.t()]
+          }
+        }
   @type cred :: %{required(atom) => String.t()}
 
   @endpoint "auth"
@@ -50,21 +55,19 @@ defmodule Plaid.Auth do
   ```
   %{
     access_token: "access-env-identifier",
-    start_date: "2017-01-01",
-    end_date: "2017-03-31",
     options: %{
-      count: 20,
-      offset: 0
+      account_ids: [
+      ]
     }
   }
   ```
   """
-  @spec get(account_ids | [], cred | nil) :: {:ok, Plaid.Auth.t()} | {:error, Plaid.Error.t()}
-  def get(account_ids \\ [], cred \\ get_cred()) do
+  @spec get(params, cred | nil) :: {:ok, Plaid.Auth.t()} | {:error, Plaid.Error.t()}
+  def get(params, cred \\ get_cred()) do
     endpoint = "#{@endpoint}/get"
 
     :post
-    |> make_request_with_cred(endpoint, cred, account_ids)
+    |> make_request_with_cred(endpoint, cred, params)
     |> Utils.handle_resp(:auth)
   end
 end
