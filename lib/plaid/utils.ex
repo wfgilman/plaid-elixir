@@ -83,6 +83,22 @@ defmodule Plaid.Utils do
     )
   end
 
+  defp map_body(body, :auth) do
+    Poison.Decode.decode(body,
+      as: %Plaid.Auth{
+        numbers: %Plaid.Auth.Numbers{
+          ach: [%Plaid.Auth.Numbers.ACH{}]
+        },
+        item: %Plaid.Item{},
+        accounts: [
+          %Plaid.Accounts.Account{
+            balances: %Plaid.Accounts.Account.Balance{}
+          }
+        ]
+      }
+    )
+  end
+
   defp map_body(%{"item" => item} = body, :item) do
     new_body = body |> Map.take(["request_id"]) |> Map.merge(item)
     Poison.Decode.decode(new_body, as: %Plaid.Item{})
@@ -126,18 +142,5 @@ defmodule Plaid.Utils do
     |> Enum.reduce(%{}, fn {k, v}, acc ->
       Map.put(acc, String.to_atom(k), v)
     end)
-  end
-
-  defp map_body(%{"numbers" => _} = body, :auth) do
-    Poison.Decode.decode(body,
-      as: %Plaid.Auth{
-        accounts: [%Plaid.Accounts.Account{}],
-        numbers: [
-          ach: [%Plaid.Auth.Number.ACH{}]
-        ],
-        item: %Plaid.Item{}
-      }
-    )
-    |> Map.put(:request_id, body["request_id"])
   end
 end
