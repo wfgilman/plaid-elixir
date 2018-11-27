@@ -59,8 +59,8 @@ defmodule Plaid.Factory do
         ],
         "eft" => []
       },
-      item: account["item"],
-      request_id: "35QSp"
+      "item" => account["item"],
+      "request_id" => "35QSp"
     }
   end
 
