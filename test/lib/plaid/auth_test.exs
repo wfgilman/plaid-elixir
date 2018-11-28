@@ -21,6 +21,14 @@ defmodule Plaid.AuthTest do
       assert {:ok, resp} = Plaid.Auth.get(%{access_token: "my-token"})
 
       assert Plaid.Auth == resp.__struct__
+
+      body_account_number =
+        body["numbers"]["ach"]
+        |> Enum.at(0)
+        |> Map.get("account")
+
+      resp_acct_number = Enum.at(resp.numbers.ach, 0).account
+      assert body_account_number == resp_acct_number
     end
   end
 end

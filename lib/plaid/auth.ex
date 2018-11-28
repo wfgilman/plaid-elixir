@@ -25,12 +25,18 @@ defmodule Plaid.Auth do
 
   @endpoint "auth"
 
-  defmodule Number do
+  defmodule Numbers do
     @moduledoc """
     Plaid Account Number data structure.
 
     There are 2 types of numbers that Plaid supports: ACH and EFT, the latter being specific to Canadian banking.
     """
+
+    defstruct ach: [], eft: []
+
+    @type t :: %__MODULE__{
+            ach: [Plaid.Auth.Numbers.ACH.t()]
+          }
 
     defmodule ACH do
       @moduledoc """
