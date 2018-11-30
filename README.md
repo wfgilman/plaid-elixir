@@ -3,6 +3,8 @@
 [![Build Status](https://travis-ci.org/wfgilman/plaid-elixir.svg?branch=master)](https://travis-ci.org/wfgilman/plaid-elixir)
 [![Hex.pm Version](https://img.shields.io/hexpm/v/plaid_elixir.svg)](https://hex.pm/packages/plaid_elixir)
 
+[Documentation](https://hexdocs.pm/plaid_elixir)
+
 Elixir library for Plaid's V2 API.
 
 Supported Plaid products:
