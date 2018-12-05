@@ -81,11 +81,11 @@ defmodule Plaid do
     request(method, endpoint, rb, rh, options)
   end
 
-  defp process_url(endpoint) do
+  def process_url(endpoint) do
     require_root_uri() <> endpoint
   end
 
-  defp process_response_body(body) do
+  def process_response_body(body) do
     Poison.Parser.parse!(body)
   end
 
