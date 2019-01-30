@@ -1,5 +1,4 @@
 defmodule Plaid.TransactionsTest do
-
   use ExUnit.Case
 
   import Plaid.Factory
@@ -11,16 +10,23 @@ defmodule Plaid.TransactionsTest do
   end
 
   describe "transactions" do
-
     test "transactions/1 requests POST and returns Plaid.Transactions", %{bypass: bypass} do
       body = http_response_body(:transactions)
-      Bypass.expect bypass, fn conn ->
+
+      Bypass.expect(bypass, fn conn ->
         assert "POST" == conn.method
         Plug.Conn.resp(conn, 200, Poison.encode!(body))
-      end
+      end)
 
-      assert {:ok, resp} = Plaid.Transactions.get(%{access_token: "my-token", start_date: "2017-01-01", end_date: "2017-01-31"})
+      assert {:ok, resp} =
+               Plaid.Transactions.get(%{
+                 access_token: "my-token",
+                 start_date: "2017-01-01",
+                 end_date: "2017-01-31"
+               })
+
       assert Plaid.Transactions == resp.__struct__
+      assert resp.request_id == body["request_id"]
     end
   end
 end

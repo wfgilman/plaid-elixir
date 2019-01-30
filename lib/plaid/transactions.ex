@@ -7,14 +7,17 @@ defmodule Plaid.Transactions do
 
   alias Plaid.Utils
 
-  defstruct accounts: [], item: nil, total_transactions: nil, transactions: []
+  defstruct accounts: [], item: nil, total_transactions: nil, transactions: [], request_id: nil
 
-  @type t :: %__MODULE__{accounts: [Plaid.Accounts.Account.t],
-                         item: Plaid.Item.t,
-                         total_transactions: integer,
-                         transactions: [Plaid.Transactions.Transaction.t]}
-  @type params :: %{required(atom) => String.t | map}
-  @type cred :: %{required(atom) => String.t}
+  @type t :: %__MODULE__{
+          accounts: [Plaid.Accounts.Account.t()],
+          item: Plaid.Item.t(),
+          total_transactions: integer,
+          transactions: [Plaid.Transactions.Transaction.t()],
+          request_id: String.t()
+        }
+  @type params :: %{required(atom) => String.t() | map}
+  @type cred :: %{required(atom) => String.t()}
 
   @endpoint "transactions"
 
@@ -23,24 +26,35 @@ defmodule Plaid.Transactions do
     Plaid Transaction data structure.
     """
 
-    defstruct account_id: nil, account_owner: nil, amount: nil, category: nil,
-              category_id: nil, date: nil, location: nil, name: nil,
-              payment_meta: nil, pending: false, pending_transaction_id: nil,
-              transaction_id: nil, transaction_type: nil
-    @type t :: %__MODULE__{account_id: String.t,
-                           account_owner: String.t,
-                           amount: float,
-                           category: [String.t],
-                           category_id: String.t,
-                           date: String.t,
-                           location: Plaid.Transactions.Transaction.Location.t,
-                           name: String.t,
-                           payment_meta: Plaid.Transactions.Transaction.PaymentMeta.t,
-                           pending: true | false,
-                           pending_transaction_id: String.t,
-                           transaction_id: String.t,
-                           transaction_type: String.t
-                          }
+    defstruct account_id: nil,
+              account_owner: nil,
+              amount: nil,
+              category: nil,
+              category_id: nil,
+              date: nil,
+              location: nil,
+              name: nil,
+              payment_meta: nil,
+              pending: false,
+              pending_transaction_id: nil,
+              transaction_id: nil,
+              transaction_type: nil
+
+    @type t :: %__MODULE__{
+            account_id: String.t(),
+            account_owner: String.t(),
+            amount: float,
+            category: [String.t()],
+            category_id: String.t(),
+            date: String.t(),
+            location: Plaid.Transactions.Transaction.Location.t(),
+            name: String.t(),
+            payment_meta: Plaid.Transactions.Transaction.PaymentMeta.t(),
+            pending: true | false,
+            pending_transaction_id: String.t(),
+            transaction_id: String.t(),
+            transaction_type: String.t()
+          }
 
     defmodule Location do
       @moduledoc """
@@ -48,13 +62,15 @@ defmodule Plaid.Transactions do
       """
 
       defstruct address: nil, city: nil, state: nil, zip: nil, lat: nil, lon: nil
-      @type t :: %__MODULE__{address: String.t,
-                             city: String.t,
-                             state: String.t,
-                             zip: String.t,
-                             lat: float,
-                             lon: float
-                            }
+
+      @type t :: %__MODULE__{
+              address: String.t(),
+              city: String.t(),
+              state: String.t(),
+              zip: String.t(),
+              lat: float,
+              lon: float
+            }
     end
 
     defmodule PaymentMeta do
@@ -62,18 +78,25 @@ defmodule Plaid.Transactions do
       Plaid Transaction Payment Metadata data structure.
       """
 
-      defstruct by_order_of: nil, payee: nil, payer: nil, payment_method: nil,
-                payment_processor: nil, ppd_id: nil, reason: nil,
+      defstruct by_order_of: nil,
+                payee: nil,
+                payer: nil,
+                payment_method: nil,
+                payment_processor: nil,
+                ppd_id: nil,
+                reason: nil,
                 reference_number: nil
-      @type t :: %__MODULE__{by_order_of: String.t,
-                             payee: String.t,
-                             payer: String.t,
-                             payment_method: String.t,
-                             payment_processor: String.t,
-                             ppd_id: String.t,
-                             reason: String.t,
-                             reference_number: String.t
-                            }
+
+      @type t :: %__MODULE__{
+              by_order_of: String.t(),
+              payee: String.t(),
+              payer: String.t(),
+              payment_method: String.t(),
+              payment_processor: String.t(),
+              ppd_id: String.t(),
+              reason: String.t(),
+              reference_number: String.t()
+            }
     end
   end
 
@@ -93,11 +116,11 @@ defmodule Plaid.Transactions do
   }
   ```
   """
-  @spec get(params, cred | nil) :: {:ok, Plaid.Transactions.t} | {:error, Plaid.Error.t}
+  @spec get(params, cred | nil) :: {:ok, Plaid.Transactions.t()} | {:error, Plaid.Error.t()}
   def get(params, cred \\ get_cred()) do
     endpoint = "#{@endpoint}/get"
+
     make_request_with_cred(:post, endpoint, cred, params)
     |> Utils.handle_resp(:transactions)
   end
-
 end
