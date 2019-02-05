@@ -50,8 +50,8 @@ defmodule Plaid.Accounts do
       """
 
       @derive Jason.Encoder
-      defstruct available: nil, current: nil, limit: nil
-      @type t :: %__MODULE__{available: float, current: float, limit: float}
+      defstruct available: nil, current: nil, limit: nil, iso_currency_code: nil
+      @type t :: %__MODULE__{available: float, current: float, limit: float, iso_currency_code: String.t()}
     end
   end
 
