@@ -9,12 +9,14 @@ defmodule Plaid.Institutions do
 
   defstruct institutions: [], request_id: nil, total: nil
 
-  @type t :: %__MODULE__{institutions: [Plaid.Institutions.Institution.t],
-                         request_id: String.t,
-                         total: integer}
-  @type params :: %{required(atom) => integer | String.t | list}
-  @type cred :: %{required(atom) => String.t}
-  @type key :: %{public_key: String.t}
+  @type t :: %__MODULE__{
+          institutions: [Plaid.Institutions.Institution.t()],
+          request_id: String.t(),
+          total: integer
+        }
+  @type params :: %{required(atom) => integer | String.t() | list}
+  @type cred :: %{required(atom) => String.t()}
+  @type key :: %{public_key: String.t()}
 
   @endpoint "institutions"
 
@@ -23,15 +25,68 @@ defmodule Plaid.Institutions do
     Plaid Institution data structure.
     """
 
-    defstruct credentials: [], has_mfa: nil, institution_id: nil, mfa: [],
-              name: nil, products: [], request_id: nil
-    @type t :: %__MODULE__{credentials: [Plaid.Institutions.Institution.Credentials.t],
-                           has_mfa: false | true,
-                           institution_id: String.t,
-                           mfa: [String.t],
-                           name: String.t,
-                           products: [String.t],
-                           request_id: String.t}
+    defstruct brand_name: nil,
+              brand_subheading: nil,
+              colors: nil,
+              credentials: [],
+              has_mfa: nil,
+              health_status: nil,
+              institution_id: nil,
+              legacy_institution_code: nil,
+              legacy_institution_type: nil,
+              link_health_status: nil,
+              logo: nil,
+              mfa: [],
+              mfa_code_type: nil,
+              name: nil,
+              name_break: nil,
+              portal: nil,
+              products: [],
+              request_id: nil,
+              url: nil,
+              url_account_locked: nil,
+              url_account_setup: nil,
+              url_forgotten_password: nil
+
+    @type t :: %__MODULE__{
+            brand_name: String.t(),
+            brand_subheading: String.t(),
+            colors: Plaid.Institutions.Institution.Colors.t(),
+            credentials: [Plaid.Institutions.Institution.Credentials.t()],
+            has_mfa: false | true,
+            health_status: String.t(),
+            institution_id: String.t(),
+            legacy_institution_code: String.t(),
+            legacy_institution_type: String.t(),
+            link_health_status: String.t(),
+            logo: String.t(),
+            mfa: [String.t()],
+            mfa_code_type: String.t(),
+            name: String.t(),
+            name_break: String.t(),
+            portal: String.t(),
+            products: [String.t()],
+            request_id: String.t(),
+            url: String.t(),
+            url_account_locked: String.t(),
+            url_account_setup: String.t(),
+            url_forgotten_password: String.t()
+          }
+
+    defmodule Colors do
+      @moduledoc """
+      Plaid Institution Colors data structure.
+      """
+
+      defstruct dark: nil, darker: nil, light: nil, primary: nil
+
+      @type t :: %__MODULE__{
+              dark: String.t(),
+              darker: String.t(),
+              light: String.t(),
+              primary: String.t()
+            }
+    end
 
     defmodule Credentials do
       @moduledoc """
@@ -39,9 +94,8 @@ defmodule Plaid.Institutions do
       """
 
       defstruct label: nil, name: nil, type: nil
-      @type t :: %__MODULE__{label: String.t, name: String.t, type: String.t}
+      @type t :: %__MODULE__{label: String.t(), name: String.t(), type: String.t()}
     end
-
   end
 
   @doc """
@@ -52,9 +106,10 @@ defmodule Plaid.Institutions do
   %{count: 50, offset: 0}
   ```
   """
-  @spec get(params, cred | nil) :: {:ok, Plaid.Institutions.t} | {:error, Plaid.Error.t}
+  @spec get(params, cred | nil) :: {:ok, Plaid.Institutions.t()} | {:error, Plaid.Error.t()}
   def get(params, cred \\ get_cred()) do
     endpoint = "#{@endpoint}/get"
+
     make_request_with_cred(:post, endpoint, cred, params)
     |> Utils.handle_resp(:institutions)
   end
@@ -62,10 +117,12 @@ defmodule Plaid.Institutions do
   @doc """
   Gets an institution by id.
   """
-  @spec get_by_id(String.t, key | nil) :: {:ok, Plaid.Institutions.Institution.t} | {:error, Plaid.Error.t}
+  @spec get_by_id(String.t(), key | nil) ::
+          {:ok, Plaid.Institutions.Institution.t()} | {:error, Plaid.Error.t()}
   def get_by_id(id, key \\ get_key()) do
     params = %{institution_id: id}
     endpoint = "#{@endpoint}/get_by_id"
+
     make_request_with_cred(:post, endpoint, key, params)
     |> Utils.handle_resp(:institution)
   end
@@ -75,14 +132,14 @@ defmodule Plaid.Institutions do
 
   Parameters
   ```
-  %{query: "Wells", products: ["transactions"]}
+  %{query: "Wells", products: ["transactions"], options: %{limit: 40, include_display_data: true}}
   ```
   """
-  @spec search(params, key | nil) :: {:ok, Plaid.Institutions.t} | {:error, Plaid.Error.t}
+  @spec search(params, key | nil) :: {:ok, Plaid.Institutions.t()} | {:error, Plaid.Error.t()}
   def search(params, key \\ get_key()) do
     endpoint = "#{@endpoint}/search"
+
     make_request_with_cred(:post, endpoint, key, params)
     |> Utils.handle_resp(:institutions)
   end
-
 end
