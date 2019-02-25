@@ -7,6 +7,7 @@ defmodule Plaid.Auth do
 
   alias Plaid.Utils
 
+  @derive Jason.Encoder
   defstruct accounts: [], item: nil, numbers: [], request_id: nil
 
   @type t :: %__MODULE__{
@@ -32,6 +33,7 @@ defmodule Plaid.Auth do
     There are 2 types of numbers that Plaid supports: ACH and EFT, the latter being specific to Canadian banking.
     """
 
+    @derive Jason.Encoder
     defstruct ach: [], eft: []
 
     @type t :: %__MODULE__{
@@ -43,6 +45,7 @@ defmodule Plaid.Auth do
       Plaid Account Number data structure.
       """
 
+      @derive Jason.Encoder
       defstruct account: nil, account_id: nil, routing: nil, wire_routing: nil
 
       @type t :: %__MODULE__{

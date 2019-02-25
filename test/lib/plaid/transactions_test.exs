@@ -26,6 +26,7 @@ defmodule Plaid.TransactionsTest do
                })
 
       assert Plaid.Transactions == resp.__struct__
+      assert {:ok, _} = Jason.encode(resp)
       assert resp.request_id == body["request_id"]
     end
   end

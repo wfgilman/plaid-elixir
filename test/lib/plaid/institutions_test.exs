@@ -21,6 +21,7 @@ defmodule Plaid.InstitutionsTest do
 
       assert {:ok, resp} = Plaid.Institutions.get(%{count: 1, offset: 0})
       assert Plaid.Institutions == resp.__struct__
+      assert {:ok, _} = Jason.encode(resp)
     end
 
     test "get_by_id/1 requests POST and returns Plaid.Institutions.Institution", %{bypass: bypass} do
@@ -32,6 +33,7 @@ defmodule Plaid.InstitutionsTest do
 
       assert {:ok, resp} = Plaid.Institutions.get_by_id("ins_109512")
       assert Plaid.Institutions.Institution == resp.__struct__
+      assert {:ok, _} = Jason.encode(resp)
     end
 
     test "search/1 requests POST and returns Plaid.Institutions", %{bypass: bypass} do
@@ -43,6 +45,7 @@ defmodule Plaid.InstitutionsTest do
 
       assert {:ok, resp} = Plaid.Institutions.search(%{query: "wells", products: nil})
       assert Plaid.Institutions == resp.__struct__
+      assert {:ok, _} = Jason.encode(resp)
     end
 
   end

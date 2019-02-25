@@ -21,6 +21,7 @@ defmodule Plaid.CategoriesTest do
 
       assert {:ok, resp} = Plaid.Categories.get()
       assert Plaid.Categories == resp.__struct__
+      assert {:ok, _} = Jason.encode(resp)
       assert Enum.count(resp.categories) == 1
     end
 

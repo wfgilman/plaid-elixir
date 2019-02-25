@@ -7,6 +7,7 @@ defmodule Plaid.Institutions do
 
   alias Plaid.Utils
 
+  @derive Jason.Encoder
   defstruct institutions: [], request_id: nil, total: nil
 
   @type t :: %__MODULE__{
@@ -25,6 +26,7 @@ defmodule Plaid.Institutions do
     Plaid Institution data structure.
     """
 
+    @derive Jason.Encoder
     defstruct brand_name: nil,
               brand_subheading: nil,
               colors: nil,
@@ -78,6 +80,7 @@ defmodule Plaid.Institutions do
       Plaid Institution Colors data structure.
       """
 
+      @derive Jason.Encoder
       defstruct dark: nil, darker: nil, light: nil, primary: nil
 
       @type t :: %__MODULE__{
@@ -93,6 +96,7 @@ defmodule Plaid.Institutions do
       Plaid Institution Credentials data structure.
       """
 
+      @derive Jason.Encoder
       defstruct label: nil, name: nil, type: nil
       @type t :: %__MODULE__{label: String.t(), name: String.t(), type: String.t()}
     end

@@ -21,6 +21,7 @@ defmodule Plaid.AccountsTest do
 
       assert {:ok, resp} = Plaid.Accounts.get(%{access_token: "my-token"})
       assert Plaid.Accounts == resp.__struct__
+      assert {:ok, _} = Jason.encode(resp)
     end
 
     test "get/1 requests POST and returns error", %{bypass: bypass} do
@@ -32,6 +33,7 @@ defmodule Plaid.AccountsTest do
 
       assert {:error, resp} = Plaid.Accounts.get(%{access_token: "my-token"})
       assert Plaid.Error == resp.__struct__
+      assert {:ok, _} = Jason.encode(resp)
     end
 
     test "get_balance/1 requests POST and returns Plaid.Accounts", %{bypass: bypass} do
@@ -43,6 +45,7 @@ defmodule Plaid.AccountsTest do
 
       assert {:ok, resp} = Plaid.Accounts.get(%{access_token: "my-token"})
       assert Plaid.Accounts == resp.__struct__
+      assert {:ok, _} = Jason.encode(resp)
     end
 
   end

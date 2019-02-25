@@ -7,6 +7,7 @@ defmodule Plaid.Transactions do
 
   alias Plaid.Utils
 
+  @derive Jason.Encoder
   defstruct accounts: [], item: nil, total_transactions: nil, transactions: [], request_id: nil
 
   @type t :: %__MODULE__{
@@ -26,6 +27,7 @@ defmodule Plaid.Transactions do
     Plaid Transaction data structure.
     """
 
+    @derive Jason.Encoder
     defstruct account_id: nil,
               account_owner: nil,
               amount: nil,
@@ -61,6 +63,7 @@ defmodule Plaid.Transactions do
       Plaid Transaction Location data structure.
       """
 
+      @derive Jason.Encoder
       defstruct address: nil, city: nil, state: nil, zip: nil, lat: nil, lon: nil
 
       @type t :: %__MODULE__{
@@ -78,6 +81,7 @@ defmodule Plaid.Transactions do
       Plaid Transaction Payment Metadata data structure.
       """
 
+      @derive Jason.Encoder
       defstruct by_order_of: nil,
                 payee: nil,
                 payer: nil,

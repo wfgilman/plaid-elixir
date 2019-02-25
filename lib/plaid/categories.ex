@@ -3,6 +3,7 @@ defmodule Plaid.Categories do
   Functions for Plaid `categories` endpoint.
   """
 
+  @derive Jason.Encoder
   defstruct categories: [], request_id: nil
 
   @type t :: %__MODULE__{categories: [Plaid.Categories.Category.t],
@@ -15,6 +16,7 @@ defmodule Plaid.Categories do
     Plaid Category data structure.
     """
 
+    @derive Jason.Encoder
     defstruct category_id: nil, hierarchy: [], group: nil
     @type t :: %__MODULE__{category_id: String.t,
                            hierarchy: list,
