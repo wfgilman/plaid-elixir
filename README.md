@@ -23,7 +23,7 @@ Add to your dependencies in `mix.exs`. The hex specification is required.
 
 ```elixir
 def deps do
-  [{:plaid, "~> 1.0", hex: :plaid_elixir}]
+  [{:plaid, "~> 1.2", hex: :plaid_elixir}]
 end
 ```
 
@@ -59,6 +59,10 @@ for an access token and item id (both of which should be stored) using
 `Plaid.Item.exchange_public_token/1`.
 
 Consult Plaid's documentation for additional detail on this process.
+
+## Compatibility
+
+As of version `1.2`, this library natively supports serialization of its structs using `Jason` for compatibility with Phoenix.
 
 ## Tests and Style
 

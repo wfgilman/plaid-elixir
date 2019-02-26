@@ -21,6 +21,7 @@ defmodule Plaid.AuthTest do
       assert {:ok, resp} = Plaid.Auth.get(%{access_token: "my-token"})
 
       assert Plaid.Auth == resp.__struct__
+      assert {:ok, _} = Jason.encode(resp)
 
       body_account_number =
         body["numbers"]["ach"]

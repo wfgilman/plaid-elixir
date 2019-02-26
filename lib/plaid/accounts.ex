@@ -7,6 +7,7 @@ defmodule Plaid.Accounts do
 
   alias Plaid.Utils
 
+  @derive Jason.Encoder
   defstruct accounts: [], item: nil, request_id: nil
 
   @type t :: %__MODULE__{accounts: [Plaid.Accounts.Account.t],
@@ -22,6 +23,7 @@ defmodule Plaid.Accounts do
     Plaid Account data structure.
     """
 
+    @derive Jason.Encoder
     defstruct account_id: nil, balances: nil, name: nil, mask: nil,
               official_name: nil, type: nil, subtype: nil
     @type t :: %__MODULE__{account_id: String.t,
@@ -38,6 +40,7 @@ defmodule Plaid.Accounts do
       Plaid Account Balance data structure.
       """
 
+      @derive Jason.Encoder
       defstruct available: nil, current: nil, limit: nil
       @type t :: %__MODULE__{available: float, current: float, limit: float}
     end

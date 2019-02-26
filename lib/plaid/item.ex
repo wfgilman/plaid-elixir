@@ -7,6 +7,7 @@ defmodule Plaid.Item do
 
   alias Plaid.Utils
 
+  @derive Jason.Encoder
   defstruct available_products: [], billed_products: [], error: nil,
             institution_id: nil, item_id: nil, webhook: nil, request_id: nil
 
