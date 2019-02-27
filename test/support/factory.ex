@@ -154,6 +154,42 @@ defmodule Plaid.Factory do
     }
   end
 
+  def http_response_body(:income) do
+    %{
+      "item" => %{
+        "available_products" => ["balance", "auth"],
+        "billed_products" => ["identity", "transactions"],
+        "error" => nil,
+        "institution_id" => "ins_109508",
+        "item_id" => "Ed6bjNrDLJfGvZWwnkQlfxwoNz54B5C97ejBr",
+        "webhook" => "https://plaid.com/example/hook"
+      },
+      "income" => %{
+        "income_streams" => [
+          %{
+            "confidence" => 1,
+            "days" => 518,
+            "monthly_income" => 1601,
+            "name" => "PLAID"
+          },
+          %{
+            "confidence" => 0.95,
+            "days" => 415,
+            "monthly_income" => 1530,
+            "name" => "BAGUETTES INC"
+          }
+        ],
+        "last_year_income" => 28072,
+        "last_year_income_before_tax" => 38681,
+        "projected_yearly_income" => 19444,
+        "projected_yearly_income_before_tax" => 26291,
+        "max_number_of_overlapping_income_streams" => 2,
+        "number_of_income_streams" => 3
+      },
+      "request_id" => "m8MDnv9okwxFNBV"
+    }
+  end
+
   def http_response_body(:institutions) do
     %{
       "institutions" => [
