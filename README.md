@@ -12,7 +12,7 @@ Supported Plaid products:
 - [x] Auth
 - [ ] Identity
 - [x] Balance
-- [ ] Income
+- [x] Income
 - [ ] Assets
 
 [Plaid Documentation](https://plaid.com/docs/api)

@@ -31,6 +31,19 @@ defmodule Plaid.Utils do
     )
   end
 
+  defp map_body(body, :income) do
+    Poison.Decode.decode(body,
+      as: %Plaid.Income{
+        item: %Plaid.Item{},
+        income: %Plaid.Income.Income{
+          income_streams: [
+            %Plaid.Income.Income.IncomeStream{}
+          ]
+        }
+      }
+    )
+  end
+
   defp map_body(body, :institutions) do
     Poison.Decode.decode(body,
       as: %Plaid.Institutions{
