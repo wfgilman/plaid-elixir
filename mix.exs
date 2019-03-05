@@ -6,17 +6,18 @@ defmodule Plaid.Mixfile do
   """
 
   def project do
-    [app: :plaid,
-     version: "1.3.1",
-     description: @description,
-     elixir: "~> 1.5",
-     elixirc_paths: elixirc_paths(Mix.env),
-     package: package(),
-     deps: deps(),
-     docs: docs(),
-     source_url: "https://github.com/wfgilman/plaid-elixir",
-     test_coverage: [tool: ExCoveralls],
-     preferred_cli_env: [coveralls: :test, "coveralls.detail": :test]
+    [
+      app: :plaid,
+      version: "1.3.2",
+      description: @description,
+      elixir: "~> 1.5",
+      elixirc_paths: elixirc_paths(Mix.env()),
+      package: package(),
+      deps: deps(),
+      docs: docs(),
+      source_url: "https://github.com/wfgilman/plaid-elixir",
+      test_coverage: [tool: ExCoveralls],
+      preferred_cli_env: [coveralls: :test, "coveralls.detail": :test]
     ]
   end
 
