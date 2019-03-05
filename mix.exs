@@ -29,7 +29,7 @@ defmodule Plaid.Mixfile do
 
   defp deps do
     [
-      {:httpoison, "~> 1.4.0"},
+      {:httpoison, "~> 1.4"},
       {:poison, "~> 3.0"},
       {:jason, "~> 1.1"},
       {:bypass, "~> 0.8", only: [:test]},
