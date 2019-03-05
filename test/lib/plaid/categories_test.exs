@@ -16,6 +16,7 @@ defmodule Plaid.CategoriesTest do
       body = http_response_body(:categories)
       Bypass.expect bypass, fn conn ->
         assert "POST" == conn.method
+        assert "categories/get" == Enum.join(conn.path_info, "/")
         Plug.Conn.resp(conn, 200, Poison.encode!(body))
       end
 

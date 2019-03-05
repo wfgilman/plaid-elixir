@@ -15,6 +15,7 @@ defmodule Plaid.TransactionsTest do
 
       Bypass.expect(bypass, fn conn ->
         assert "POST" == conn.method
+        assert "transactions/get" == Enum.join(conn.path_info, "/")
         Plug.Conn.resp(conn, 200, Poison.encode!(body))
       end)
 

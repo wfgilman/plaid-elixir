@@ -9,7 +9,7 @@ defmodule Plaid.Categories do
   @type t :: %__MODULE__{categories: [Plaid.Categories.Category.t],
                          request_id: String.t}
 
-  @endpoint "categories"
+  @endpoint :categories
 
   defmodule Category do
     @moduledoc """
@@ -30,7 +30,7 @@ defmodule Plaid.Categories do
   def get do
     endpoint = "#{@endpoint}/get"
     Plaid.make_request(:post, endpoint)
-    |> Plaid.Utils.handle_resp(:categories)
+    |> Plaid.Utils.handle_resp(@endpoint)
   end
 
 end

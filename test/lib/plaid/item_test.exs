@@ -16,6 +16,7 @@ defmodule Plaid.ItemTest do
       body = http_response_body(:item)
       Bypass.expect bypass, fn conn ->
         assert "POST" == conn.method
+        assert "item/get" == Enum.join(conn.path_info, "/")
         Plug.Conn.resp(conn, 200, Poison.encode!(body))
       end
 
@@ -28,6 +29,7 @@ defmodule Plaid.ItemTest do
       body = http_response_body(:exchange_public_token)
       Bypass.expect bypass, fn conn ->
         assert "POST" == conn.method
+        assert "item/public_token/exchange" == Enum.join(conn.path_info, "/")
         Plug.Conn.resp(conn, 200, Poison.encode!(body))
       end
 
@@ -41,6 +43,7 @@ defmodule Plaid.ItemTest do
       body = http_response_body(:create_public_token)
       Bypass.expect bypass, fn conn ->
         assert "POST" == conn.method
+        assert "item/public_token/create" == Enum.join(conn.path_info, "/")
         Plug.Conn.resp(conn, 200, Poison.encode!(body))
       end
 
@@ -55,6 +58,7 @@ defmodule Plaid.ItemTest do
       Bypass.expect bypass, fn conn ->
         {:ok, req_body, _conn} = Plug.Conn.read_body(conn)
         assert "POST" == conn.method
+        assert "item/webhook/update" == Enum.join(conn.path_info, "/")
         assert String.starts_with? req_body, "{\"webhook\":\"https://plaid.com/updated/hook\""
         Plug.Conn.resp(conn, 200, Poison.encode!(body))
       end
@@ -70,6 +74,7 @@ defmodule Plaid.ItemTest do
       Bypass.expect bypass, fn conn ->
         {:ok, req_body, _conn} = Plug.Conn.read_body(conn)
         assert "POST" == conn.method
+        assert "item/access_token/invalidate" == Enum.join(conn.path_info, "/")
         assert String.ends_with? req_body, "\"access_token\":\"my-token\"}"
         Plug.Conn.resp(conn, 200, Poison.encode!(body))
       end
@@ -83,6 +88,7 @@ defmodule Plaid.ItemTest do
       Bypass.expect bypass, fn conn ->
         {:ok, req_body, _conn} = Plug.Conn.read_body(conn)
         assert "POST" == conn.method
+        assert "item/access_token/update_version" == Enum.join(conn.path_info, "/")
         assert String.ends_with? req_body, "\"access_token_v1\":\"my-token\"}"
         Plug.Conn.resp(conn, 200, Poison.encode!(body))
       end
@@ -95,6 +101,7 @@ defmodule Plaid.ItemTest do
       body = http_response_body(:delete)
       Bypass.expect bypass, fn conn ->
         assert "POST" == conn.method
+        assert "item/delete" == Enum.join(conn.path_info, "/")
         Plug.Conn.resp(conn, 200, Poison.encode!(body))
       end
 
@@ -106,6 +113,7 @@ defmodule Plaid.ItemTest do
       body = http_response_body(:processor_token)
       Bypass.expect bypass, fn conn ->
         assert "POST" == conn.method
+        assert "processor/dwolla/processor_token/create" == Enum.join(conn.path_info, "/")
         Plug.Conn.resp(conn, 200, Poison.encode!(body))
       end
 

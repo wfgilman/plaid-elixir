@@ -16,6 +16,7 @@ defmodule Plaid.AccountsTest do
       body = http_response_body(:accounts)
       Bypass.expect bypass, fn conn ->
         assert "POST" == conn.method
+        assert "accounts/get" == Enum.join(conn.path_info, "/")
         Plug.Conn.resp(conn, 200, Poison.encode!(body))
       end
 
@@ -40,10 +41,11 @@ defmodule Plaid.AccountsTest do
       body = http_response_body(:accounts)
       Bypass.expect bypass, fn conn ->
         assert "POST" == conn.method
+        assert "accounts/balance/get" == Enum.join(conn.path_info, "/")
         Plug.Conn.resp(conn, 200, Poison.encode!(body))
       end
 
-      assert {:ok, resp} = Plaid.Accounts.get(%{access_token: "my-token"})
+      assert {:ok, resp} = Plaid.Accounts.get_balance(%{access_token: "my-token"})
       assert Plaid.Accounts == resp.__struct__
       assert {:ok, _} = Jason.encode(resp)
     end
