@@ -20,7 +20,7 @@ defmodule Plaid.Transactions do
   @type params :: %{required(atom) => String.t() | map}
   @type cred :: %{required(atom) => String.t()}
 
-  @endpoint "transactions"
+  @endpoint :transactions
 
   defmodule Transaction do
     @moduledoc """
@@ -125,6 +125,6 @@ defmodule Plaid.Transactions do
     endpoint = "#{@endpoint}/get"
 
     make_request_with_cred(:post, endpoint, cred, params)
-    |> Utils.handle_resp(:transactions)
+    |> Utils.handle_resp(@endpoint)
   end
 end

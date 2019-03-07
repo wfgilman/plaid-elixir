@@ -15,6 +15,7 @@ defmodule Plaid.InstitutionsTest do
 
       Bypass.expect(bypass, fn conn ->
         assert "POST" == conn.method
+        assert "institutions/get" == Enum.join(conn.path_info, "/")
         Plug.Conn.resp(conn, 200, Poison.encode!(body))
       end)
 
@@ -28,6 +29,7 @@ defmodule Plaid.InstitutionsTest do
 
       Bypass.expect(bypass, fn conn ->
         assert "POST" == conn.method
+        assert "institutions/get_by_id" == Enum.join(conn.path_info, "/")
         Plug.Conn.resp(conn, 200, Poison.encode!(body))
       end)
 
@@ -41,6 +43,7 @@ defmodule Plaid.InstitutionsTest do
 
       Bypass.expect(bypass, fn conn ->
         assert "POST" == conn.method
+        assert "institutions/search" == Enum.join(conn.path_info, "/")
         Plug.Conn.resp(conn, 200, Poison.encode!(body))
       end)
 

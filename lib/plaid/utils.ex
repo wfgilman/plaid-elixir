@@ -3,26 +3,33 @@ defmodule Plaid.Utils do
   Utility functions.
   """
 
+  @type response :: %{required(String.t()) => any}
+  @type endpoint :: atom
+
   @doc """
   Handles Plaid response and maps to the correct data structure.
   """
-  @spec handle_resp({:ok, HTTPoison.Response.t()} | {:error, HTTPoison.Error.t()}, atom) ::
+  @spec handle_resp({:ok, HTTPoison.Response.t()} | {:error, HTTPoison.Error.t()}, endpoint) ::
           {:ok, any} | {:error, Plaid.Error.t() | HTTPoison.Error.t()}
-  def handle_resp({:ok, %HTTPoison.Response{status_code: code} = resp}, schema)
+  def handle_resp({:ok, %HTTPoison.Response{status_code: code} = resp}, endpoint)
       when code in 200..201 do
-    {:ok, map_body(resp.body, schema)}
+    {:ok, map_response(resp.body, endpoint)}
   end
 
-  def handle_resp({:ok, %HTTPoison.Response{} = resp}, _schema) do
+  def handle_resp({:ok, %HTTPoison.Response{} = resp}, _endpoint) do
     {:error, Poison.Decode.decode(resp.body, as: %Plaid.Error{})}
   end
 
-  def handle_resp({:error, %HTTPoison.Error{} = error}, _schema) do
+  def handle_resp({:error, %HTTPoison.Error{} = error}, _endpoint) do
     {:error, error}
   end
 
-  defp map_body(body, :categories) do
-    Poison.Decode.decode(body,
+  @doc """
+  Maps an endpoint's response to the corresponding internal data structure.
+  """
+  @spec map_response(response, endpoint) :: any
+  def map_response(response, :categories) do
+    Poison.Decode.decode(response,
       as: %Plaid.Categories{
         categories: [
           %Plaid.Categories.Category{}
@@ -31,8 +38,8 @@ defmodule Plaid.Utils do
     )
   end
 
-  defp map_body(body, :income) do
-    Poison.Decode.decode(body,
+  def map_response(response, :income) do
+    Poison.Decode.decode(response,
       as: %Plaid.Income{
         item: %Plaid.Item{},
         income: %Plaid.Income.Income{
@@ -44,8 +51,8 @@ defmodule Plaid.Utils do
     )
   end
 
-  defp map_body(body, :institutions) do
-    Poison.Decode.decode(body,
+  def map_response(response, :institutions) do
+    Poison.Decode.decode(response,
       as: %Plaid.Institutions{
         institutions: [
           %Plaid.Institutions.Institution{
@@ -56,18 +63,18 @@ defmodule Plaid.Utils do
     )
   end
 
-  defp map_body(%{"institution" => institution} = body, :institution) do
-    new_body = body |> Map.take(["request_id"]) |> Map.merge(institution)
+  def map_response(%{"institution" => institution} = response, :institution) do
+    new_response = response |> Map.take(["request_id"]) |> Map.merge(institution)
 
-    Poison.Decode.decode(new_body,
+    Poison.Decode.decode(new_response,
       as: %Plaid.Institutions.Institution{
         credentials: [%Plaid.Institutions.Institution.Credentials{}]
       }
     )
   end
 
-  defp map_body(body, :transactions) do
-    Poison.Decode.decode(body,
+  def map_response(response, :transactions) do
+    Poison.Decode.decode(response,
       as: %Plaid.Transactions{
         accounts: [
           %Plaid.Accounts.Account{
@@ -85,8 +92,8 @@ defmodule Plaid.Utils do
     )
   end
 
-  defp map_body(body, :accounts) do
-    Poison.Decode.decode(body,
+  def map_response(response, :accounts) do
+    Poison.Decode.decode(response,
       as: %Plaid.Accounts{
         accounts: [
           %Plaid.Accounts.Account{balances: %Plaid.Accounts.Account.Balance{}}
@@ -96,8 +103,8 @@ defmodule Plaid.Utils do
     )
   end
 
-  defp map_body(body, :auth) do
-    Poison.Decode.decode(body,
+  def map_response(response, :auth) do
+    Poison.Decode.decode(response,
       as: %Plaid.Auth{
         numbers: %Plaid.Auth.Numbers{
           ach: [%Plaid.Auth.Numbers.ACH{}]
@@ -112,45 +119,45 @@ defmodule Plaid.Utils do
     )
   end
 
-  defp map_body(%{"item" => item} = body, :item) do
-    new_body = body |> Map.take(["request_id"]) |> Map.merge(item)
-    Poison.Decode.decode(new_body, as: %Plaid.Item{})
+  def map_response(%{"item" => item} = response, :item) do
+    new_response = response |> Map.take(["request_id"]) |> Map.merge(item)
+    Poison.Decode.decode(new_response, as: %Plaid.Item{})
   end
 
-  defp map_body(%{"new_access_token" => _} = body, :item) do
-    body
+  def map_response(%{"new_access_token" => _} = response, :item) do
+    response
     |> Map.take(["new_access_token", "request_id"])
     |> Enum.reduce(%{}, fn {k, v}, acc ->
       Map.put(acc, String.to_atom(k), v)
     end)
   end
 
-  defp map_body(%{"access_token" => _} = body, :item) do
-    body
+  def map_response(%{"access_token" => _} = response, :item) do
+    response
     |> Map.take(["access_token", "item_id", "request_id"])
     |> Enum.reduce(%{}, fn {k, v}, acc ->
       Map.put(acc, String.to_atom(k), v)
     end)
   end
 
-  defp map_body(%{"public_token" => _} = body, :item) do
-    body
+  def map_response(%{"public_token" => _} = response, :item) do
+    response
     |> Map.take(["public_token", "expiration", "request_id"])
     |> Enum.reduce(%{}, fn {k, v}, acc ->
       Map.put(acc, String.to_atom(k), v)
     end)
   end
 
-  defp map_body(%{"deleted" => _} = body, :item) do
-    body
+  def map_response(%{"deleted" => _} = response, :item) do
+    response
     |> Map.take(["deleted", "request_id"])
     |> Enum.reduce(%{}, fn {k, v}, acc ->
       Map.put(acc, String.to_atom(k), v)
     end)
   end
 
-  defp map_body(%{"processor_token" => _} = body, :item) do
-    body
+  def map_response(%{"processor_token" => _} = response, :item) do
+    response
     |> Map.take(["processor_token", "request_id"])
     |> Enum.reduce(%{}, fn {k, v}, acc ->
       Map.put(acc, String.to_atom(k), v)

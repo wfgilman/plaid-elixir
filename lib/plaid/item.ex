@@ -28,7 +28,7 @@ defmodule Plaid.Item do
   @type params :: %{required(atom) => String.t()}
   @type cred :: %{required(atom) => String.t()}
 
-  @endpoint "item"
+  @endpoint :item
 
   @doc """
   Gets an Item.
@@ -43,7 +43,7 @@ defmodule Plaid.Item do
     endpoint = "#{@endpoint}/get"
 
     make_request_with_cred(:post, endpoint, cred, params)
-    |> Utils.handle_resp(:item)
+    |> Utils.handle_resp(@endpoint)
   end
 
   @doc """
@@ -64,7 +64,7 @@ defmodule Plaid.Item do
     endpoint = "#{@endpoint}/public_token/exchange"
 
     make_request_with_cred(:post, endpoint, cred, params)
-    |> Utils.handle_resp(:item)
+    |> Utils.handle_resp(@endpoint)
   end
 
   @doc """
@@ -85,7 +85,7 @@ defmodule Plaid.Item do
     endpoint = "#{@endpoint}/public_token/create"
 
     make_request_with_cred(:post, endpoint, cred, params)
-    |> Utils.handle_resp(:item)
+    |> Utils.handle_resp(@endpoint)
   end
 
   @doc """
@@ -101,7 +101,7 @@ defmodule Plaid.Item do
     endpoint = "#{@endpoint}/webhook/update"
 
     make_request_with_cred(:post, endpoint, cred, params)
-    |> Utils.handle_resp(:item)
+    |> Utils.handle_resp(@endpoint)
   end
 
   @doc """
@@ -122,7 +122,7 @@ defmodule Plaid.Item do
     endpoint = "#{@endpoint}/access_token/invalidate"
 
     make_request_with_cred(:post, endpoint, cred, params)
-    |> Utils.handle_resp(:item)
+    |> Utils.handle_resp(@endpoint)
   end
 
   @doc """
@@ -143,7 +143,7 @@ defmodule Plaid.Item do
     endpoint = "#{@endpoint}/access_token/update_version"
 
     make_request_with_cred(:post, endpoint, cred, params)
-    |> Utils.handle_resp(:item)
+    |> Utils.handle_resp(@endpoint)
   end
 
   @doc """
@@ -159,7 +159,7 @@ defmodule Plaid.Item do
     endpoint = "#{@endpoint}/delete"
 
     make_request_with_cred(:post, endpoint, cred, params)
-    |> Utils.handle_resp(:item)
+    |> Utils.handle_resp(@endpoint)
   end
 
   @doc """
@@ -181,6 +181,6 @@ defmodule Plaid.Item do
     endpoint = "processor/dwolla/processor_token/create"
 
     make_request_with_cred(:post, endpoint, cred, params)
-    |> Utils.handle_resp(:item)
+    |> Utils.handle_resp(@endpoint)
   end
 end

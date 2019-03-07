@@ -19,7 +19,7 @@ defmodule Plaid.Institutions do
   @type cred :: %{required(atom) => String.t()}
   @type key :: %{public_key: String.t()}
 
-  @endpoint "institutions"
+  @endpoint :institutions
 
   defmodule Institution do
     @moduledoc """
@@ -115,7 +115,7 @@ defmodule Plaid.Institutions do
     endpoint = "#{@endpoint}/get"
 
     make_request_with_cred(:post, endpoint, cred, params)
-    |> Utils.handle_resp(:institutions)
+    |> Utils.handle_resp(@endpoint)
   end
 
   @doc """
@@ -144,6 +144,6 @@ defmodule Plaid.Institutions do
     endpoint = "#{@endpoint}/search"
 
     make_request_with_cred(:post, endpoint, key, params)
-    |> Utils.handle_resp(:institutions)
+    |> Utils.handle_resp(@endpoint)
   end
 end

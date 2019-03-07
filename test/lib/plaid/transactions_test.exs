@@ -15,6 +15,7 @@ defmodule Plaid.TransactionsTest do
 
       Bypass.expect(bypass, fn conn ->
         assert "POST" == conn.method
+        assert "transactions/get" == Enum.join(conn.path_info, "/")
         Plug.Conn.resp(conn, 200, Poison.encode!(body))
       end)
 
@@ -24,10 +25,8 @@ defmodule Plaid.TransactionsTest do
                  start_date: "2017-01-01",
                  end_date: "2017-01-31"
                })
-
       assert Plaid.Transactions == resp.__struct__
       assert {:ok, _} = Jason.encode(resp)
-      assert resp.request_id == body["request_id"]
     end
   end
 end

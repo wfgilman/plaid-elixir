@@ -24,7 +24,7 @@ defmodule Plaid.Auth do
         }
   @type cred :: %{required(atom) => String.t()}
 
-  @endpoint "auth"
+  @endpoint :auth
 
   defmodule Numbers do
     @moduledoc """
@@ -77,6 +77,6 @@ defmodule Plaid.Auth do
 
     :post
     |> make_request_with_cred(endpoint, cred, params)
-    |> Utils.handle_resp(:auth)
+    |> Utils.handle_resp(@endpoint)
   end
 end

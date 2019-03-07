@@ -18,7 +18,7 @@ defmodule Plaid.Accounts do
   @type params :: %{required(atom) => String.t() | map}
   @type cred :: %{required(atom) => String.t()}
 
-  @endpoint "accounts"
+  @endpoint :accounts
 
   defmodule Account do
     @moduledoc """
@@ -68,7 +68,7 @@ defmodule Plaid.Accounts do
     endpoint = "#{@endpoint}/get"
 
     make_request_with_cred(:post, endpoint, cred, params)
-    |> Utils.handle_resp(:accounts)
+    |> Utils.handle_resp(@endpoint)
   end
 
   @doc """
@@ -84,6 +84,6 @@ defmodule Plaid.Accounts do
     endpoint = "#{@endpoint}/balance/get"
 
     make_request_with_cred(:post, endpoint, cred, params)
-    |> Utils.handle_resp(:accounts)
+    |> Utils.handle_resp(@endpoint)
   end
 end

@@ -20,7 +20,7 @@ defmodule Plaid.Income do
         }
   @type cred :: %{required(atom) => String.t()}
 
-  @endpoint "income"
+  @endpoint :income
 
   defmodule Income do
     @moduledoc """
@@ -79,6 +79,6 @@ defmodule Plaid.Income do
 
     :post
     |> make_request_with_cred(endpoint, cred, params)
-    |> Utils.handle_resp(:income)
+    |> Utils.handle_resp(@endpoint)
   end
 end
