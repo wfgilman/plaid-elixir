@@ -1,5 +1,4 @@
 defmodule Plaid.ItemTest do
-
   use ExUnit.Case
 
   import Plaid.Factory
@@ -11,14 +10,14 @@ defmodule Plaid.ItemTest do
   end
 
   describe "item" do
-
     test "get/1 requests POST and returns Plaid.Item", %{bypass: bypass} do
       body = http_response_body(:item)
-      Bypass.expect bypass, fn conn ->
+
+      Bypass.expect(bypass, fn conn ->
         assert "POST" == conn.method
         assert "item/get" == Enum.join(conn.path_info, "/")
         Plug.Conn.resp(conn, 200, Poison.encode!(body))
-      end
+      end)
 
       assert {:ok, resp} = Plaid.Item.get(%{access_token: "my-token"})
       assert Plaid.Item == resp.__struct__
@@ -27,11 +26,12 @@ defmodule Plaid.ItemTest do
 
     test "exchange_public_token/1 requests POST and returns map", %{bypass: bypass} do
       body = http_response_body(:exchange_public_token)
-      Bypass.expect bypass, fn conn ->
+
+      Bypass.expect(bypass, fn conn ->
         assert "POST" == conn.method
         assert "item/public_token/exchange" == Enum.join(conn.path_info, "/")
         Plug.Conn.resp(conn, 200, Poison.encode!(body))
-      end
+      end)
 
       assert {:ok, resp} = Plaid.Item.exchange_public_token(%{public_token: "public-token"})
       assert resp.access_token == body["access_token"]
@@ -41,11 +41,12 @@ defmodule Plaid.ItemTest do
 
     test "create_public_token/1 request POST and returns map", %{bypass: bypass} do
       body = http_response_body(:create_public_token)
-      Bypass.expect bypass, fn conn ->
+
+      Bypass.expect(bypass, fn conn ->
         assert "POST" == conn.method
         assert "item/public_token/create" == Enum.join(conn.path_info, "/")
         Plug.Conn.resp(conn, 200, Poison.encode!(body))
-      end
+      end)
 
       assert {:ok, resp} = Plaid.Item.create_public_token(%{access_token: "my-token"})
       assert resp.public_token == body["public_token"]
@@ -55,13 +56,14 @@ defmodule Plaid.ItemTest do
 
     test "update_webhook/1 requests POST and returns Plaid.Item", %{bypass: bypass} do
       body = http_response_body(:webhook)
-      Bypass.expect bypass, fn conn ->
+
+      Bypass.expect(bypass, fn conn ->
         {:ok, req_body, _conn} = Plug.Conn.read_body(conn)
         assert "POST" == conn.method
         assert "item/webhook/update" == Enum.join(conn.path_info, "/")
         assert String.starts_with? req_body, "{\"webhook\":\"https://plaid.com/updated/hook\""
         Plug.Conn.resp(conn, 200, Poison.encode!(body))
-      end
+      end)
 
       params = %{access_token: "my-token", webhook: "https://plaid.com/updated/hook"}
       assert {:ok, resp} = Plaid.Item.update_webhook(params)
@@ -71,13 +73,14 @@ defmodule Plaid.ItemTest do
 
     test "rotate_access_token/1 requests POST and returns success", %{bypass: bypass} do
       body = http_response_body(:rotate_access_token)
-      Bypass.expect bypass, fn conn ->
+
+      Bypass.expect(bypass, fn conn ->
         {:ok, req_body, _conn} = Plug.Conn.read_body(conn)
         assert "POST" == conn.method
         assert "item/access_token/invalidate" == Enum.join(conn.path_info, "/")
         assert String.ends_with? req_body, "\"access_token\":\"my-token\"}"
         Plug.Conn.resp(conn, 200, Poison.encode!(body))
-      end
+      end)
 
       assert {:ok, resp} = Plaid.Item.rotate_access_token(%{access_token: "my-token"})
       assert resp.new_access_token == body["new_access_token"]
@@ -85,13 +88,14 @@ defmodule Plaid.ItemTest do
 
     test "update_version_access_token/1 requests POST and returns success", %{bypass: bypass} do
       body = http_response_body(:update_version_access_token)
-      Bypass.expect bypass, fn conn ->
+
+      Bypass.expect(bypass, fn conn ->
         {:ok, req_body, _conn} = Plug.Conn.read_body(conn)
         assert "POST" == conn.method
         assert "item/access_token/update_version" == Enum.join(conn.path_info, "/")
         assert String.ends_with? req_body, "\"access_token_v1\":\"my-token\"}"
         Plug.Conn.resp(conn, 200, Poison.encode!(body))
-      end
+      end)
 
       assert {:ok, resp} = Plaid.Item.update_version_access_token(%{access_token_v1: "my-token"})
       assert resp.access_token == body["access_token"]
@@ -99,11 +103,12 @@ defmodule Plaid.ItemTest do
 
     test "delete/1 requests POST and returns success", %{bypass: bypass} do
       body = http_response_body(:delete)
-      Bypass.expect bypass, fn conn ->
+
+      Bypass.expect(bypass, fn conn ->
         assert "POST" == conn.method
         assert "item/delete" == Enum.join(conn.path_info, "/")
         Plug.Conn.resp(conn, 200, Poison.encode!(body))
-      end
+      end)
 
       assert {:ok, resp} = Plaid.Item.delete(%{access_token: "my-token"})
       assert resp.deleted == body["deleted"]
@@ -111,13 +116,16 @@ defmodule Plaid.ItemTest do
 
     test "create_processor_token/1 request POST and returns token", %{bypass: bypass} do
       body = http_response_body(:processor_token)
-      Bypass.expect bypass, fn conn ->
+
+      Bypass.expect(bypass, fn conn ->
         assert "POST" == conn.method
         assert "processor/dwolla/processor_token/create" == Enum.join(conn.path_info, "/")
         Plug.Conn.resp(conn, 200, Poison.encode!(body))
-      end
+      end)
 
-      assert {:ok, resp} = Plaid.Item.create_processor_token(%{access_token: "token", account_id: "id"})
+      assert {:ok, resp} =
+               Plaid.Item.create_processor_token(%{access_token: "token", account_id: "id"})
+
       assert resp.processor_token
     end
   end

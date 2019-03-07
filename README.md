@@ -67,3 +67,5 @@ As of version `1.2`, this library natively supports serialization of its structs
 ## Tests and Style
 
 This library uses [bypass](https://github.com/PSPDFKit-labs/bypass) to simulate HTTP responses from Plaid.
+
+It uses Elixir's native formatter as of `1.3.2`

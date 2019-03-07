@@ -1,5 +1,4 @@
 defmodule PlaidTest do
-
   use ExUnit.Case
 
   setup do
@@ -9,7 +8,6 @@ defmodule PlaidTest do
   end
 
   describe "plaid" do
-
     test "get_cred/0 returns credentials as a map" do
       assert %{client_id: _, secret: _} = Plaid.get_cred()
     end
@@ -33,10 +31,10 @@ defmodule PlaidTest do
     end
 
     test "make_request/2 requests GET returns HTTPoison.Response", %{bypass: bypass} do
-      Bypass.expect bypass, fn conn ->
+      Bypass.expect(bypass, fn conn ->
         assert "GET" == conn.method
         Plug.Conn.resp(conn, 200, "{\"status\":\"ok\"}")
-      end
+      end)
 
       {:ok, resp} = Plaid.make_request(:get, "any")
 
@@ -50,28 +48,29 @@ defmodule PlaidTest do
     end
 
     test "make_request_with_cred/3 merges credentials into request body", %{bypass: bypass} do
-      Bypass.expect bypass, fn conn ->
+      Bypass.expect(bypass, fn conn ->
         {:ok, body, _conn} = Plug.Conn.read_body(conn)
         assert "POST" == conn.method
         assert "{\"secret\":\"shhhh\",\"client_id\":\"id\"}" == body
         Plug.Conn.resp(conn, 200, "{\"status\":\"ok\"}")
-      end
+      end)
 
       Plaid.make_request_with_cred(:post, "any", %{client_id: "id", secret: "shhhh"})
     end
 
     test "make_request/2 sets headers correctly", %{bypass: bypass} do
-      Bypass.expect bypass, fn conn ->
-        content_type = Enum.find conn.req_headers, fn {k, _v} ->
-          k == "content-type"
-        end
+      Bypass.expect(bypass, fn conn ->
+        content_type =
+          Enum.find(conn.req_headers, fn {k, _v} ->
+            k == "content-type"
+          end)
+
         assert {"content-type", "application/json"} == content_type
         Plug.Conn.resp(conn, 200, "{\"status\":\"ok\"}")
-      end
+      end)
 
       Plaid.make_request(:get, "any")
     end
-
   end
 
   defp cleanup_config do
