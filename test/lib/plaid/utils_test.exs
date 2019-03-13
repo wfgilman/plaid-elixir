@@ -5,7 +5,6 @@ defmodule Plaid.UtilsTest do
 
   # These tests could be expanded to verify that individual fields are set correcty.
   describe "utils" do
-
     test "map_response/2 maps Plaid Categories response" do
       plaid_response = http_response_body(:categories)
       resp = Plaid.Utils.map_response(plaid_response, :categories)
@@ -38,7 +37,10 @@ defmodule Plaid.UtilsTest do
 
       assert last_year_income == resp.income.last_year_income
       assert last_year_income_before_tax == resp.income.last_year_income_before_tax
-      assert max_number_of_overlapping_income_streams == resp.income.max_number_of_overlapping_income_streams
+
+      assert max_number_of_overlapping_income_streams ==
+               resp.income.max_number_of_overlapping_income_streams
+
       assert number_of_income_streams == resp.income.number_of_income_streams
       assert projected_yearly_income == resp.income.projected_yearly_income
       assert projected_yearly_income_before_tax == resp.income.projected_yearly_income_before_tax
@@ -96,6 +98,7 @@ defmodule Plaid.UtilsTest do
         plaid_response["numbers"]["ach"]
         |> Enum.at(0)
         |> Map.get("account")
+
       mapped_account_number = Enum.at(resp.numbers.ach, 0).account
       assert account_number == mapped_account_number
     end
