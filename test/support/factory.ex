@@ -9,7 +9,9 @@ defmodule Plaid.Factory do
           "balances" => %{
             "available" => 100,
             "current" => 110,
-            "limit" => nil
+            "limit" => nil,
+            "iso_currency_code" => "USD",
+            "unofficial_currency_code" => nil
           },
           "mask" => "0000",
           "name" => "Plaid Checking",
@@ -22,7 +24,9 @@ defmodule Plaid.Factory do
           "balances" => %{
             "available" => nil,
             "current" => 410,
-            "limit" => 2000
+            "limit" => 2000,
+            "iso_currency_code" => "USD",
+            "unofficial_currency_code" => nil
           },
           "mask" => "3333",
           "name" => "Plaid Credit Card",
@@ -250,7 +254,9 @@ defmodule Plaid.Factory do
           "balances" => %{
             "available" => 100,
             "current" => 110,
-            "limit" => nil
+            "limit" => nil,
+            "iso_currency_code" => "USD",
+            "unofficial_currency_code" => "USD"
           },
           "mask" => "0000",
           "name" => "Plaid Checking",
@@ -263,7 +269,9 @@ defmodule Plaid.Factory do
           "balances" => %{
             "available" => nil,
             "current" => 410,
-            "limit" => 2000
+            "limit" => 2000,
+            "iso_currency_code" => "USD",
+            "unofficial_currency_code" => "USD"
           },
           "mask" => "3333",
           "name" => "Plaid Credit Card",
@@ -276,6 +284,8 @@ defmodule Plaid.Factory do
         %{
           "account_id" => "vokyE5Rn6vHKqDLRXEn5fne7LwbKPLIXGK98d",
           "amount" => 2307.01,
+          "iso_currency_code" => "USD",
+          "unofficial_currency_code" => "USD",
           "category" => ["Shops", "Computers and Electronics"],
           "category_id" => "10913000",
           "date" => "2017-01-29",
@@ -309,6 +319,8 @@ defmodule Plaid.Factory do
         %{
           "account_id" => "XA96y1wW3xS7wKyEdbRzFkpZov6x1ohxMXwep",
           "amount" => 78.5,
+          "iso_currency_code" => "USD",
+          "unofficial_currency_code" => "USD",
           "category" => ["Food and Drink", "Restaurants"],
           "category_id" => "13005000",
           "date" => "2017-01-29",

@@ -25,6 +25,7 @@ defmodule Plaid.TransactionsTest do
                  start_date: "2017-01-01",
                  end_date: "2017-01-31"
                })
+
       assert Plaid.Transactions == resp.__struct__
       assert {:ok, _} = Jason.encode(resp)
     end
