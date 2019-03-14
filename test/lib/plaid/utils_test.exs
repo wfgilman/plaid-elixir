@@ -79,6 +79,12 @@ defmodule Plaid.UtilsTest do
 
       assert Plaid.Transactions == resp.__struct__
       assert resp.request_id == plaid_response["request_id"]
+
+      resp_trans = Enum.at(resp.transactions, 0)
+      plaid_trans = Enum.at(plaid_response["transactions"], 0)
+
+      assert resp_trans.iso_currency_code == plaid_trans["iso_currency_code"]
+      assert resp_trans.unofficial_currency_code == plaid_trans["unofficial_currency_code"]
     end
 
     test "map_response/2 maps Plaid Accounts response" do
@@ -86,6 +92,12 @@ defmodule Plaid.UtilsTest do
       resp = Plaid.Utils.map_response(plaid_response, :accounts)
 
       assert Plaid.Accounts == resp.__struct__
+
+      resp_account = Enum.at(resp.accounts, 0)
+      plaid_account = Enum.at(plaid_response["accounts"], 0)
+
+      assert resp_account.balances.iso_currency_code == plaid_account["balances"]["iso_currency_code"]
+      assert resp_account.balances.unofficial_currency_code == plaid_account["balances"]["unofficial_currency_code"]
     end
 
     test "map_response/2 maps Plaid Auth response" do
