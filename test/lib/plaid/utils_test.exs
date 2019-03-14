@@ -96,8 +96,11 @@ defmodule Plaid.UtilsTest do
       resp_account = Enum.at(resp.accounts, 0)
       plaid_account = Enum.at(plaid_response["accounts"], 0)
 
-      assert resp_account.balances.iso_currency_code == plaid_account["balances"]["iso_currency_code"]
-      assert resp_account.balances.unofficial_currency_code == plaid_account["balances"]["unofficial_currency_code"]
+      assert resp_account.balances.iso_currency_code ==
+               plaid_account["balances"]["iso_currency_code"]
+
+      assert resp_account.balances.unofficial_currency_code ==
+               plaid_account["balances"]["unofficial_currency_code"]
     end
 
     test "map_response/2 maps Plaid Auth response" do
