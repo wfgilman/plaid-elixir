@@ -34,7 +34,7 @@ following configuration to your project to set the values.
 
 ```elixir
 config :plaid,
-  root_uri: "https://development.plaid.com/"
+  root_uri: "https://development.plaid.com/",
   client_id: "your_client_id",
   secret: "your_secret",
   public_key: "your_public_key",
