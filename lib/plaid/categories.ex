@@ -24,8 +24,9 @@ defmodule Plaid.Categories do
   Gets all categories.
   """
   @spec get() :: {:ok, Plaid.Categories.t()} | {:error, Plaid.Error.t()}
-  def get do
-    endpoint = "#{@endpoint}/get"
+  def get(config \\ %{}) do
+    root_uri = Map.get(config, :root_uri)
+    endpoint = "#{root_uri}#{@endpoint}/get"
 
     Plaid.make_request(:post, endpoint)
     |> Plaid.Utils.handle_resp(@endpoint)

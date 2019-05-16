@@ -77,15 +77,18 @@ defmodule Plaid do
   @spec make_request_with_cred(atom, String.t(), map, map, map, Keyword.t()) ::
           {:ok, HTTPoison.Response.t()} | {:error, HTTPoison.Error.t()}
   def make_request_with_cred(method, endpoint, cred, body \\ %{}, headers \\ %{}, options \\ []) do
+    {root_uri, cred} = Map.pop(cred, :root_uri)
+
+    re = "#{root_uri}#{endpoint}"
     rb = Map.merge(body, cred) |> Poison.encode!()
     rh = get_request_headers() |> Map.merge(headers) |> Map.to_list()
     options = httpoison_request_options() ++ options
-    request(method, endpoint, rb, rh, options)
+
+    request(method, re, rb, rh, options)
   end
 
-  def process_url(endpoint) do
-    require_root_uri() <> endpoint
-  end
+  def process_url("http" <> _rest = url), do: url
+  def process_url(endpoint), do: require_root_uri() <> endpoint
 
   def process_response_body(body) do
     Poison.Parser.parse!(body)

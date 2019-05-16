@@ -58,6 +58,25 @@ defmodule PlaidTest do
       Plaid.make_request_with_cred(:post, "any", %{client_id: "id", secret: "shhhh"})
     end
 
+    test "make_request_with_cred/3 accepts a root_uri but doesn't merge into the body", %{
+      bypass: bypass
+    } do
+      Bypass.expect(bypass, fn conn ->
+        {:ok, body, _conn} = Plug.Conn.read_body(conn)
+        assert "0.0.0.0" == conn.host
+        assert "/any" == conn.request_path
+        assert "POST" == conn.method
+        assert "{\"secret\":\"shhhh\",\"client_id\":\"id\"}" == body
+        Plug.Conn.resp(conn, 200, "{\"status\":\"ok\"}")
+      end)
+
+      Plaid.make_request_with_cred(:post, "any", %{
+        client_id: "id",
+        secret: "shhhh",
+        root_uri: "http://0.0.0.0:#{bypass.port}/"
+      })
+    end
+
     test "make_request/2 sets headers correctly", %{bypass: bypass} do
       Bypass.expect(bypass, fn conn ->
         content_type =
