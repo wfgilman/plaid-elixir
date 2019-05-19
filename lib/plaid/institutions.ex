@@ -16,8 +16,7 @@ defmodule Plaid.Institutions do
           total: integer
         }
   @type params :: %{required(atom) => integer | String.t() | list}
-  @type cred :: %{required(atom) => String.t()}
-  @type key :: %{public_key: String.t()}
+  @type config :: %{required(atom) => String.t()}
 
   @endpoint :institutions
 
@@ -110,24 +109,26 @@ defmodule Plaid.Institutions do
   %{count: 50, offset: 0}
   ```
   """
-  @spec get(params, cred | nil) :: {:ok, Plaid.Institutions.t()} | {:error, Plaid.Error.t()}
-  def get(params, cred \\ get_cred()) do
+  @spec get(params, config | nil) :: {:ok, Plaid.Institutions.t()} | {:error, Plaid.Error.t()}
+  def get(params, config \\ %{}) do
+    config = Map.merge(get_cred(), config)
     endpoint = "#{@endpoint}/get"
 
-    make_request_with_cred(:post, endpoint, cred, params)
+    make_request_with_cred(:post, endpoint, config, params)
     |> Utils.handle_resp(@endpoint)
   end
 
   @doc """
   Gets an institution by id.
   """
-  @spec get_by_id(String.t(), key | nil) ::
+  @spec get_by_id(String.t(), config | nil) ::
           {:ok, Plaid.Institutions.Institution.t()} | {:error, Plaid.Error.t()}
-  def get_by_id(id, key \\ get_key()) do
+  def get_by_id(id, config \\ %{}) do
+    config = Map.merge(get_key(), config)
     params = %{institution_id: id}
     endpoint = "#{@endpoint}/get_by_id"
 
-    make_request_with_cred(:post, endpoint, key, params)
+    make_request_with_cred(:post, endpoint, config, params)
     |> Utils.handle_resp(:institution)
   end
 
@@ -139,11 +140,12 @@ defmodule Plaid.Institutions do
   %{query: "Wells", products: ["transactions"], options: %{limit: 40, include_display_data: true}}
   ```
   """
-  @spec search(params, key | nil) :: {:ok, Plaid.Institutions.t()} | {:error, Plaid.Error.t()}
-  def search(params, key \\ get_key()) do
+  @spec search(params, config | nil) :: {:ok, Plaid.Institutions.t()} | {:error, Plaid.Error.t()}
+  def search(params, config \\ %{}) do
+    config = Map.merge(get_key(), config)
     endpoint = "#{@endpoint}/search"
 
-    make_request_with_cred(:post, endpoint, key, params)
+    make_request_with_cred(:post, endpoint, config, params)
     |> Utils.handle_resp(@endpoint)
   end
 end

@@ -68,19 +68,6 @@ defmodule PlaidTest do
       Plaid.make_request_with_cred(:post, "any", %{})
     end
 
-    test "make_request_with_cred/3 merges credentials from configuration if empty config argument is passed", %{bypass: bypass} do
-      Application.put_env(:plaid, :client_id, "my_id")
-      Application.put_env(:plaid, :secret, "no_secrets")
-      Bypass.expect(bypass, fn conn ->
-        {:ok, body, _conn} = Plug.Conn.read_body(conn)
-        assert "POST" == conn.method
-        assert "{\"secret\":\"no_secrets\",\"client_id\":\"my_id\"}" == body
-        Plug.Conn.resp(conn, 200, "{\"status\":\"ok\"}")
-      end)
-
-      Plaid.make_request_with_cred(:post, "any", %{})
-    end
-
     test "make_request_with_cred/3 uses root_uri value if provided in config argument", %{bypass: bypass} do
       Bypass.expect(bypass, fn conn ->
         assert "0.0.0.0" == conn.host
