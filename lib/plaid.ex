@@ -63,6 +63,14 @@ defmodule Plaid do
   end
 
   @doc """
+  Gets root URI from configuration.
+  """
+  @spec get_root_uri() :: map | no_return
+  def get_root_uri do
+    require_root_uri()
+  end
+
+  @doc """
   Makes request without credentials.
   """
   @spec make_request(atom, String.t(), map, map, Keyword.t()) ::
@@ -76,15 +84,13 @@ defmodule Plaid do
   """
   @spec make_request_with_cred(atom, String.t(), map, map, map, Keyword.t()) ::
           {:ok, HTTPoison.Response.t()} | {:error, HTTPoison.Error.t()}
-  def make_request_with_cred(method, endpoint, cred, body \\ %{}, headers \\ %{}, options \\ []) do
+  def make_request_with_cred(method, endpoint, config, body \\ %{}, headers \\ %{}, options \\ []) do
+    {root_uri, cred} = Map.pop(config, :root_uri)
+    re = "#{root_uri}#{endpoint}"
     rb = Map.merge(body, cred) |> Poison.encode!()
     rh = get_request_headers() |> Map.merge(headers) |> Map.to_list()
     options = httpoison_request_options() ++ options
-    request(method, endpoint, rb, rh, options)
-  end
-
-  def process_url(endpoint) do
-    require_root_uri() <> endpoint
+    request(method, re, rb, rh, options)
   end
 
   def process_response_body(body) do
@@ -114,7 +120,7 @@ defmodule Plaid do
   defp require_root_uri do
     case Application.get_env(:plaid, :root_uri, :not_found) do
       :not_found -> raise MissingRootUriError
-      value -> value
+      value -> %{root_uri: value}
     end
   end
 
