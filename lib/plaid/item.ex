@@ -143,7 +143,8 @@ defmodule Plaid.Item do
   {:ok, %{access_token: "access-env-identifier", item_id: "some-id", request_id: "f24wfg"}}
   ```
   """
-  @spec update_version_access_token(params, config | nil) :: {:ok, map} | {:error, Plaid.Error.t()}
+  @spec update_version_access_token(params, config | nil) ::
+          {:ok, map} | {:error, Plaid.Error.t()}
   def update_version_access_token(params, config \\ %{}) do
     config = Map.merge(get_cred(), config)
     endpoint = "#{@endpoint}/access_token/update_version"
