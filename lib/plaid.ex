@@ -67,6 +67,7 @@ defmodule Plaid do
   """
   @spec make_request(atom, String.t(), map, map, Keyword.t()) ::
           {:ok, HTTPoison.Response.t()} | {:error, HTTPoison.Error.t()}
+  @deprecated "Use make_request_with_cred/3. This function doesn't allow runtime configuration of the root_uri."
   def make_request(method, endpoint, body \\ %{}, headers \\ %{}, options \\ []) do
     make_request_with_cred(method, endpoint, %{}, body, headers, options)
   end
