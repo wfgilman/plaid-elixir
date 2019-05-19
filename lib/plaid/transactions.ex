@@ -18,7 +18,7 @@ defmodule Plaid.Transactions do
           request_id: String.t()
         }
   @type params :: %{required(atom) => String.t() | map}
-  @type cred :: %{required(atom) => String.t()}
+  @type config :: %{required(atom) => String.t()}
 
   @endpoint :transactions
 
@@ -124,11 +124,12 @@ defmodule Plaid.Transactions do
   }
   ```
   """
-  @spec get(params, cred | nil) :: {:ok, Plaid.Transactions.t()} | {:error, Plaid.Error.t()}
-  def get(params, cred \\ get_cred()) do
+  @spec get(params, config | nil) :: {:ok, Plaid.Transactions.t()} | {:error, Plaid.Error.t()}
+  def get(params, config \\ %{}) do
+    config = Map.merge(get_cred(), config)
     endpoint = "#{@endpoint}/get"
 
-    make_request_with_cred(:post, endpoint, cred, params)
+    make_request_with_cred(:post, endpoint, config, params)
     |> Utils.handle_resp(@endpoint)
   end
 end

@@ -22,7 +22,7 @@ defmodule Plaid.Auth do
             optional(:account_ids) => [String.t()]
           }
         }
-  @type cred :: %{required(atom) => String.t()}
+  @type config :: %{required(atom) => String.t()}
 
   @endpoint :auth
 
@@ -71,12 +71,13 @@ defmodule Plaid.Auth do
   }
   ```
   """
-  @spec get(params, cred | nil) :: {:ok, Plaid.Auth.t()} | {:error, Plaid.Error.t()}
-  def get(params, cred \\ get_cred()) do
+  @spec get(params, config | nil) :: {:ok, Plaid.Auth.t()} | {:error, Plaid.Error.t()}
+  def get(params, config \\ %{}) do
+    config = Map.merge(get_cred(), config)
     endpoint = "#{@endpoint}/get"
 
     :post
-    |> make_request_with_cred(endpoint, cred, params)
+    |> make_request_with_cred(endpoint, config, params)
     |> Utils.handle_resp(@endpoint)
   end
 end

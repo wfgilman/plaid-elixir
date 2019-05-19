@@ -7,6 +7,7 @@ defmodule Plaid.Categories do
   defstruct categories: [], request_id: nil
 
   @type t :: %__MODULE__{categories: [Plaid.Categories.Category.t()], request_id: String.t()}
+  @type config :: %{required(atom) => String.t()}
 
   @endpoint :categories
 
@@ -23,11 +24,11 @@ defmodule Plaid.Categories do
   @doc """
   Gets all categories.
   """
-  @spec get() :: {:ok, Plaid.Categories.t()} | {:error, Plaid.Error.t()}
-  def get do
+  @spec get(config | nil) :: {:ok, Plaid.Categories.t()} | {:error, Plaid.Error.t()}
+  def get(config \\ %{}) do
     endpoint = "#{@endpoint}/get"
 
-    Plaid.make_request(:post, endpoint)
+    Plaid.make_request_with_cred(:post, endpoint, config)
     |> Plaid.Utils.handle_resp(@endpoint)
   end
 end

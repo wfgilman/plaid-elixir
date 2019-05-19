@@ -58,6 +58,30 @@ defmodule PlaidTest do
       Plaid.make_request_with_cred(:post, "any", %{client_id: "id", secret: "shhhh"})
     end
 
+    test "make_request_with_cred/3 uses root_uri in configuration if not passed in config", %{
+      bypass: bypass
+    } do
+      Bypass.expect(bypass, fn conn ->
+        assert "localhost" == conn.host
+        assert "/any" == conn.request_path
+        Plug.Conn.resp(conn, 200, "{\"status\":\"ok\"}")
+      end)
+
+      Plaid.make_request_with_cred(:post, "any", %{})
+    end
+
+    test "make_request_with_cred/3 uses root_uri value if provided in config argument", %{
+      bypass: bypass
+    } do
+      Bypass.expect(bypass, fn conn ->
+        assert "0.0.0.0" == conn.host
+        assert "/any" == conn.request_path
+        Plug.Conn.resp(conn, 200, "{\"status\":\"ok\"}")
+      end)
+
+      Plaid.make_request_with_cred(:post, "any", %{root_uri: "http://0.0.0.0:#{bypass.port}/"})
+    end
+
     test "make_request/2 sets headers correctly", %{bypass: bypass} do
       Bypass.expect(bypass, fn conn ->
         content_type =

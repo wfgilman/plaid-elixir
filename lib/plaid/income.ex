@@ -18,7 +18,7 @@ defmodule Plaid.Income do
   @type params :: %{
           required(:access_token) => String.t()
         }
-  @type cred :: %{required(atom) => String.t()}
+  @type config :: %{required(atom) => String.t()}
 
   @endpoint :income
 
@@ -73,12 +73,13 @@ defmodule Plaid.Income do
   }
   ```
   """
-  @spec get(params, cred | nil) :: {:ok, Plaid.Income.t()} | {:error, Plaid.Error.t()}
-  def get(params, cred \\ get_cred()) do
+  @spec get(params, config | nil) :: {:ok, Plaid.Income.t()} | {:error, Plaid.Error.t()}
+  def get(params, config \\ %{}) do
+    config = Map.merge(get_cred(), config)
     endpoint = "#{@endpoint}/get"
 
     :post
-    |> make_request_with_cred(endpoint, cred, params)
+    |> make_request_with_cred(endpoint, config, params)
     |> Utils.handle_resp(@endpoint)
   end
 end

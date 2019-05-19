@@ -48,6 +48,17 @@ By default, `root_uri` is set by `mix` environment. You can override it in your 
 Finally, you can pass in custom configuration for [HTTPoison](https://github.com/edgurgel/httpoison). It's recommended you
 extend the receive timeout for Plaid, especially for retrieving historical transactions.
 
+## Runtime configuration
+
+You can overwrite the configuration at runtime.
+
+For example, if you want to hit a different URL when calling the `/accounts` endpoint, you could
+pass in a configuration argument to `Plaid.Accounts.get/2`.
+
+```elixir
+Plaid.Accounts.get(%{access_token: "my-token"}, %{root_uri: "http://sandbox.plaid.com/", secret: "no-secrets"})
+```
+
 ## Obtaining Access Tokens
 
 Access tokens are required for almost all calls to Plaid. However, they can only be obtained
