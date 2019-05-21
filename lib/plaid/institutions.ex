@@ -111,7 +111,7 @@ defmodule Plaid.Institutions do
   """
   @spec get(params, config | nil) :: {:ok, Plaid.Institutions.t()} | {:error, Plaid.Error.t()}
   def get(params, config \\ %{}) do
-    config = Map.merge(get_cred(), config)
+    config = get_cred() |> Map.merge(config) |> Map.drop([:public_key])
     endpoint = "#{@endpoint}/get"
 
     make_request_with_cred(:post, endpoint, config, params)
@@ -124,7 +124,7 @@ defmodule Plaid.Institutions do
   @spec get_by_id(String.t(), config | nil) ::
           {:ok, Plaid.Institutions.Institution.t()} | {:error, Plaid.Error.t()}
   def get_by_id(id, config \\ %{}) do
-    config = Map.merge(get_key(), config)
+    config = get_key() |> Map.merge(config) |> Map.drop([:client_id, :secret])
     params = %{institution_id: id}
     endpoint = "#{@endpoint}/get_by_id"
 
@@ -142,7 +142,7 @@ defmodule Plaid.Institutions do
   """
   @spec search(params, config | nil) :: {:ok, Plaid.Institutions.t()} | {:error, Plaid.Error.t()}
   def search(params, config \\ %{}) do
-    config = Map.merge(get_key(), config)
+    config = get_key() |> Map.merge(config) |> Map.drop([:client_id, :secret])
     endpoint = "#{@endpoint}/search"
 
     make_request_with_cred(:post, endpoint, config, params)

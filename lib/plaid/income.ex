@@ -75,7 +75,7 @@ defmodule Plaid.Income do
   """
   @spec get(params, config | nil) :: {:ok, Plaid.Income.t()} | {:error, Plaid.Error.t()}
   def get(params, config \\ %{}) do
-    config = Map.merge(get_cred(), config)
+    config = get_cred() |> Map.merge(config) |> Map.drop([:public_key])
     endpoint = "#{@endpoint}/get"
 
     :post

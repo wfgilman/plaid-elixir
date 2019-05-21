@@ -26,6 +26,7 @@ defmodule Plaid.Categories do
   """
   @spec get(config | nil) :: {:ok, Plaid.Categories.t()} | {:error, Plaid.Error.t()}
   def get(config \\ %{}) do
+    config = Map.drop(config, [:public_key, :client_id, :secret])
     endpoint = "#{@endpoint}/get"
 
     Plaid.make_request_with_cred(:post, endpoint, config)
