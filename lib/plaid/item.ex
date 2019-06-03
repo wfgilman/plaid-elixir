@@ -3,7 +3,7 @@ defmodule Plaid.Item do
   Functions for Plaid `item` endpoint.
   """
 
-  import Plaid, only: [make_request_with_cred: 4, get_cred: 0]
+  import Plaid, only: [make_request_with_cred: 4, validate_cred: 1]
 
   alias Plaid.Utils
 
@@ -40,7 +40,7 @@ defmodule Plaid.Item do
   """
   @spec get(params, config | nil) :: {:ok, Plaid.Item.t()} | {:error, Plaid.Error.t()}
   def get(params, config \\ %{}) do
-    config = get_cred() |> Map.merge(config) |> Map.drop([:public_key])
+    config = validate_cred(config)
     endpoint = "#{@endpoint}/get"
 
     make_request_with_cred(:post, endpoint, config, params)
@@ -62,7 +62,7 @@ defmodule Plaid.Item do
   """
   @spec exchange_public_token(params, config | nil) :: {:ok, map} | {:error, Plaid.Error.t()}
   def exchange_public_token(params, config \\ %{}) do
-    config = get_cred() |> Map.merge(config) |> Map.drop([:public_key])
+    config = validate_cred(config)
     endpoint = "#{@endpoint}/public_token/exchange"
 
     make_request_with_cred(:post, endpoint, config, params)
@@ -84,7 +84,7 @@ defmodule Plaid.Item do
   """
   @spec create_public_token(params, config | nil) :: {:ok, map} | {:error, Plaid.Error.t()}
   def create_public_token(params, config \\ %{}) do
-    config = get_cred() |> Map.merge(config) |> Map.drop([:public_key])
+    config = validate_cred(config)
     endpoint = "#{@endpoint}/public_token/create"
 
     make_request_with_cred(:post, endpoint, config, params)
@@ -101,7 +101,7 @@ defmodule Plaid.Item do
   """
   @spec update_webhook(params, config | nil) :: {:ok, Plaid.Item.t()} | {:error, Plaid.Error.t()}
   def update_webhook(params, config \\ %{}) do
-    config = get_cred() |> Map.merge(config) |> Map.drop([:public_key])
+    config = validate_cred(config)
     endpoint = "#{@endpoint}/webhook/update"
 
     make_request_with_cred(:post, endpoint, config, params)
@@ -123,7 +123,7 @@ defmodule Plaid.Item do
   """
   @spec rotate_access_token(params, config | nil) :: {:ok, map} | {:error, Plaid.Error.t()}
   def rotate_access_token(params, config \\ %{}) do
-    config = get_cred() |> Map.merge(config) |> Map.drop([:public_key])
+    config = validate_cred(config)
     endpoint = "#{@endpoint}/access_token/invalidate"
 
     make_request_with_cred(:post, endpoint, config, params)
@@ -146,7 +146,7 @@ defmodule Plaid.Item do
   @spec update_version_access_token(params, config | nil) ::
           {:ok, map} | {:error, Plaid.Error.t()}
   def update_version_access_token(params, config \\ %{}) do
-    config = get_cred() |> Map.merge(config) |> Map.drop([:public_key])
+    config = validate_cred(config)
     endpoint = "#{@endpoint}/access_token/update_version"
 
     make_request_with_cred(:post, endpoint, config, params)
@@ -163,7 +163,7 @@ defmodule Plaid.Item do
   """
   @spec delete(params, config | nil) :: {:ok, map} | {:error, Plaid.Error.t()}
   def delete(params, config \\ %{}) do
-    config = get_cred() |> Map.merge(config) |> Map.drop([:public_key])
+    config = validate_cred(config)
     endpoint = "#{@endpoint}/delete"
 
     make_request_with_cred(:post, endpoint, config, params)
@@ -186,7 +186,7 @@ defmodule Plaid.Item do
   """
   @spec create_processor_token(params, config | nil) :: {:ok, map} | {:error, Plaid.Error.t()}
   def create_processor_token(params, config \\ %{}) do
-    config = get_cred() |> Map.merge(config) |> Map.drop([:public_key])
+    config = validate_cred(config)
     endpoint = "processor/dwolla/processor_token/create"
 
     make_request_with_cred(:post, endpoint, config, params)

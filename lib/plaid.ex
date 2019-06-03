@@ -7,19 +7,19 @@ defmodule Plaid do
 
   use HTTPoison.Base
 
-  defmodule MissingSecretError do
+  defmodule MissingClientIdError do
     defexception message: """
-                 The secret is required for calls to Plaid. Please configure secret
-                 in your config.exs file.
+                 The `client_id` is required for calls to Plaid. Please either configure `client_id`
+                 in your config.exs file or pass it into the function via the `config` argument.
 
                  config :plaid, client_id: "your_client_id"
                  """
   end
 
-  defmodule MissingClientIdError do
+  defmodule MissingSecretError do
     defexception message: """
-                 The client_id is required for calls to Plaid. Please configure client_id
-                 in your config.exs file.
+                 The `secret` is required for calls to Plaid. Please either configure `secret`
+                 in your config.exs file or pass it into the function via the `config` argument.
 
                  config :plaid, secret: "your_secret"
                  """
@@ -27,8 +27,9 @@ defmodule Plaid do
 
   defmodule MissingPublicKeyError do
     defexception message: """
-                 The public_key is required for some unauthenticated endpoints. Please
-                 configure public_key in your config.exs.
+                 The `public_key` is required for some unauthenticated endpoints. Please either
+                 configure `public_key` in your config.exs or pass it into the function
+                 via the `config` argument.
 
                  config :plaid, public_key: "your_public_key"
                  """
@@ -47,22 +48,6 @@ defmodule Plaid do
   end
 
   @doc """
-  Gets credentials from configuration.
-  """
-  @spec get_cred() :: map | no_return
-  def get_cred do
-    require_plaid_credentials()
-  end
-
-  @doc """
-  Gets public_key from configuration.
-  """
-  @spec get_public_key() :: map | no_return
-  def get_key do
-    require_public_key()
-  end
-
-  @doc """
   Makes request without credentials.
   """
   @spec make_request(atom, String.t(), map, map, Keyword.t()) ::
@@ -78,12 +63,12 @@ defmodule Plaid do
   @spec make_request_with_cred(atom, String.t(), map, map, map, Keyword.t()) ::
           {:ok, HTTPoison.Response.t()} | {:error, HTTPoison.Error.t()}
   def make_request_with_cred(method, endpoint, config, body \\ %{}, headers \\ %{}, options \\ []) do
-    {root_uri, cred} = Map.pop(config, :root_uri)
-    re = "#{root_uri || require_root_uri()}#{endpoint}"
-    rb = Map.merge(body, cred) |> Poison.encode!()
-    rh = get_request_headers() |> Map.merge(headers) |> Map.to_list()
+    cred = Map.drop(config, :root_uri)
+    request_endpoint = "#{get_root_uri(config)}#{endpoint}"
+    request_body = Map.merge(body, cred) |> Poison.encode!()
+    request_headers = get_request_headers() |> Map.merge(headers) |> Map.to_list()
     options = httpoison_request_options() ++ options
-    request(method, re, rb, rh, options)
+    request(method, request_endpoint, request_body, request_headers, options)
   end
 
   def process_response_body(body) do
@@ -95,41 +80,66 @@ defmodule Plaid do
     |> Map.put("Content-Type", "application/json")
   end
 
-  defp require_plaid_credentials do
-    case {get_client_id(), get_secret()} do
-      {:not_found, _} -> raise MissingClientIdError
-      {_, :not_found} -> raise MissingSecretError
-      {client_id, secret} -> %{client_id: client_id, secret: secret}
-    end
-  end
-
-  defp require_public_key do
-    case get_public_key() do
-      :not_found -> raise MissingPublicKeyError
-      value -> %{public_key: value}
-    end
-  end
-
-  defp require_root_uri do
-    case Application.get_env(:plaid, :root_uri) || :not_found do
-      :not_found -> raise MissingRootUriError
-      value -> value
-    end
-  end
-
   defp httpoison_request_options do
     Application.get_env(:plaid, :httpoison_options, [])
   end
 
-  defp get_client_id do
-    Application.get_env(:plaid, :client_id) || :not_found
+  defp get_root_uri(config) do
+    case Map.get(config, :root_uri) || Application.get_env(:plaid, :root_uri) do
+      nil ->
+        raise MissingRootUriError
+
+      root_uri ->
+        root_uri
+    end
   end
 
-  defp get_secret do
-    Application.get_env(:plaid, :secret) || :not_found
+  @doc """
+  Gets the `client_id` and `secret` from config argument or the library configuration.
+  """
+  @spec validate_cred(map) :: map | no_return
+  def validate_cred(config) do
+    %{
+      client_id: get_client_id(config),
+      secret: get_secret(config)
+    }
   end
 
-  defp get_public_key do
-    Application.get_env(:plaid, :public_key) || :not_found
+  @doc """
+  Gets the `public_key` from the config argument or library configuration.
+  """
+  @spec validate_public_key(map) :: map | no_return
+  def validate_public_key(config) do
+    %{public_key: get_public_key(config)}
+  end
+
+  defp get_client_id(config) do
+    case Map.get(config, :client_id) || Application.get_env(:plaid, :client_id) do
+      nil ->
+        raise MissingClientIdError
+
+      client_id ->
+        client_id
+    end
+  end
+
+  defp get_secret(config) do
+    case Map.get(config, :secret) || Application.get_env(:plaid, :secret) do
+      nil ->
+        raise MissingSecretError
+
+      secret ->
+        secret
+    end
+  end
+
+  defp get_public_key(config) do
+    case Map.get(config, :public_key) || Application.get_env(:plaid, :public_key) do
+      nil ->
+        raise MissingPublicKeyError
+
+      public_key ->
+        public_key
+    end
   end
 end

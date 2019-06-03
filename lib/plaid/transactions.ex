@@ -3,7 +3,7 @@ defmodule Plaid.Transactions do
   Functions for Plaid `transactions` endpoint.
   """
 
-  import Plaid, only: [make_request_with_cred: 4, get_cred: 0]
+  import Plaid, only: [make_request_with_cred: 4, validate_cred: 1]
 
   alias Plaid.Utils
 
@@ -126,7 +126,7 @@ defmodule Plaid.Transactions do
   """
   @spec get(params, config | nil) :: {:ok, Plaid.Transactions.t()} | {:error, Plaid.Error.t()}
   def get(params, config \\ %{}) do
-    config = get_cred() |> Map.merge(config) |> Map.drop([:public_key])
+    config = validate_cred(config)
     endpoint = "#{@endpoint}/get"
 
     make_request_with_cred(:post, endpoint, config, params)
