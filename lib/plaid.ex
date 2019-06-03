@@ -57,7 +57,7 @@ defmodule Plaid do
   @doc """
   Gets public_key from configuration.
   """
-  @spec get_public_key() :: map | no_return
+  @spec get_key() :: map | no_return
   def get_key do
     require_public_key()
   end
