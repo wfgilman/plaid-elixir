@@ -63,7 +63,7 @@ defmodule Plaid do
   @spec make_request_with_cred(atom, String.t(), map, map, map, Keyword.t()) ::
           {:ok, HTTPoison.Response.t()} | {:error, HTTPoison.Error.t()}
   def make_request_with_cred(method, endpoint, config, body \\ %{}, headers \\ %{}, options \\ []) do
-    cred = Map.drop(config, :root_uri)
+    cred = Map.delete(config, :root_uri)
     request_endpoint = "#{get_root_uri(config)}#{endpoint}"
     request_body = Map.merge(body, cred) |> Poison.encode!()
     request_headers = get_request_headers() |> Map.merge(headers) |> Map.to_list()
