@@ -8,7 +8,7 @@ defmodule Plaid.Mixfile do
   def project do
     [
       app: :plaid,
-      version: "1.5.1",
+      version: "1.5.2",
       description: @description,
       elixir: "~> 1.5",
       elixirc_paths: elixirc_paths(Mix.env()),
@@ -36,7 +36,8 @@ defmodule Plaid.Mixfile do
       {:bypass, "~> 0.8", only: [:test]},
       {:credo, "~> 0.5", only: [:dev], runtime: false},
       {:excoveralls, "~> 0.6", only: [:test]},
-      {:ex_doc, "~> 0.19", only: [:dev], runtime: false}
+      {:ex_doc, "~> 0.19", only: [:dev], runtime: false},
+      {:dialyxir, "~> 1.0.0-rc.6", only: [:dev, :test], runtime: false},
     ]
   end
 

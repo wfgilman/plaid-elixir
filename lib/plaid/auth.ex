@@ -13,7 +13,7 @@ defmodule Plaid.Auth do
   @type t :: %__MODULE__{
           accounts: [Plaid.Accounts.Account.t()],
           item: Plaid.Item.t(),
-          numbers: [Plaid.Auth.Number.ACH.t()],
+          numbers: %{ach: [Plaid.Auth.Numbers.ACH.t()]},
           request_id: String.t()
         }
   @type params :: %{

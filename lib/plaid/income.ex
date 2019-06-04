@@ -38,12 +38,12 @@ defmodule Plaid.Income do
 
     @type t :: %__MODULE__{
             income_streams: [Plaid.Income.Income.IncomeStream.t()],
-            last_year_income: Number.t(),
-            last_year_income_before_tax: Number.t(),
-            projected_yearly_income: Number.t(),
-            projected_yearly_income_before_tax: Number.t(),
-            max_number_of_overlapping_income_streams: Number.t(),
-            number_of_income_streams: Number.t()
+            last_year_income: float(),
+            last_year_income_before_tax: float(),
+            projected_yearly_income: float(),
+            projected_yearly_income_before_tax: float(),
+            max_number_of_overlapping_income_streams: float(),
+            number_of_income_streams: float()
           }
 
     defmodule IncomeStream do
@@ -55,9 +55,9 @@ defmodule Plaid.Income do
       defstruct confidence: nil, days: nil, monthly_income: nil, name: nil
 
       @type t :: %__MODULE__{
-              confidence: Number.t(),
-              days: Number.t(),
-              monthly_income: Number.t(),
+              confidence: float(),
+              days: integer(),
+              monthly_income: float(),
               name: String.t()
             }
     end

@@ -48,6 +48,29 @@ defmodule Plaid do
   end
 
   @doc """
+  Gets credentials from configuration.
+  """
+  @spec get_cred() :: map | no_return
+  @deprecated "Use validate_cred/1 which accepts a runtime config argument."
+  def get_cred do
+    %{
+      client_id: get_client_id(%{}),
+      secret: get_secret(%{})
+    }
+  end
+
+  @doc """
+  Gets public_key from configuration.
+  """
+  @spec get_key() :: map | no_return
+  @deprecated "Use validate_public_key/1 which accepts a runtime config argument."
+  def get_key do
+    %{
+      public_key: get_public_key(%{})
+    }
+  end
+
+  @doc """
   Makes request without credentials.
   """
   @spec make_request(atom, String.t(), map, map, Keyword.t()) ::
