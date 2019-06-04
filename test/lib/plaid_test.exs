@@ -8,6 +8,28 @@ defmodule PlaidTest do
   end
 
   describe "plaid" do
+    test "get_cred/0 returns credentials as a map" do
+      assert %{client_id: _, secret: _} = Plaid.get_cred()
+    end
+
+    test "get_cred/0 raises when client_id is missing" do
+      Application.put_env(:plaid, :client_id, nil)
+      assert_raise Plaid.MissingClientIdError, fn -> Plaid.get_cred() end
+      cleanup_config()
+    end
+
+    test "get_cred/0 raises when secret is missing" do
+      Application.put_env(:plaid, :secret, nil)
+      assert_raise Plaid.MissingSecretError, fn -> Plaid.get_cred() end
+      cleanup_config()
+    end
+
+    test "get_key/0 raises when public_key is missing" do
+      Application.put_env(:plaid, :public_key, nil)
+      assert_raise Plaid.MissingPublicKeyError, fn -> Plaid.get_key() end
+      cleanup_config()
+    end
+    
     test "validate_cred/1 returns credentials from config" do
       config = %{client_id: "me", secret: "shhhh", public_key: "yoyo"}
 

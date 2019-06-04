@@ -51,7 +51,7 @@ defmodule Plaid do
   Gets credentials from configuration.
   """
   @spec get_cred() :: map | no_return
-  @deprecated "Use validate_cred/1 which accepts a runtime config argument."
+  @deprecated "Use `Plaid.validate_cred/1` which accepts a runtime config argument."
   def get_cred do
     %{
       client_id: get_client_id(%{}),
@@ -63,7 +63,7 @@ defmodule Plaid do
   Gets public_key from configuration.
   """
   @spec get_key() :: map | no_return
-  @deprecated "Use validate_public_key/1 which accepts a runtime config argument."
+  @deprecated "Use `Plaid.validate_public_key/1` which accepts a runtime config argument."
   def get_key do
     %{
       public_key: get_public_key(%{})
@@ -75,7 +75,7 @@ defmodule Plaid do
   """
   @spec make_request(atom, String.t(), map, map, Keyword.t()) ::
           {:ok, HTTPoison.Response.t()} | {:error, HTTPoison.Error.t()}
-  @deprecated "Use make_request_with_cred/3. This function doesn't allow runtime configuration of the root_uri."
+  @deprecated "Use `Plaid.make_request_with_cred/3`. This function doesn't allow runtime configuration of the root_uri."
   def make_request(method, endpoint, body \\ %{}, headers \\ %{}, options \\ []) do
     make_request_with_cred(method, endpoint, %{}, body, headers, options)
   end
