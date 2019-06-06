@@ -29,23 +29,25 @@ defmodule PlaidTest do
       assert_raise Plaid.MissingPublicKeyError, fn -> Plaid.get_key() end
       cleanup_config()
     end
-    
+
     test "validate_cred/1 returns credentials from config" do
-      config = %{client_id: "me", secret: "shhhh", public_key: "yoyo"}
+      config = %{client_id: "me", secret: "shhhh", public_key: "yoyo", root_uri: "http://localhost:1234/"}
 
       assert %{
                client_id: "me",
-               secret: "shhhh"
+               secret: "shhhh",
+               root_uri: "http://localhost:1234/"
              } == Plaid.validate_cred(config)
     end
 
-    test "validate_cred/1 uses configuration value when no config is passed as argument" do
+    test "validate_cred/1 uses configuration value when no config is passed as argument", %{bypass: bypass} do
       Application.put_env(:plaid, :client_id, "you")
       Application.put_env(:plaid, :secret, "no secrets")
 
       assert %{
                client_id: "you",
-               secret: "no secrets"
+               secret: "no secrets",
+               root_uri: "http://localhost:#{bypass.port}/"
              } == Plaid.validate_cred(%{})
     end
 
@@ -61,11 +63,12 @@ defmodule PlaidTest do
       cleanup_config()
     end
 
-    test "validate_public_key/1 uses configuration value when no config is passed as argument" do
+    test "validate_public_key/1 uses configuration value when no config is passed as argument", %{bypass: bypass} do
       Application.put_env(:plaid, :public_key, "yoyoyo")
 
       assert %{
-               public_key: "yoyoyo"
+               public_key: "yoyoyo",
+               root_uri: "http://localhost:#{bypass.port}/"
              } == Plaid.validate_public_key(%{})
     end
 

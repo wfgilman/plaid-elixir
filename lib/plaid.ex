@@ -86,8 +86,8 @@ defmodule Plaid do
   @spec make_request_with_cred(atom, String.t(), map, map, map, Keyword.t()) ::
           {:ok, HTTPoison.Response.t()} | {:error, HTTPoison.Error.t()}
   def make_request_with_cred(method, endpoint, config, body \\ %{}, headers \\ %{}, options \\ []) do
-    cred = Map.delete(config, :root_uri)
     request_endpoint = "#{get_root_uri(config)}#{endpoint}"
+    cred = Map.delete(config, :root_uri)
     request_body = Map.merge(body, cred) |> Poison.encode!()
     request_headers = get_request_headers() |> Map.merge(headers) |> Map.to_list()
     options = httpoison_request_options() ++ options
@@ -107,16 +107,6 @@ defmodule Plaid do
     Application.get_env(:plaid, :httpoison_options, [])
   end
 
-  defp get_root_uri(config) do
-    case Map.get(config, :root_uri) || Application.get_env(:plaid, :root_uri) do
-      nil ->
-        raise MissingRootUriError
-
-      root_uri ->
-        root_uri
-    end
-  end
-
   @doc """
   Gets the `client_id` and `secret` from config argument or the library configuration.
   """
@@ -124,7 +114,8 @@ defmodule Plaid do
   def validate_cred(config) do
     %{
       client_id: get_client_id(config),
-      secret: get_secret(config)
+      secret: get_secret(config),
+      root_uri: get_root_uri(config)
     }
   end
 
@@ -133,7 +124,10 @@ defmodule Plaid do
   """
   @spec validate_public_key(map) :: map | no_return
   def validate_public_key(config) do
-    %{public_key: get_public_key(config)}
+    %{
+      public_key: get_public_key(config),
+      root_uri: get_root_uri(config)
+    }
   end
 
   defp get_client_id(config) do
@@ -163,6 +157,16 @@ defmodule Plaid do
 
       public_key ->
         public_key
+    end
+  end
+
+  defp get_root_uri(config) do
+    case Map.get(config, :root_uri) || Application.get_env(:plaid, :root_uri) do
+      nil ->
+        raise MissingRootUriError
+
+      root_uri ->
+        root_uri
     end
   end
 end
