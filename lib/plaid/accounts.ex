@@ -3,7 +3,7 @@ defmodule Plaid.Accounts do
   Functions for Plaid `accounts` endpoint.
   """
 
-  import Plaid, only: [make_request_with_cred: 4, get_cred: 0]
+  import Plaid, only: [make_request_with_cred: 4, validate_cred: 1]
 
   alias Plaid.Utils
 
@@ -76,7 +76,7 @@ defmodule Plaid.Accounts do
   """
   @spec get(params, config | nil) :: {:ok, Plaid.Accounts.t()} | {:error, Plaid.Error.t()}
   def get(params, config \\ %{}) do
-    config = get_cred() |> Map.merge(config) |> Map.drop([:public_key])
+    config = validate_cred(config)
     endpoint = "#{@endpoint}/get"
 
     make_request_with_cred(:post, endpoint, config, params)
@@ -93,7 +93,7 @@ defmodule Plaid.Accounts do
   """
   @spec get_balance(params, config | nil) :: {:ok, Plaid.Accounts.t()} | {:error, Plaid.Error.t()}
   def get_balance(params, config \\ %{}) do
-    config = get_cred() |> Map.merge(config) |> Map.drop([:public_key])
+    config = validate_cred(config)
     endpoint = "#{@endpoint}/balance/get"
 
     make_request_with_cred(:post, endpoint, config, params)

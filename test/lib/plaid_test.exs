@@ -30,6 +30,54 @@ defmodule PlaidTest do
       cleanup_config()
     end
 
+    test "validate_cred/1 returns credentials from config" do
+      config = %{client_id: "me", secret: "shhhh", public_key: "yoyo", root_uri: "http://localhost:1234/"}
+
+      assert %{
+               client_id: "me",
+               secret: "shhhh",
+               root_uri: "http://localhost:1234/"
+             } == Plaid.validate_cred(config)
+    end
+
+    test "validate_cred/1 uses configuration value when no config is passed as argument", %{bypass: bypass} do
+      Application.put_env(:plaid, :client_id, "you")
+      Application.put_env(:plaid, :secret, "no secrets")
+
+      assert %{
+               client_id: "you",
+               secret: "no secrets",
+               root_uri: "http://localhost:#{bypass.port}/"
+             } == Plaid.validate_cred(%{})
+    end
+
+    test "validate_cred/1 raises ClientIdError when client_id is missing from config argument and app configuration" do
+      Application.put_env(:plaid, :client_id, nil)
+      assert_raise Plaid.MissingClientIdError, fn -> Plaid.validate_cred(%{secret: "shhh"}) end
+      cleanup_config()
+    end
+
+    test "validate_cred/1 raises SecretError when secret is missing from config argument and app configuration" do
+      Application.put_env(:plaid, :secret, nil)
+      assert_raise Plaid.MissingSecretError, fn -> Plaid.validate_cred(%{client_id: "me"}) end
+      cleanup_config()
+    end
+
+    test "validate_public_key/1 uses configuration value when no config is passed as argument", %{bypass: bypass} do
+      Application.put_env(:plaid, :public_key, "yoyoyo")
+
+      assert %{
+               public_key: "yoyoyo",
+               root_uri: "http://localhost:#{bypass.port}/"
+             } == Plaid.validate_public_key(%{})
+    end
+
+    test "validate_public_key/1 raises when public_key is missing from config argument and app configuration" do
+      Application.put_env(:plaid, :public_key, nil)
+      assert_raise Plaid.MissingPublicKeyError, fn -> Plaid.validate_public_key(%{}) end
+      cleanup_config()
+    end
+
     test "make_request/2 requests GET returns HTTPoison.Response", %{bypass: bypass} do
       Bypass.expect(bypass, fn conn ->
         assert "GET" == conn.method
