@@ -23,14 +23,16 @@ Add to your dependencies in `mix.exs`. The hex specification is required.
 
 ```elixir
 def deps do
-  [{:plaid, "~> 1.5", hex: :plaid_elixir}]
+  [{:plaid, "~> 1.6", hex: :plaid_elixir}]
 end
 ```
 
 ## Configuration
 
 All calls to Plaid require either your client id and secret, or public key. Add the
-following configuration to your project to set the values.
+following configuration to your project to set the values. This configuration is optional
+as of version `1.6`, see below for a runtime configuration. The library will raise an
+error if the relevant credentials are not provided either via `config.exs` or at runtime.
 
 ```elixir
 config :plaid,
@@ -50,7 +52,8 @@ extend the receive timeout for Plaid, especially for retrieving historical trans
 
 ## Runtime configuration
 
-You can overwrite the configuration at runtime.
+Alternatively, you can provide the configuration at runtime. The configuration passed
+as a function argument will overwrite the configuration in `config.exs`, if one exists.
 
 For example, if you want to hit a different URL when calling the `/accounts` endpoint, you could
 pass in a configuration argument to `Plaid.Accounts.get/2`.
