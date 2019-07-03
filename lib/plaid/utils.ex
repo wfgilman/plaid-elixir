@@ -163,4 +163,34 @@ defmodule Plaid.Utils do
       Map.put(acc, String.to_atom(k), v)
     end)
   end
+
+  def map_response(response, :"investments/holdings") do
+    Poison.Decode.decode(response,
+      as: %Plaid.Investments.Holdings{
+        accounts: [
+          %Plaid.Accounts.Account{
+            balances: %Plaid.Accounts.Account.Balance{}
+          }
+        ],
+        securities: [%Plaid.Investments.Security{}],
+        holdings: [%Plaid.Investments.Holdings.Holding{}],
+        item: %Plaid.Item{}
+      }
+    )
+  end
+
+  def map_response(response, :"investments/transactions") do
+    Poison.Decode.decode(response,
+      as: %Plaid.Investments.Transactions{
+        accounts: [
+          %Plaid.Accounts.Account{
+            balances: %Plaid.Accounts.Account.Balance{}
+          }
+        ],
+        securities: [%Plaid.Investments.Security{}],
+        investment_transactions: [%Plaid.Investments.Transactions.Transaction{}],
+        item: %Plaid.Item{}
+      }
+    )
+  end
 end
