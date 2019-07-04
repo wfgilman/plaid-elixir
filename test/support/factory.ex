@@ -370,4 +370,399 @@ defmodule Plaid.Factory do
       "request_id" => "45QSn"
     }
   end
+
+  def http_response_body(:"investments/transactions") do
+    %{
+      "accounts" => [
+        %{
+          "account_id" => "rxPW5z6P46CqqQm6Jy5ZI4Jdg5PGGBflwKgGg",
+          "balances" => %{
+            "available" => 100,
+            "current" => 110,
+            "iso_currency_code" => "USD",
+            "limit" => nil,
+            "unofficial_currency_code" => nil
+          },
+          "mask" => "0000",
+          "name" => "Plaid Checking",
+          "official_name" => "Plaid Gold Standard 0% Interest Checking",
+          "subtype" => "checking",
+          "type" => "depository"
+        },
+        %{
+          "account_id" => "dLb3JWRbARtppGe9PEMlIKwdP5lEE7tZNgeXy",
+          "balances" => %{
+            "available" => nil,
+            "current" => 320.76,
+            "iso_currency_code" => "USD",
+            "limit" => nil,
+            "unofficial_currency_code" => nil
+          },
+          "mask" => "5555",
+          "name" => "Plaid IRA",
+          "official_name" => nil,
+          "subtype" => "ira",
+          "type" => "investment"
+        }
+      ],
+      "investment_transactions" => [
+        %{
+          "account_id" => "dLb3JWRbARtppGe9PEMlIKwdP5lEE7tZNgeXy",
+          "amount" => 46.32,
+          "cancel_transaction_id" => nil,
+          "date" => "2019-04-30",
+          "fees" => nil,
+          "investment_transaction_id" => "mKxX9R6xB6i55NXwjV76hAxG41RkX9FLoEveV",
+          "iso_currency_code" => "USD",
+          "name" => "BUY NFLX DERIVATIVE",
+          "price" => 0.01,
+          "quantity" => 4211.152345617756,
+          "security_id" => "8E4L9XLl6MudjEpwPAAgivmdZRdBPJuvMPlPb",
+          "type" => "buy",
+          "unofficial_currency_code" => nil
+        },
+        %{
+          "account_id" => "dLb3JWRbARtppGe9PEMlIKwdP5lEE7tZNgeXy",
+          "amount" => -1200,
+          "cancel_transaction_id" => nil,
+          "date" => "2019-04-30",
+          "fees" => nil,
+          "investment_transaction_id" => "y71WbN61Z6hZZGqArW5BsgqV8xaGeltyaGqPV",
+          "iso_currency_code" => "USD",
+          "name" =>
+            "INVBANKTRAN DEP CO CONTR CURRENT YR EMPLOYER CU CO CONTR CURRENT YR EMPLOYER CUR YR",
+          "price" => 0,
+          "quantity" => 0,
+          "security_id" => "d6ePmbPxgWCWmMVv66q9iPV94n91vMtov5Are",
+          "type" => "cash",
+          "unofficial_currency_code" => nil
+        }
+      ],
+      "item" => %{
+        "available_products" => ["assets", "balance", "credit_details", "identity", "income"],
+        "billed_products" => ["auth", "investments", "transactions"],
+        "error" => nil,
+        "institution_id" => "ins_3",
+        "item_id" => "EQXBrmLXgLsZZbVM4JvGsG5LeLm9bgsXRLv4j",
+        "webhook" => ""
+      },
+      "request_id" => "UfViDIZgENw05Cx",
+      "securities" => [
+        %{
+          "close_price" => 0.011,
+          "close_price_as_of" => nil,
+          "cusip" => nil,
+          "institution_id" => nil,
+          "institution_security_id" => nil,
+          "is_cash_equivalent" => false,
+          "isin" => nil,
+          "iso_currency_code" => "USD",
+          "name" => "Nflx Feb 01'18 $355 Call",
+          "proxy_security_id" => nil,
+          "security_id" => "8E4L9XLl6MudjEpwPAAgivmdZRdBPJuvMPlPb",
+          "sedol" => nil,
+          "ticker_symbol" => "NFLX180201C00355000",
+          "type" => "derivative",
+          "unofficial_currency_code" => nil
+        },
+        %{
+          "close_price" => 42.15,
+          "close_price_as_of" => nil,
+          "cusip" => "464286400",
+          "institution_id" => nil,
+          "institution_security_id" => nil,
+          "is_cash_equivalent" => false,
+          "isin" => "US4642864007",
+          "iso_currency_code" => "USD",
+          "name" => "iShares Inc MSCI Brazil",
+          "proxy_security_id" => nil,
+          "security_id" => "abJamDazkgfvBkVGgnnLUWXoxnomp5up8llg4",
+          "sedol" => nil,
+          "ticker_symbol" => "EWZ",
+          "type" => "etf",
+          "unofficial_currency_code" => nil
+        },
+        %{
+          "close_price" => 1,
+          "close_price_as_of" => nil,
+          "cusip" => nil,
+          "institution_id" => nil,
+          "institution_security_id" => nil,
+          "is_cash_equivalent" => true,
+          "isin" => nil,
+          "iso_currency_code" => "USD",
+          "name" => "U S Dollar",
+          "proxy_security_id" => nil,
+          "security_id" => "d6ePmbPxgWCWmMVv66q9iPV94n91vMtov5Are",
+          "sedol" => nil,
+          "ticker_symbol" => "USD",
+          "type" => "cash",
+          "unofficial_currency_code" => nil
+        }
+      ],
+      "total_investment_transactions" => 326
+    }
+  end
+
+  def http_response_body(:"investments/holdings") do
+    %{
+      "accounts" => [
+        %{
+          "account_id" => "rxPW5z6P46CqqQm6Jy5ZI4Jdg5PGGBflwKgGg",
+          "balances" => %{
+            "available" => 100,
+            "current" => 110,
+            "iso_currency_code" => "USD",
+            "limit" => nil,
+            "unofficial_currency_code" => nil
+          },
+          "mask" => "0000",
+          "name" => "Plaid Checking",
+          "official_name" => "Plaid Gold Standard 0% Interest Checking",
+          "subtype" => "checking",
+          "type" => "depository"
+        },
+        %{
+          "account_id" => "dLb3JWRbARtppGe9PEMlIKwdP5lEE7tZNgeXy",
+          "balances" => %{
+            "available" => nil,
+            "current" => 320.76,
+            "iso_currency_code" => "USD",
+            "limit" => nil,
+            "unofficial_currency_code" => nil
+          },
+          "mask" => "5555",
+          "name" => "Plaid IRA",
+          "official_name" => nil,
+          "subtype" => "ira",
+          "type" => "investment"
+        },
+        %{
+          "account_id" => "aZDr3gRDLRcaaQ4gDlkdsLJKWjAZZgC74dLXJ",
+          "balances" => %{
+            "available" => nil,
+            "current" => 23631.9805,
+            "iso_currency_code" => "USD",
+            "limit" => nil,
+            "unofficial_currency_code" => nil
+          },
+          "mask" => "6666",
+          "name" => "Plaid 401k",
+          "official_name" => nil,
+          "subtype" => "401k",
+          "type" => "investment"
+        }
+      ],
+      "holdings" => [
+        %{
+          "account_id" => "dLb3JWRbARtppGe9PEMlIKwdP5lEE7tZNgeXy",
+          "cost_basis" => 1,
+          "institution_price" => 1,
+          "institution_price_as_of" => nil,
+          "institution_value" => 0.01,
+          "iso_currency_code" => "USD",
+          "quantity" => 0.01,
+          "security_id" => "d6ePmbPxgWCWmMVv66q9iPV94n91vMtov5Are",
+          "unofficial_currency_code" => nil
+        },
+        %{
+          "account_id" => "aZDr3gRDLRcaaQ4gDlkdsLJKWjAZZgC74dLXJ",
+          "cost_basis" => 1.5,
+          "institution_price" => 2.11,
+          "institution_price_as_of" => nil,
+          "institution_value" => 2.11,
+          "iso_currency_code" => "USD",
+          "quantity" => 1,
+          "security_id" => "KDwjlXj1Rqt58dVvmzRguxJybmyQL8FgeWWAy",
+          "unofficial_currency_code" => nil
+        },
+        %{
+          "account_id" => "aZDr3gRDLRcaaQ4gDlkdsLJKWjAZZgC74dLXJ",
+          "cost_basis" => 10,
+          "institution_price" => 10.42,
+          "institution_price_as_of" => nil,
+          "institution_value" => 20.84,
+          "iso_currency_code" => "USD",
+          "quantity" => 2,
+          "security_id" => "NDVQrXQoqzt5v3bAe8qRt4A7mK7wvZCLEBBJk",
+          "unofficial_currency_code" => nil
+        },
+        %{
+          "account_id" => "dLb3JWRbARtppGe9PEMlIKwdP5lEE7tZNgeXy",
+          "cost_basis" => 0.01,
+          "institution_price" => 0.011,
+          "institution_price_as_of" => nil,
+          "institution_value" => 110,
+          "iso_currency_code" => "USD",
+          "quantity" => 10000,
+          "security_id" => "8E4L9XLl6MudjEpwPAAgivmdZRdBPJuvMPlPb",
+          "unofficial_currency_code" => nil
+        }
+      ],
+      "item" => %{
+        "available_products" => ["assets", "balance", "credit_details", "identity", "income"],
+        "billed_products" => ["auth", "investments", "transactions"],
+        "error" => nil,
+        "institution_id" => "ins_3",
+        "item_id" => "EQXBrmLXgLsZZbVM4JvGsG5LeLm9bgsXRLv4j",
+        "webhook" => ""
+      },
+      "request_id" => "8lT4oybo5jl3JMp",
+      "securities" => [
+        %{
+          "close_price" => 0.011,
+          "close_price_as_of" => nil,
+          "cusip" => nil,
+          "institution_id" => nil,
+          "institution_security_id" => nil,
+          "is_cash_equivalent" => false,
+          "isin" => nil,
+          "iso_currency_code" => "USD",
+          "name" => "Nflx Feb 01'18 $355 Call",
+          "proxy_security_id" => nil,
+          "security_id" => "8E4L9XLl6MudjEpwPAAgivmdZRdBPJuvMPlPb",
+          "sedol" => nil,
+          "ticker_symbol" => "NFLX180201C00355000",
+          "type" => "derivative",
+          "unofficial_currency_code" => nil
+        },
+        %{
+          "close_price" => 27,
+          "close_price_as_of" => nil,
+          "cusip" => "577130834",
+          "institution_id" => nil,
+          "institution_security_id" => nil,
+          "is_cash_equivalent" => false,
+          "isin" => "US5771308344",
+          "iso_currency_code" => "USD",
+          "name" => "Matthews Pacific Tiger Fund Insti Class",
+          "proxy_security_id" => nil,
+          "security_id" => "JDdP7XPMklt5vwPmDN45t3KAoWAPmjtpaW7DP",
+          "sedol" => nil,
+          "ticker_symbol" => "MIPTX",
+          "type" => "mutual fund",
+          "unofficial_currency_code" => nil
+        },
+        %{
+          "close_price" => 2.11,
+          "close_price_as_of" => nil,
+          "cusip" => "00448Q201",
+          "institution_id" => nil,
+          "institution_security_id" => nil,
+          "is_cash_equivalent" => false,
+          "isin" => "US00448Q2012",
+          "iso_currency_code" => "USD",
+          "name" => "Achillion Pharmaceuticals Inc.",
+          "proxy_security_id" => nil,
+          "security_id" => "KDwjlXj1Rqt58dVvmzRguxJybmyQL8FgeWWAy",
+          "sedol" => nil,
+          "ticker_symbol" => "ACHN",
+          "type" => "equity",
+          "unofficial_currency_code" => nil
+        },
+        %{
+          "close_price" => 24.5,
+          "close_price_as_of" => nil,
+          "cusip" => "00769G543",
+          "institution_id" => nil,
+          "institution_security_id" => nil,
+          "is_cash_equivalent" => false,
+          "isin" => "US00769G5430",
+          "iso_currency_code" => "USD",
+          "name" => "Cambiar International Equity Institutional",
+          "proxy_security_id" => nil,
+          "security_id" => "MD9eKXeplrt5yKRlzLqXiavwb6wrdxUb3wdnM",
+          "sedol" => nil,
+          "ticker_symbol" => "CAMYX",
+          "type" => "mutual fund",
+          "unofficial_currency_code" => nil
+        },
+        %{
+          "close_price" => 10.42,
+          "close_price_as_of" => nil,
+          "cusip" => "258620103",
+          "institution_id" => nil,
+          "institution_security_id" => nil,
+          "is_cash_equivalent" => false,
+          "isin" => "US2586201038",
+          "iso_currency_code" => "USD",
+          "name" => "DoubleLine Total Return Bond Fund",
+          "proxy_security_id" => nil,
+          "security_id" => "NDVQrXQoqzt5v3bAe8qRt4A7mK7wvZCLEBBJk",
+          "sedol" => nil,
+          "ticker_symbol" => "DBLTX",
+          "type" => "mutual fund",
+          "unofficial_currency_code" => nil
+        },
+        %{
+          "close_price" => 42.15,
+          "close_price_as_of" => nil,
+          "cusip" => "464286400",
+          "institution_id" => nil,
+          "institution_security_id" => nil,
+          "is_cash_equivalent" => false,
+          "isin" => "US4642864007",
+          "iso_currency_code" => "USD",
+          "name" => "iShares Inc MSCI Brazil",
+          "proxy_security_id" => nil,
+          "security_id" => "abJamDazkgfvBkVGgnnLUWXoxnomp5up8llg4",
+          "sedol" => nil,
+          "ticker_symbol" => "EWZ",
+          "type" => "etf",
+          "unofficial_currency_code" => nil
+        },
+        %{
+          "close_price" => 1,
+          "close_price_as_of" => nil,
+          "cusip" => nil,
+          "institution_id" => nil,
+          "institution_security_id" => nil,
+          "is_cash_equivalent" => true,
+          "isin" => nil,
+          "iso_currency_code" => "USD",
+          "name" => "U S Dollar",
+          "proxy_security_id" => nil,
+          "security_id" => "d6ePmbPxgWCWmMVv66q9iPV94n91vMtov5Are",
+          "sedol" => nil,
+          "ticker_symbol" => "USD",
+          "type" => "cash",
+          "unofficial_currency_code" => nil
+        },
+        %{
+          "close_price" => 34.73,
+          "close_price_as_of" => nil,
+          "cusip" => "84470P109",
+          "institution_id" => nil,
+          "institution_security_id" => nil,
+          "is_cash_equivalent" => false,
+          "isin" => "US84470P1093",
+          "iso_currency_code" => "USD",
+          "name" => "Southside Bancshares Inc.",
+          "proxy_security_id" => nil,
+          "security_id" => "eW4jmnjd6AtjxXVrjmj6SX1dNEdZp3Cy8RnRQ",
+          "sedol" => nil,
+          "ticker_symbol" => "SBSI",
+          "type" => "equity",
+          "unofficial_currency_code" => nil
+        },
+        %{
+          "close_price" => 13.73,
+          "close_price_as_of" => nil,
+          "cusip" => nil,
+          "institution_id" => "ins_115617",
+          "institution_security_id" => "NHX105509",
+          "is_cash_equivalent" => false,
+          "isin" => nil,
+          "iso_currency_code" => "USD",
+          "name" => "NH PORTFOLIO 1055 (FIDELITY INDEX)",
+          "proxy_security_id" => nil,
+          "security_id" => "nnmo8doZ4lfKNEDe3mPJipLGkaGw3jfPrpxoN",
+          "sedol" => nil,
+          "ticker_symbol" => "NHX105509",
+          "type" => "etf",
+          "unofficial_currency_code" => nil
+        }
+      ]
+    }
+  end
 end
