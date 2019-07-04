@@ -1,11 +1,7 @@
 defmodule Plaid.Investments do
-  @moduledoc """
-  Functions for Plaid `investments` endpoints.
-  """
-
   defmodule Security do
     @moduledoc """
-    Plaid Security data structure.
+    Plaid Investments Security data structure.
     """
 
     @derive Jason.Encoder
@@ -45,6 +41,10 @@ defmodule Plaid.Investments do
   end
 
   defmodule Holdings do
+    @moduledoc """
+    Functions for Plaid `investments/holdings` endpoints.
+    """
+
     import Plaid, only: [make_request_with_cred: 4, validate_cred: 1]
 
     alias Plaid.Utils
@@ -119,6 +119,10 @@ defmodule Plaid.Investments do
   end
 
   defmodule Transactions do
+    @moduledoc """
+    Functions for Plaid `investments/transactions` endpoints.
+    """
+
     import Plaid, only: [make_request_with_cred: 4, validate_cred: 1]
 
     alias Plaid.Utils
