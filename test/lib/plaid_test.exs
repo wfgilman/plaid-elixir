@@ -31,7 +31,12 @@ defmodule PlaidTest do
     end
 
     test "validate_cred/1 returns credentials from config" do
-      config = %{client_id: "me", secret: "shhhh", public_key: "yoyo", root_uri: "http://localhost:1234/"}
+      config = %{
+        client_id: "me",
+        secret: "shhhh",
+        public_key: "yoyo",
+        root_uri: "http://localhost:1234/"
+      }
 
       assert %{
                client_id: "me",
@@ -40,7 +45,9 @@ defmodule PlaidTest do
              } == Plaid.validate_cred(config)
     end
 
-    test "validate_cred/1 uses configuration value when no config is passed as argument", %{bypass: bypass} do
+    test "validate_cred/1 uses configuration value when no config is passed as argument", %{
+      bypass: bypass
+    } do
       Application.put_env(:plaid, :client_id, "you")
       Application.put_env(:plaid, :secret, "no secrets")
 
@@ -63,7 +70,9 @@ defmodule PlaidTest do
       cleanup_config()
     end
 
-    test "validate_public_key/1 uses configuration value when no config is passed as argument", %{bypass: bypass} do
+    test "validate_public_key/1 uses configuration value when no config is passed as argument", %{
+      bypass: bypass
+    } do
       Application.put_env(:plaid, :public_key, "yoyoyo")
 
       assert %{

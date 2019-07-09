@@ -21,3 +21,9 @@ erl_crash.dump
 *.ez
 
 .DS_Store
+
+# ElixirLS vscode extension
+.elixir_ls
+
+# vscode
+.vscode
