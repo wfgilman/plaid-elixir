@@ -111,7 +111,7 @@ defmodule Plaid.Institutions do
   """
   @spec get(params, config | nil) :: {:ok, Plaid.Institutions.t()} | {:error, Plaid.Error.t()}
   def get(params, config \\ %{}) do
-    config = validate_public_key(config)
+    config = validate_cred(config)
     endpoint = "#{@endpoint}/get"
 
     make_request_with_cred(:post, endpoint, config, params)
@@ -124,7 +124,7 @@ defmodule Plaid.Institutions do
   @spec get_by_id(String.t(), config | nil) ::
           {:ok, Plaid.Institutions.Institution.t()} | {:error, Plaid.Error.t()}
   def get_by_id(id, config \\ %{}) do
-    config = validate_cred(config)
+    config = validate_public_key(config)
     params = %{institution_id: id}
     endpoint = "#{@endpoint}/get_by_id"
 
@@ -142,7 +142,7 @@ defmodule Plaid.Institutions do
   """
   @spec search(params, config | nil) :: {:ok, Plaid.Institutions.t()} | {:error, Plaid.Error.t()}
   def search(params, config \\ %{}) do
-    config = validate_cred(config)
+    config = validate_public_key(config)
     endpoint = "#{@endpoint}/search"
 
     make_request_with_cred(:post, endpoint, config, params)
