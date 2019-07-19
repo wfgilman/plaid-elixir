@@ -15,7 +15,7 @@ defmodule Plaid.Institutions do
           request_id: String.t(),
           total: integer
         }
-  @type params :: %{required(atom) => integer | String.t() | list}
+  @type params :: %{required(atom) => integer | String.t() | list | map}
   @type config :: %{required(atom) => String.t()}
 
   @endpoint :institutions
