@@ -34,7 +34,7 @@ defmodule Plaid.Investments.Transactions do
     """
 
     @derive Jason.Encoder
-    defstruct transaction_id: nil,
+    defstruct investment_transaction_id: nil,
               account_id: nil,
               security_id: nil,
               date: nil,
@@ -49,7 +49,7 @@ defmodule Plaid.Investments.Transactions do
               cancel_transaction_id: nil
 
     @type t :: %__MODULE__{
-            transaction_id: String.t(),
+            investment_transaction_id: String.t(),
             account_id: String.t(),
             security_id: String.t() | nil,
             date: String.t(),
