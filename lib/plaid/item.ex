@@ -96,7 +96,7 @@ defmodule Plaid.Item do
 
   Parameters
   ```
-  %{access_webhook: "access-env-identifier", webhook: "http://mywebsite/api"}
+  %{access_token: "access-env-identifier", webhook: "http://mywebsite/api"}
   ```
   """
   @spec update_webhook(params, config | nil) :: {:ok, Plaid.Item.t()} | {:error, Plaid.Error.t()}
