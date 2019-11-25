@@ -204,10 +204,11 @@ defmodule Plaid.Item do
 
   Response
   ```
-  {:ok, %{stripe_bank_account_token: "btok_Kb62HbBqrrvdf8pBsAdt", request_id: "[Unique request ID]"}
+  {:ok, %{stripe_bank_account_token: "btok_Kb62HbBqrrvdf8pBsAdt", request_id: "[Unique request ID]"}}
   ```
   """
-  @spec create_stripe_bank_account_token(params, config | nil) :: {:ok, map} | {:error, Plaid.Error.t()}
+  @spec create_stripe_bank_account_token(params, config | nil) ::
+          {:ok, map} | {:error, Plaid.Error.t()}
   def create_stripe_bank_account_token(params, config \\ %{}) do
     config = validate_cred(config)
     endpoint = "processor/stripe/bank_account_token/create"
