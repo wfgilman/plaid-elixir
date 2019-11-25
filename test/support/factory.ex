@@ -371,7 +371,7 @@ defmodule Plaid.Factory do
     }
   end
 
-  def http_response_body(:processor_token) do
+  def http_response_body(:stripe_bank_account_token) do
     %{
       "stripe_bank_account_token" => "stripe-sandbox-asda9-a99c1-ca3g",
       "request_id" => "45QSn"

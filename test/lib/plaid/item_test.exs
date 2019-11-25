@@ -144,7 +144,7 @@ defmodule Plaid.ItemTest do
                  account_id: "id"
                })
 
-      assert resp.processor_token
+      assert resp.stripe_bank_account_token
     end
   end
 end
