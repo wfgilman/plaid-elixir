@@ -128,5 +128,23 @@ defmodule Plaid.ItemTest do
 
       assert resp.processor_token
     end
+
+    test "create_stripe_bank_account_token/1 request POST and returns token", %{bypass: bypass} do
+      body = http_response_body(:stripe_bank_account_token)
+
+      Bypass.expect(bypass, fn conn ->
+        assert "POST" == conn.method
+        assert "processor/stripe/bank_account_token/create" == Enum.join(conn.path_info, "/")
+        Plug.Conn.resp(conn, 200, Poison.encode!(body))
+      end)
+
+      assert {:ok, resp} =
+               Plaid.Item.create_stripe_bank_account_token(%{
+                 access_token: "token",
+                 account_id: "id"
+               })
+
+      assert resp.stripe_bank_account_token
+    end
   end
 end

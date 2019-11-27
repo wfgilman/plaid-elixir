@@ -164,6 +164,14 @@ defmodule Plaid.Utils do
     end)
   end
 
+  def map_response(%{"stripe_bank_account_token" => _} = response, :item) do
+    response
+    |> Map.take(["stripe_bank_account_token", "request_id"])
+    |> Enum.reduce(%{}, fn {k, v}, acc ->
+      Map.put(acc, String.to_atom(k), v)
+    end)
+  end
+
   def map_response(response, :"investments/holdings") do
     Poison.Decode.decode(response,
       as: %Plaid.Investments.Holdings{

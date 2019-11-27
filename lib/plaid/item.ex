@@ -192,4 +192,28 @@ defmodule Plaid.Item do
     make_request_with_cred(:post, endpoint, config, params)
     |> Utils.handle_resp(@endpoint)
   end
+
+  @doc """
+  [Creates a stripe bank account token](https://stripe.com/docs/ach)
+  used to create an authenticated funding source with Stripe.
+
+  Parameters
+  ```
+  %{access_token: "access-env-identifier", account_id: "plaid-account-id"}
+  ```
+
+  Response
+  ```
+  {:ok, %{stripe_bank_account_token: "btok_Kb62HbBqrrvdf8pBsAdt", request_id: "[Unique request ID]"}}
+  ```
+  """
+  @spec create_stripe_bank_account_token(params, config | nil) ::
+          {:ok, map} | {:error, Plaid.Error.t()}
+  def create_stripe_bank_account_token(params, config \\ %{}) do
+    config = validate_cred(config)
+    endpoint = "processor/stripe/bank_account_token/create"
+
+    make_request_with_cred(:post, endpoint, config, params)
+    |> Utils.handle_resp(@endpoint)
+  end
 end
