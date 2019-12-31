@@ -28,6 +28,7 @@ defmodule Plaid.Accounts do
     @derive Jason.Encoder
     defstruct account_id: nil,
               balances: nil,
+              owners: nil,
               name: nil,
               mask: nil,
               official_name: nil,
@@ -37,6 +38,7 @@ defmodule Plaid.Accounts do
     @type t :: %__MODULE__{
             account_id: String.t(),
             balances: Plaid.Accounts.Account.Balance.t(),
+            owners: [Plaid.Accounts.Account.Owner.t()],
             name: String.t(),
             mask: String.t(),
             official_name: String.t(),
@@ -63,6 +65,80 @@ defmodule Plaid.Accounts do
               iso_currency_code: String.t(),
               unofficial_currency_code: String.t()
             }
+    end
+
+    defmodule Owner do
+      @moduledoc """
+      Plaid Account Owner data structure.
+      """
+
+      @derive Jason.Encoder
+      defstruct addresses: nil,
+                emails: nil,
+                names: nil,
+                phone_numbers: nil
+
+      @type t :: %__MODULE__{
+              addresses: [Plaid.Accounts.Owner.Address],
+              emails: [Plaid.Accounts.Owner.Email],
+              names: [String.t()],
+              phone_numbers: [Plaid.Accounts.Owner.PhoneNumber]
+            }
+
+      defmodule Address do
+        @moduledoc """
+        Plaid Account Owner Address data structure.
+        """
+
+        @derive Jason.Encoder
+        defstruct data: %{city: nil, region: nil, street: nil, postal_code: nil, country: nil},
+                  primary: false
+
+        @type t :: %__MODULE__{
+                data: %{
+                  city: String.t(),
+                  region: String.t(),
+                  street: String.t(),
+                  postal_code: String.t(),
+                  country: String.t()
+                },
+                primary: boolean()
+              }
+      end
+
+      defmodule Email do
+        @moduledoc """
+        Plaid Account Owner Email data structure.
+        """
+
+        @derive Jason.Encoder
+        defstruct data: nil,
+                  primary: false,
+                  type: nil
+
+        @type t :: %__MODULE__{
+                data: String.t(),
+                primary: boolean(),
+                type: String.t()
+              }
+      end
+
+      defmodule PhoneNumber do
+        @moduledoc """
+        Plaid Account Owner PhoneNumber data structure.
+        """
+
+        @derive Jason.Encoder
+        defstruct data: nil,
+                  primary: false,
+                  type: nil
+
+        @type t :: %__MODULE__{
+                data: String.t(),
+                primary: boolean(),
+                type: String.t()
+              }
+      end
     end
   end
 

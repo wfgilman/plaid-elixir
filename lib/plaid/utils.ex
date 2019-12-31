@@ -119,6 +119,10 @@ defmodule Plaid.Utils do
     )
   end
 
+  def map_response(response, :identity) do
+    Poison.Decode.decode(response, as: %Plaid.Identity{})
+  end
+
   def map_response(%{"item" => item} = response, :item) do
     new_response = response |> Map.take(["request_id"]) |> Map.merge(item)
     Poison.Decode.decode(new_response, as: %Plaid.Item{})
