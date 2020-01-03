@@ -11,7 +11,7 @@ Supported Plaid products:
 
 - [x] Transactions
 - [x] Auth
-- [ ] Identity
+- [x] Identity
 - [x] Balance
 - [x] Income
 - [ ] Assets
