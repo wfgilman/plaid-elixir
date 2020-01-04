@@ -120,7 +120,23 @@ defmodule Plaid.Utils do
   end
 
   def map_response(response, :identity) do
-    Poison.Decode.decode(response, as: %Plaid.Identity{})
+    Poison.Decode.decode(response,
+      as: %Plaid.Identity{
+        item: %Plaid.Item{},
+        accounts: [
+          %Plaid.Accounts.Account{
+            balances: %Plaid.Accounts.Account.Balance{},
+            owners: [
+              %Plaid.Accounts.Account.Owner{
+                addresses: [%Plaid.Accounts.Account.Owner.Address{}],
+                emails: [%Plaid.Accounts.Account.Owner.Email{}],
+                phone_numbers: [%Plaid.Accounts.Account.Owner.PhoneNumber{}]
+              }
+            ]
+          }
+        ]
+      }
+    )
   end
 
   def map_response(%{"item" => item} = response, :item) do
