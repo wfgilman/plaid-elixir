@@ -24,7 +24,7 @@ defmodule Plaid.InstitutionsTest do
       assert {:ok, _} = Jason.encode(resp)
     end
 
-    test "get_by_id/1 requests POST and returns Plaid.Institutions.Institution", %{bypass: bypass} do
+    test "get_by_id/1 requests POST with string params and returns Plaid.Institutions.Institution", %{bypass: bypass} do
       body = http_response_body(:institution)
 
       Bypass.expect(bypass, fn conn ->
@@ -34,6 +34,20 @@ defmodule Plaid.InstitutionsTest do
       end)
 
       assert {:ok, resp} = Plaid.Institutions.get_by_id("ins_109512")
+      assert Plaid.Institutions.Institution == resp.__struct__
+      assert {:ok, _} = Jason.encode(resp)
+    end
+
+    test "get_by_id/1 requests POST with map params and returns Plaid.Institutions.Institution", %{bypass: bypass} do
+      body = http_response_body(:institution)
+
+      Bypass.expect(bypass, fn conn ->
+        assert "POST" == conn.method
+        assert "institutions/get_by_id" == Enum.join(conn.path_info, "/")
+        Plug.Conn.resp(conn, 200, Poison.encode!(body))
+      end)
+
+      assert {:ok, resp} = Plaid.Institutions.get_by_id(%{institution_id: "ins_109512", options: %{}})
       assert Plaid.Institutions.Institution == resp.__struct__
       assert {:ok, _} = Jason.encode(resp)
     end
