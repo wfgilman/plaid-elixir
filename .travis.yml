@@ -14,4 +14,6 @@ matrix:
   exclude:
     - elixir: 1.8.0
       otp_release: 19.3
+  include:
+    script: mix coveralls.travis
 
