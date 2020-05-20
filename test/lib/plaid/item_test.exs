@@ -22,6 +22,7 @@ defmodule Plaid.ItemTest do
       assert {:ok, resp} = Plaid.Item.get(%{access_token: "my-token"})
       assert Plaid.Item == resp.__struct__
       assert {:ok, _} = Jason.encode(resp)
+      assert resp.status == body["status"]
     end
 
     test "exchange_public_token/1 requests POST and returns map", %{bypass: bypass} do
