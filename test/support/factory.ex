@@ -79,7 +79,21 @@ defmodule Plaid.Factory do
         "item_id" => "Ed6bjNrDLJfGvZWwnkQlfxwoNz54B5C97ejBr",
         "webhook" => "https://plaid.com/example/hook"
       },
-      "request_id" => "qpCtl"
+      "request_id" => "qpCtl",
+      "status" => %{
+        "last_webhook" => %{
+          "sent_at" => "2019-02-15T15:53:00Z",
+          "code_sent" => "DEFAULT_UPDATE"  
+        },
+        "transactions" => %{
+          "last_failed_update" => nil,
+          "last_successful_update" => "2020-05-19T23:16:55.038Z"
+        },
+        "investments" => %{
+          "last_successful_update" => "2019-05-23T19:51:00Z",
+          "last_failed_update" => "2019-03-15T02:10:00Z"
+        }
+      }
     }
   end
 
