@@ -165,7 +165,18 @@ defmodule Plaid.Utils do
 
   def map_response(%{"item" => item} = response, :item) do
     new_response = response |> Map.take(["request_id", "status"]) |> Map.merge(item)
-    Poison.Decode.transform(new_response, %{as: %Plaid.Item{}})
+    Poison.Decode.transform(
+      new_response,
+      %{
+        as: %Plaid.Item{
+          status: %Plaid.Item.Status{
+            investments: %Plaid.Item.Status.Investments{},
+            transactions: %Plaid.Item.Status.Transactions{},
+            last_webhook: %Plaid.Item.Status.LastWebhook{}
+          }
+        }
+      }
+    )
   end
 
   def map_response(%{"new_access_token" => _} = response, :item) do

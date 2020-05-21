@@ -22,7 +22,11 @@ defmodule Plaid.ItemTest do
       assert {:ok, resp} = Plaid.Item.get(%{access_token: "my-token"})
       assert Plaid.Item == resp.__struct__
       assert {:ok, _} = Jason.encode(resp)
-      assert resp.status == body["status"]
+      assert Plaid.Item.Status == resp.status.__struct__
+      assert Plaid.Item.Status.Investments == resp.status.investments.__struct__
+      assert Plaid.Item.Status.Transactions == resp.status.transactions.__struct__
+      assert Plaid.Item.Status.LastWebhook == resp.status.last_webhook.__struct__
+      assert resp.status.last_webhook.code_sent == body["status"]["last_webhook"]["code_sent"]
     end
 
     test "exchange_public_token/1 requests POST and returns map", %{bypass: bypass} do

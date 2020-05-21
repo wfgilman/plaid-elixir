@@ -32,6 +32,53 @@ defmodule Plaid.Item do
 
   @endpoint :item
 
+  defmodule Status do
+    @moduledoc """
+    Plaid Item Status data structure.
+    """
+
+    @derive Jason.Encoder
+    defstruct investments: nil,
+              transactions: nil,
+              last_webhook: nil
+
+    @type t :: %__MODULE__{
+          investments: Plaid.Item.Status.Investments.t(),
+          transactions: Plaid.Item.Status.Transactions.t(),
+          last_webhook: Plaid.Item.Status.LastWebhook.t()
+    }
+
+    defmodule Investments do
+      @moduledoc """
+      Plaid Item Status Investments data structure.
+      """
+
+      @derive Jason.Encoder
+      defstruct last_successful_update: nil, last_failed_update: nil
+      @type t :: %__MODULE__{last_successful_update: String.t, last_failed_update: String.t}
+    end
+
+    defmodule Transactions do
+      @moduledoc """
+      Plaid Item Status Transactions data structure.
+      """
+
+      @derive Jason.Encoder
+      defstruct last_successful_update: nil, last_failed_update: nil
+      @type t :: %__MODULE__{last_successful_update: String.t, last_failed_update: String.t}
+    end
+
+    defmodule LastWebhook do
+      @moduledoc """
+      Plaid Item Status LastWebhook data structure.
+      """
+
+      @derive Jason.Encoder
+      defstruct sent_at: nil, code_sent: nil
+      @type t :: %__MODULE__{sent_at: String.t, code_sent: String.t}
+    end
+  end
+
   @doc """
   Gets an Item.
 
