@@ -14,7 +14,8 @@ defmodule Plaid.Item do
             institution_id: nil,
             item_id: nil,
             webhook: nil,
-            request_id: nil
+            request_id: nil,
+            status: nil
 
   @type t :: %__MODULE__{
           available_products: [String.t()],
@@ -23,7 +24,8 @@ defmodule Plaid.Item do
           institution_id: String.t(),
           item_id: String.t(),
           webhook: String.t(),
-          request_id: String.t()
+          request_id: String.t(),
+          status: map | nil,
         }
   @type params :: %{required(atom) => String.t()}
   @type config :: %{required(atom) => String.t()}
