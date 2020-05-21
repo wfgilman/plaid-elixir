@@ -83,7 +83,7 @@ defmodule Plaid.Factory do
       "status" => %{
         "last_webhook" => %{
           "sent_at" => "2019-02-15T15:53:00Z",
-          "code_sent" => "DEFAULT_UPDATE"  
+          "code_sent" => "DEFAULT_UPDATE"
         },
         "transactions" => %{
           "last_failed_update" => nil,

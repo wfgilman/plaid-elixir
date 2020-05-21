@@ -165,6 +165,7 @@ defmodule Plaid.Utils do
 
   def map_response(%{"item" => item} = response, :item) do
     new_response = response |> Map.take(["request_id", "status"]) |> Map.merge(item)
+
     Poison.Decode.transform(
       new_response,
       %{

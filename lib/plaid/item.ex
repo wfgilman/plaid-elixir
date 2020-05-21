@@ -25,7 +25,7 @@ defmodule Plaid.Item do
           item_id: String.t(),
           webhook: String.t(),
           request_id: String.t(),
-          status: map | nil,
+          status: Plaid.Item.Status.t()
         }
   @type params :: %{required(atom) => String.t()}
   @type config :: %{required(atom) => String.t()}
@@ -43,10 +43,10 @@ defmodule Plaid.Item do
               last_webhook: nil
 
     @type t :: %__MODULE__{
-          investments: Plaid.Item.Status.Investments.t(),
-          transactions: Plaid.Item.Status.Transactions.t(),
-          last_webhook: Plaid.Item.Status.LastWebhook.t()
-    }
+            investments: Plaid.Item.Status.Investments.t(),
+            transactions: Plaid.Item.Status.Transactions.t(),
+            last_webhook: Plaid.Item.Status.LastWebhook.t()
+          }
 
     defmodule Investments do
       @moduledoc """
@@ -55,7 +55,7 @@ defmodule Plaid.Item do
 
       @derive Jason.Encoder
       defstruct last_successful_update: nil, last_failed_update: nil
-      @type t :: %__MODULE__{last_successful_update: String.t, last_failed_update: String.t}
+      @type t :: %__MODULE__{last_successful_update: String.t(), last_failed_update: String.t()}
     end
 
     defmodule Transactions do
@@ -65,7 +65,7 @@ defmodule Plaid.Item do
 
       @derive Jason.Encoder
       defstruct last_successful_update: nil, last_failed_update: nil
-      @type t :: %__MODULE__{last_successful_update: String.t, last_failed_update: String.t}
+      @type t :: %__MODULE__{last_successful_update: String.t(), last_failed_update: String.t()}
     end
 
     defmodule LastWebhook do
@@ -75,7 +75,7 @@ defmodule Plaid.Item do
 
       @derive Jason.Encoder
       defstruct sent_at: nil, code_sent: nil
-      @type t :: %__MODULE__{sent_at: String.t, code_sent: String.t}
+      @type t :: %__MODULE__{sent_at: String.t(), code_sent: String.t()}
     end
   end
 
