@@ -29,6 +29,7 @@ defmodule Plaid.Item do
         }
   @type params :: %{required(atom) => String.t()}
   @type config :: %{required(atom) => String.t()}
+  @type service :: :dwolla | :modern_treasury
 
   @endpoint :item
 
@@ -233,14 +234,37 @@ defmodule Plaid.Item do
   {:ok, %{processor_token: "some-token", request_id: "k522f2"}}
   ```
   """
+  @deprecated "Use create_processor_token/3 instead"
   @spec create_processor_token(params, config | nil) :: {:ok, map} | {:error, Plaid.Error.t()}
   def create_processor_token(params, config \\ %{}) do
+    create_processor_token(params, :dwolla, config)
+  end
+
+  @doc """
+  Creates a processor token used to integrate with services external to Plaid.
+
+  Parameters
+  ```
+  %{access_token: "access-env-identifier", account_id: "plaid-account-id"}
+  ```
+
+  Response
+  ```
+  {:ok, %{processor_token: "some-token", request_id: "k522f2"}}
+  ```
+  """
+  @spec create_processor_token(params, service, config | nil) ::
+          {:ok, map} | {:error, Plaid.Error.t()}
+  def create_processor_token(params, service, config) do
     config = validate_cred(config)
-    endpoint = "processor/dwolla/processor_token/create"
+    endpoint = "processor/#{service_to_string(service)}/processor_token/create"
 
     make_request_with_cred(:post, endpoint, config, params)
     |> Utils.handle_resp(@endpoint)
   end
+
+  defp service_to_string(:dwolla), do: "dwolla"
+  defp service_to_string(:modern_treasury), do: "modern_treasury"
 
   @doc """
   [Creates a stripe bank account token](https://stripe.com/docs/ach)

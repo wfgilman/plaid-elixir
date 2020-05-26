@@ -119,7 +119,7 @@ defmodule Plaid.ItemTest do
       assert resp.deleted == body["deleted"]
     end
 
-    test "create_processor_token/1 request POST and returns token", %{bypass: bypass} do
+    test "deprecated: create_processor_token/1 request POST and returns token", %{bypass: bypass} do
       body = http_response_body(:processor_token)
 
       Bypass.expect(bypass, fn conn ->
@@ -130,6 +130,25 @@ defmodule Plaid.ItemTest do
 
       assert {:ok, resp} =
                Plaid.Item.create_processor_token(%{access_token: "token", account_id: "id"})
+
+      assert resp.processor_token
+    end
+
+    test "create_processor_token/3 request POST and returns token", %{bypass: bypass} do
+      body = http_response_body(:processor_token)
+
+      Bypass.expect(bypass, fn conn ->
+        assert "POST" == conn.method
+        assert "processor/dwolla/processor_token/create" == Enum.join(conn.path_info, "/")
+        Plug.Conn.resp(conn, 200, Poison.encode!(body))
+      end)
+
+      assert {:ok, resp} =
+               Plaid.Item.create_processor_token(
+                 %{access_token: "token", account_id: "id"},
+                 :dwolla,
+                 %{}
+               )
 
       assert resp.processor_token
     end
