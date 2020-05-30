@@ -64,7 +64,8 @@ defmodule Plaid.Utils do
         as: %Plaid.Institutions{
           institutions: [
             %Plaid.Institutions.Institution{
-              credentials: [%Plaid.Institutions.Institution.Credentials{}]
+              credentials: [%Plaid.Institutions.Institution.Credentials{}],
+              status: %Plaid.Institutions.Institution.Status{}
             }
           ]
         }
@@ -79,7 +80,8 @@ defmodule Plaid.Utils do
       new_response,
       %{
         as: %Plaid.Institutions.Institution{
-          credentials: [%Plaid.Institutions.Institution.Credentials{}]
+          credentials: [%Plaid.Institutions.Institution.Credentials{}],
+          status: %Plaid.Institutions.Institution.Status{}
         }
       }
     )
