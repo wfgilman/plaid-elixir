@@ -229,7 +229,54 @@ defmodule Plaid.Factory do
           "primary_color" => "#c02f27",
           "products" => ["assets", "auth", "balance", "transactions", "income", "identity"],
           "routing_numbers" => [],
-          "status" => %{"item_logins" => nil},
+          "status" => %{
+            "auth" => %{
+              "breakdown" => %{
+                "error_institution" => 0.08,
+                "error_plaid" => 0.01,
+                "success" => 0.91
+              },
+              "last_status_change" => "2019-02-15T15:53:00Z",
+              "status" => "HEALTHY"
+            },
+            "balance" => %{
+              "breakdown" => %{
+                "error_institution" => 0.09,
+                "error_plaid" => 0.02,
+                "success" => 0.89
+              },
+              "last_status_change" => "2019-02-15T15:53:00Z",
+              "status" => "HEALTHY"
+            },
+            "identity" => %{
+              "breakdown" => %{
+                "error_institution" => 0.5,
+                "error_plaid" => 0.08,
+                "success" => 0.42
+              },
+              "last_status_change" => "2019-02-15T15:50:00Z",
+              "status" => "DEGRADED"
+            },
+            "item_logins" => %{
+              "breakdown" => %{
+                "error_institution" => 0.09,
+                "error_plaid" => 0.01,
+                "success" => 0.9
+              },
+              "last_status_change" => "2019-02-15T15:53:00Z",
+              "status" => "HEALTHY"
+            },
+            "transactions_updates" => %{
+              "breakdown" => %{
+                "error_institution" => 0.03,
+                "error_plaid" => 0.02,
+                "refresh_interval" => "NORMAL",
+                "success" => 0.95
+              },
+              "last_status_change" => "2019-02-12T08:22:00Z",
+              "status" => "HEALTHY"
+            }
+          },
           "url" => "http://www.our1stbank.com/"
         }
       ],
@@ -258,7 +305,54 @@ defmodule Plaid.Factory do
         "primary_color" => "#004966",
         "products" => ["assets", "auth", "balance", "transactions", "income", "identity"],
         "routing_numbers" => [],
-        "status" => %{"item_logins" => nil},
+        "status" => %{
+          "auth" => %{
+            "breakdown" => %{
+              "error_institution" => 0.08,
+              "error_plaid" => 0.01,
+              "success" => 0.91
+            },
+            "last_status_change" => "2019-02-15T15:53:00Z",
+            "status" => "HEALTHY"
+          },
+          "balance" => %{
+            "breakdown" => %{
+              "error_institution" => 0.09,
+              "error_plaid" => 0.02,
+              "success" => 0.89
+            },
+            "last_status_change" => "2019-02-15T15:53:00Z",
+            "status" => "HEALTHY"
+          },
+          "identity" => %{
+            "breakdown" => %{
+              "error_institution" => 0.5,
+              "error_plaid" => 0.08,
+              "success" => 0.42
+            },
+            "last_status_change" => "2019-02-15T15:50:00Z",
+            "status" => "DEGRADED"
+          },
+          "item_logins" => %{
+            "breakdown" => %{
+              "error_institution" => 0.09,
+              "error_plaid" => 0.01,
+              "success" => 0.9
+            },
+            "last_status_change" => "2019-02-15T15:53:00Z",
+            "status" => "HEALTHY"
+          },
+          "transactions_updates" => %{
+            "breakdown" => %{
+              "error_institution" => 0.03,
+              "error_plaid" => 0.02,
+              "refresh_interval" => "NORMAL",
+              "success" => 0.95
+            },
+            "last_status_change" => "2019-02-12T08:22:00Z",
+            "status" => "HEALTHY"
+          }
+        },
         "url" => "https://www.forteracu.com/"
       },
       "request_id" => "O9AZsnAaPO23Aiw"
