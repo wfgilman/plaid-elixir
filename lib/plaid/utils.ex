@@ -64,7 +64,25 @@ defmodule Plaid.Utils do
         as: %Plaid.Institutions{
           institutions: [
             %Plaid.Institutions.Institution{
-              credentials: [%Plaid.Institutions.Institution.Credentials{}]
+              credentials: [%Plaid.Institutions.Institution.Credentials{}],
+              status: %Plaid.Institutions.Institution.Status{
+                item_logins: %Plaid.Institutions.Institution.Status.ItemLogins{
+                  breakdown: %Plaid.Institutions.Institution.Status.ItemLogins.Breakdown{}
+                },
+                transactions_updates: %Plaid.Institutions.Institution.Status.TransactionsUpdates{
+                  breakdown:
+                    %Plaid.Institutions.Institution.Status.TransactionsUpdates.Breakdown{}
+                },
+                auth: %Plaid.Institutions.Institution.Status.Auth{
+                  breakdown: %Plaid.Institutions.Institution.Status.Auth.Breakdown{}
+                },
+                balance: %Plaid.Institutions.Institution.Status.Balance{
+                  breakdown: %Plaid.Institutions.Institution.Status.Balance.Breakdown{}
+                },
+                identity: %Plaid.Institutions.Institution.Status.Identity{
+                  breakdown: %Plaid.Institutions.Institution.Status.Identity.Breakdown{}
+                }
+              }
             }
           ]
         }
@@ -79,7 +97,24 @@ defmodule Plaid.Utils do
       new_response,
       %{
         as: %Plaid.Institutions.Institution{
-          credentials: [%Plaid.Institutions.Institution.Credentials{}]
+          credentials: [%Plaid.Institutions.Institution.Credentials{}],
+          status: %Plaid.Institutions.Institution.Status{
+            item_logins: %Plaid.Institutions.Institution.Status.ItemLogins{
+              breakdown: %Plaid.Institutions.Institution.Status.ItemLogins.Breakdown{}
+            },
+            transactions_updates: %Plaid.Institutions.Institution.Status.TransactionsUpdates{
+              breakdown: %Plaid.Institutions.Institution.Status.TransactionsUpdates.Breakdown{}
+            },
+            auth: %Plaid.Institutions.Institution.Status.Auth{
+              breakdown: %Plaid.Institutions.Institution.Status.Auth.Breakdown{}
+            },
+            balance: %Plaid.Institutions.Institution.Status.Balance{
+              breakdown: %Plaid.Institutions.Institution.Status.Balance.Breakdown{}
+            },
+            identity: %Plaid.Institutions.Institution.Status.Identity{
+              breakdown: %Plaid.Institutions.Institution.Status.Identity.Breakdown{}
+            }
+          }
         }
       }
     )
@@ -127,7 +162,10 @@ defmodule Plaid.Utils do
       %{
         as: %Plaid.Auth{
           numbers: %Plaid.Auth.Numbers{
-            ach: [%Plaid.Auth.Numbers.ACH{}]
+            ach: [%Plaid.Auth.Numbers.ACH{}],
+            eft: [%Plaid.Auth.Numbers.EFT{}],
+            international: [%Plaid.Auth.Numbers.International{}],
+            bacs: [%Plaid.Auth.Numbers.BACS{}]
           },
           item: %Plaid.Item{},
           accounts: [

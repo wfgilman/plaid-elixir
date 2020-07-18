@@ -27,7 +27,7 @@ Add to your dependencies in `mix.exs`. The hex specification is required.
 
 ```elixir
 def deps do
-  [{:plaid, "~> 1.9", hex: :plaid_elixir}]
+  [{:plaid, "~> 2.0", hex: :plaid_elixir}]
 end
 ```
 

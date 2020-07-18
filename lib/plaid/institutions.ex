@@ -26,69 +26,41 @@ defmodule Plaid.Institutions do
     """
 
     @derive Jason.Encoder
-    defstruct brand_name: nil,
-              brand_subheading: nil,
-              colors: nil,
+    defstruct country_codes: [],
               credentials: [],
               has_mfa: nil,
-              health_status: nil,
+              input_spec: nil,
               institution_id: nil,
-              legacy_institution_code: nil,
-              legacy_institution_type: nil,
-              link_health_status: nil,
               logo: nil,
               mfa: [],
               mfa_code_type: nil,
               name: nil,
-              name_break: nil,
-              portal: nil,
+              oauth: nil,
+              primary_color: nil,
               products: [],
               request_id: nil,
-              url: nil,
-              url_account_locked: nil,
-              url_account_setup: nil,
-              url_forgotten_password: nil
+              routing_numbers: [],
+              status: nil,
+              url: nil
 
     @type t :: %__MODULE__{
-            brand_name: String.t(),
-            brand_subheading: String.t(),
-            colors: Plaid.Institutions.Institution.Colors.t(),
+            country_codes: [String.t()],
             credentials: [Plaid.Institutions.Institution.Credentials.t()],
             has_mfa: false | true,
-            health_status: String.t(),
+            input_spec: String.t(),
             institution_id: String.t(),
-            legacy_institution_code: String.t(),
-            legacy_institution_type: String.t(),
-            link_health_status: String.t(),
             logo: String.t(),
             mfa: [String.t()],
             mfa_code_type: String.t(),
             name: String.t(),
-            name_break: String.t(),
-            portal: String.t(),
+            oauth: boolean(),
+            primary_color: String.t(),
             products: [String.t()],
             request_id: String.t(),
-            url: String.t(),
-            url_account_locked: String.t(),
-            url_account_setup: String.t(),
-            url_forgotten_password: String.t()
+            routing_numbers: [String.t()],
+            status: Plaid.Institutions.Institution.Status.t(),
+            url: String.t()
           }
-
-    defmodule Colors do
-      @moduledoc """
-      Plaid Institution Colors data structure.
-      """
-
-      @derive Jason.Encoder
-      defstruct dark: nil, darker: nil, light: nil, primary: nil
-
-      @type t :: %__MODULE__{
-              dark: String.t(),
-              darker: String.t(),
-              light: String.t(),
-              primary: String.t()
-            }
-    end
 
     defmodule Credentials do
       @moduledoc """
@@ -98,6 +70,181 @@ defmodule Plaid.Institutions do
       @derive Jason.Encoder
       defstruct label: nil, name: nil, type: nil
       @type t :: %__MODULE__{label: String.t(), name: String.t(), type: String.t()}
+    end
+
+    defmodule Status do
+      @moduledoc """
+      Plaid Institution Status data structure.
+      """
+
+      @derive Jason.Encoder
+      defstruct item_logins: nil,
+                transactions_updates: nil,
+                auth: nil,
+                balance: nil,
+                identity: nil
+
+      @type t :: %__MODULE__{
+              item_logins: Plaid.Institutions.Institution.Status.ItemLogins,
+              transactions_updates: Plaid.Institutions.Institution.Status.TransactionsUpdates,
+              auth: Plaid.Institutions.Institution.Status.Auth,
+              balance: Plaid.Institutions.Institution.Status.Balance,
+              identity: Plaid.Institutions.Institution.Status.Identity
+            }
+
+      defmodule ItemLogins do
+        @moduledoc """
+        Plaid Institution Item Logins Status data structure.
+        """
+
+        @derive Jason.Encoder
+        defstruct status: nil, last_status_change: nil, breakdown: nil
+
+        @type t :: %__MODULE__{
+                status: String.t(),
+                last_status_change: String.t(),
+                breakdown: Plaid.Institutions.Institution.Status.ItemLogins.Breakdown
+              }
+
+        defmodule Breakdown do
+          @moduledoc """
+          Plaid Institution Item Logins Breakdown Status data structure.
+          """
+
+          @derive Jason.Encoder
+          defstruct success: nil, error_plaid: nil, error_institution: nil
+
+          @type t :: %__MODULE__{
+                  success: number(),
+                  error_plaid: number(),
+                  error_institution: number()
+                }
+        end
+      end
+
+      defmodule TransactionsUpdates do
+        @moduledoc """
+        Plaid Institution Transactions Updates Status data structure.
+        """
+
+        @derive Jason.Encoder
+        defstruct status: nil, last_status_change: nil, breakdown: nil
+
+        @type t :: %__MODULE__{
+                status: String.t(),
+                last_status_change: String.t(),
+                breakdown: Plaid.Institutions.Institution.Status.TransactionsUpdates.Breakdown
+              }
+
+        defmodule Breakdown do
+          @moduledoc """
+          Plaid Institution Transaction Updates Breakdown Status data structure.
+          """
+
+          @derive Jason.Encoder
+          defstruct refresh_interval: nil,
+                    success: nil,
+                    error_plaid: nil,
+                    error_institution: nil
+
+          @type t :: %__MODULE__{
+                  refresh_interval: String.t(),
+                  success: number(),
+                  error_plaid: number(),
+                  error_institution: number()
+                }
+        end
+      end
+
+      defmodule Auth do
+        @moduledoc """
+        Plaid Institution Auth Status data structure.
+        """
+
+        @derive Jason.Encoder
+        defstruct status: nil, last_status_change: nil, breakdown: nil
+
+        @type t :: %__MODULE__{
+                status: String.t(),
+                last_status_change: String.t(),
+                breakdown: Plaid.Institutions.Institution.Status.Auth.Breakdown
+              }
+
+        defmodule Breakdown do
+          @moduledoc """
+          Plaid Institution Auth Breakdown Status data structure.
+          """
+
+          @derive Jason.Encoder
+          defstruct success: nil, error_plaid: nil, error_institution: nil
+
+          @type t :: %__MODULE__{
+                  success: number(),
+                  error_plaid: number(),
+                  error_institution: number()
+                }
+        end
+      end
+
+      defmodule Balance do
+        @moduledoc """
+        Plaid Institution Balance Status data structure.
+        """
+
+        @derive Jason.Encoder
+        defstruct status: nil, last_status_change: nil, breakdown: nil
+
+        @type t :: %__MODULE__{
+                status: String.t(),
+                last_status_change: String.t(),
+                breakdown: Plaid.Institutions.Institution.Status.Balance.Breakdown
+              }
+
+        defmodule Breakdown do
+          @moduledoc """
+          Plaid Institution Balance Breakdown Status data structure.
+          """
+
+          @derive Jason.Encoder
+          defstruct success: nil, error_plaid: nil, error_institution: nil
+
+          @type t :: %__MODULE__{
+                  success: number(),
+                  error_plaid: number(),
+                  error_institution: number()
+                }
+        end
+      end
+
+      defmodule Identity do
+        @moduledoc """
+        Plaid Institution Identity Status data structure.
+        """
+
+        @derive Jason.Encoder
+        defstruct status: nil, last_status_change: nil, breakdown: nil
+
+        @type t :: %__MODULE__{
+                status: String.t(),
+                last_status_change: String.t(),
+                breakdown: Plaid.Institutions.Institution.Status.Identity.Breakdown
+              }
+
+        defmodule Breakdown do
+          @moduledoc """
+          Plaid Institution Identity Breakdown Status data structure.
+          """
+
+          @derive Jason.Encoder
+          defstruct success: nil, error_plaid: nil, error_institution: nil
+
+          @type t :: %__MODULE__{
+                  success: number(),
+                  error_plaid: number(),
+                  error_institution: number()
+                }
+        end
+      end
     end
   end
 
