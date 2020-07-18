@@ -13,7 +13,12 @@ defmodule Plaid.Auth do
   @type t :: %__MODULE__{
           accounts: [Plaid.Accounts.Account.t()],
           item: Plaid.Item.t(),
-          numbers: %{ach: [Plaid.Auth.Numbers.ACH.t()]},
+          numbers: %{
+            ach: [Plaid.Auth.Numbers.ACH.t()],
+            eft: [Plaid.Auth.Numbers.EFT.t()],
+            international: [Plaid.Auth.Numbers.International.t()],
+            bacs: [Plaid.Auth.Numbers.BACS.t()]
+          },
           request_id: String.t()
         }
   @type params :: %{
@@ -34,15 +39,18 @@ defmodule Plaid.Auth do
     """
 
     @derive Jason.Encoder
-    defstruct ach: [], eft: []
+    defstruct ach: [], eft: [], international: [], bacs: []
 
     @type t :: %__MODULE__{
-            ach: [Plaid.Auth.Numbers.ACH.t()]
+            ach: [Plaid.Auth.Numbers.ACH.t()],
+            eft: [Plaid.Auth.Numbers.EFT.t()],
+            international: [Plaid.Auth.Numbers.International.t()],
+            bacs: [Plaid.Auth.Numbers.BACS.t()]
           }
 
     defmodule ACH do
       @moduledoc """
-      Plaid Account Number data structure.
+      Plaid Account Number ACH data structure.
       """
 
       @derive Jason.Encoder
@@ -53,6 +61,52 @@ defmodule Plaid.Auth do
               account_id: String.t(),
               routing: String.t(),
               wire_routing: String.t()
+            }
+    end
+
+    defmodule EFT do
+      @moduledoc """
+      Plaid Account Number EFT data structure
+      """
+
+      @derive Jason.Encoder
+      defstruct account: nil, account_id: nil, institution: nil, branch: nil
+
+      @type t :: %__MODULE__{
+              account: String.t(),
+              account_id: String.t(),
+              institution: String.t(),
+              branch: String.t()
+            }
+    end
+
+    defmodule International do
+      @moduledoc """
+      Plaid Account Number Institution data structure.
+      """
+
+      @derive Jason.Encoder
+      defstruct account_id: nil, bic: nil, iban: nil
+
+      @type t :: %__MODULE__{
+              account_id: String.t(),
+              bic: String.t(),
+              iban: String.t()
+            }
+    end
+
+    defmodule BACS do
+      @moduledoc """
+      Plaid Account Number BACS data structure.
+      """
+
+      @derive Jason.Encoder
+      defstruct account: nil, account_id: nil, sort_code: nil
+
+      @type t :: %__MODULE__{
+              account: String.t(),
+              account_id: String.t(),
+              sort_code: String.t()
             }
     end
   end

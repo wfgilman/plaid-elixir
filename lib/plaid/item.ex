@@ -14,6 +14,7 @@ defmodule Plaid.Item do
             institution_id: nil,
             item_id: nil,
             webhook: nil,
+            consent_expiration_time: nil,
             request_id: nil,
             status: nil
 
@@ -24,6 +25,7 @@ defmodule Plaid.Item do
           institution_id: String.t(),
           item_id: String.t(),
           webhook: String.t(),
+          consent_expiration_time: String.t(),
           request_id: String.t(),
           status: Plaid.Item.Status.t()
         }

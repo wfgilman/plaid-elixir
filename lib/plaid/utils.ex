@@ -162,7 +162,10 @@ defmodule Plaid.Utils do
       %{
         as: %Plaid.Auth{
           numbers: %Plaid.Auth.Numbers{
-            ach: [%Plaid.Auth.Numbers.ACH{}]
+            ach: [%Plaid.Auth.Numbers.ACH{}],
+            eft: [%Plaid.Auth.Numbers.EFT{}],
+            international: [%Plaid.Auth.Numbers.International{}],
+            bacs: [%Plaid.Auth.Numbers.BACS{}]
           },
           item: %Plaid.Item{},
           accounts: [

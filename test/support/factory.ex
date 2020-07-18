@@ -61,7 +61,28 @@ defmodule Plaid.Factory do
             "wire_routing" => "021000021"
           }
         ],
-        "eft" => []
+        "eft" => [
+          %{
+            "account" => "111122223333",
+            "account_id" => "vzeNDwK7KQIm4yEog683uElbp9GRLEFXGK98D",
+            "institution" => "021",
+            "branch" => "01140"
+          }
+        ],
+        "international" => [
+          %{
+            "account_id" => "vzeNDwK7KQIm4yEog683uElbp9GRLEFXGK98D",
+            "bic" => "NWBKGB21",
+            "iban" => "GB29NWBK60161331926819"
+          }
+        ],
+        "bacs" => [
+          %{
+            "account" => "31926819",
+            "account_id" => "vzeNDwK7KQIm4yEog683uElbp9GRLEFXGK98D",
+            "sort_code" => "601613"
+          }
+        ]
       },
       "item" => account["item"],
       "request_id" => "35QSp"
