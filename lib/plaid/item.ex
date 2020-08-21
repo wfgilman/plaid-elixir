@@ -21,7 +21,7 @@ defmodule Plaid.Item do
   @type t :: %__MODULE__{
           available_products: [String.t()],
           billed_products: [String.t()],
-          error: String.t(),
+          error: String.t() | nil,
           institution_id: String.t(),
           item_id: String.t(),
           webhook: String.t(),
