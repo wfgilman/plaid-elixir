@@ -301,4 +301,13 @@ defmodule Plaid.Utils do
       }
     )
   end
+
+  def map_response(response, :link) do
+    Poison.Decode.transform(
+      response,
+      %{
+        as: %Plaid.Link{}
+      }
+    )
+  end
 end
