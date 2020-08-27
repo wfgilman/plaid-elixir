@@ -71,6 +71,7 @@ Plaid.Accounts.get(%{access_token: "my-token"}, %{root_uri: "http://sandbox.plai
 Access tokens are required for almost all calls to Plaid. However, they can only be obtained
 using [Plaid Link](https://plaid.com/docs/link/transition-guide/#creating-items-with-link).
 
+Call the `/link` endpoint to create a link token that you'll use to initialize Plaid Link.
 Once a user successfully connects to his institution using Plaid Link, a
 public token is returned to the client. This single-use public token can be exchanged
 for an access token and item id (both of which should be stored) using
