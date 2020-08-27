@@ -1546,4 +1546,21 @@ defmodule Plaid.Factory do
       "request_id" => "7mtxj0CIzYXiFq2"
     }
   end
+
+  def http_response_body(:webhook_verification_key) do
+    %{
+      "key" => %{
+        "alg" => "ES256",
+        "created_at" => 1_560_466_150,
+        "crv" => "P-256",
+        "expired_at" => nil,
+        "kid" => "bfbd5111-8e33-4643-8ced-b2e642a72f3c",
+        "kty" => "EC",
+        "use" => "sig",
+        "x" => "hKXLGIjWvCBv-cP5euCTxl8g9GLG9zHo_3pO5NN1DwQ",
+        "y" => "shhexqPB7YffGn6fR6h2UhTSuCtPmfzQJ6ENVIoO4Ys"
+      },
+      "request_id" => "RZ6Omi1bzzwDaLo"
+    }
+  end
 end
