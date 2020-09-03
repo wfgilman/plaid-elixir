@@ -85,11 +85,11 @@ defmodule Plaid.Institutions do
                 identity: nil
 
       @type t :: %__MODULE__{
-              item_logins: Plaid.Institutions.Institution.Status.ItemLogins,
-              transactions_updates: Plaid.Institutions.Institution.Status.TransactionsUpdates,
-              auth: Plaid.Institutions.Institution.Status.Auth,
-              balance: Plaid.Institutions.Institution.Status.Balance,
-              identity: Plaid.Institutions.Institution.Status.Identity
+              item_logins: Plaid.Institutions.Institution.Status.ItemLogins.t(),
+              transactions_updates: Plaid.Institutions.Institution.Status.TransactionsUpdates.t(),
+              auth: Plaid.Institutions.Institution.Status.Auth.t(),
+              balance: Plaid.Institutions.Institution.Status.Balance.t(),
+              identity: Plaid.Institutions.Institution.Status.Identity.t()
             }
 
       defmodule ItemLogins do
@@ -103,7 +103,7 @@ defmodule Plaid.Institutions do
         @type t :: %__MODULE__{
                 status: String.t(),
                 last_status_change: String.t(),
-                breakdown: Plaid.Institutions.Institution.Status.ItemLogins.Breakdown
+                breakdown: Plaid.Institutions.Institution.Status.ItemLogins.Breakdown.t()
               }
 
         defmodule Breakdown do
@@ -133,7 +133,7 @@ defmodule Plaid.Institutions do
         @type t :: %__MODULE__{
                 status: String.t(),
                 last_status_change: String.t(),
-                breakdown: Plaid.Institutions.Institution.Status.TransactionsUpdates.Breakdown
+                breakdown: Plaid.Institutions.Institution.Status.TransactionsUpdates.Breakdown.t()
               }
 
         defmodule Breakdown do
@@ -167,7 +167,7 @@ defmodule Plaid.Institutions do
         @type t :: %__MODULE__{
                 status: String.t(),
                 last_status_change: String.t(),
-                breakdown: Plaid.Institutions.Institution.Status.Auth.Breakdown
+                breakdown: Plaid.Institutions.Institution.Status.Auth.Breakdown.t()
               }
 
         defmodule Breakdown do
@@ -197,7 +197,7 @@ defmodule Plaid.Institutions do
         @type t :: %__MODULE__{
                 status: String.t(),
                 last_status_change: String.t(),
-                breakdown: Plaid.Institutions.Institution.Status.Balance.Breakdown
+                breakdown: Plaid.Institutions.Institution.Status.Balance.Breakdown.t()
               }
 
         defmodule Breakdown do
@@ -227,7 +227,7 @@ defmodule Plaid.Institutions do
         @type t :: %__MODULE__{
                 status: String.t(),
                 last_status_change: String.t(),
-                breakdown: Plaid.Institutions.Institution.Status.Identity.Breakdown
+                breakdown: Plaid.Institutions.Institution.Status.Identity.Breakdown.t()
               }
 
         defmodule Breakdown do
