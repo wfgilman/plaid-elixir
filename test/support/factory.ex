@@ -420,19 +420,24 @@ defmodule Plaid.Factory do
           "amount" => 2307.01,
           "iso_currency_code" => "USD",
           "unofficial_currency_code" => "USD",
-          "category" => ["Shops", "Computers and Electronics"],
-          "category_id" => "10913000",
+          "category" => [
+            "Shops",
+            "Computers and Electronics"
+          ],
+          "category_id" => "19013000",
           "date" => "2017-01-29",
+          "authorized_date" => "2017-01-27",
           "location" => %{
             "address" => "300 Post St",
             "city" => "San Francisco",
-            "state" => "CA",
-            "zip" => "94108",
-            "coordinates" => %{
-              "lat" => nil,
-              "lon" => nil
-            }
+            "region" => "CA",
+            "postal_code" => "94108",
+            "country" => "US",
+            "lat" => nil,
+            "lon" => nil,
+            "store_number" => "1235"
           },
+          "merchant_name" => "Apple",
           "name" => "Apple Store",
           "payment_meta" => %{
             "by_order_of" => nil,
@@ -444,10 +449,12 @@ defmodule Plaid.Factory do
             "reason" => nil,
             "reference_number" => nil
           },
+          "payment_channel" => "in store",
           "pending" => false,
           "pending_transaction_id" => nil,
           "account_owner" => nil,
           "transaction_id" => "lPNjeW1nR6CDn5okmGQ6hEpMo4lLNoSrzqDje",
+          "transaction_code" => nil,
           "transaction_type" => "place"
         },
         %{
@@ -455,19 +462,24 @@ defmodule Plaid.Factory do
           "amount" => 78.5,
           "iso_currency_code" => "USD",
           "unofficial_currency_code" => "USD",
-          "category" => ["Food and Drink", "Restaurants"],
+          "category" => [
+            "Food and Drink",
+            "Restaurants"
+          ],
           "category_id" => "13005000",
           "date" => "2017-01-29",
+          "authorized_date" => "2017-01-28",
           "location" => %{
             "address" => "262 W 15th St",
             "city" => "New York",
-            "state" => "NY",
-            "zip" => "10011",
-            "coordinates" => %{
-              "lat" => 40.740352,
-              "lon" => -74.001761
-            }
+            "region" => "NY",
+            "postal_code" => "10011",
+            "country" => "US",
+            "lat" => 40.740352,
+            "lon" => -74.001761,
+            "store_number" => "455"
           },
+          "merchant_name" => "Golden Crepes",
           "name" => "Golden Crepes",
           "payment_meta" => %{
             "by_order_of" => nil,
@@ -479,10 +491,12 @@ defmodule Plaid.Factory do
             "reason" => nil,
             "reference_number" => nil
           },
+          "payment_channel" => "in store",
           "pending" => false,
           "pending_transaction_id" => nil,
           "account_owner" => nil,
           "transaction_id" => "4WPD9vV5A1cogJwyQ5kVFB3vPEmpXPS3qvjXQ",
+          "transaction_code" => nil,
           "transaction_type" => "place"
         }
       ],
