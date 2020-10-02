@@ -1555,9 +1555,53 @@ defmodule Plaid.Factory do
 
   def http_response_body(:create_link_token) do
     %{
-      "link_token" => "link-sandbox-234a923f-8908-41de-a30e-354a3cd5dfef",
-      "expiration" => "2020-08-25T11:00:49Z",
-      "request_id" => "7mtxj0CIzYXiFq2"
+      "link_token" => "link-production-840204-193734",
+      "created_at" => "2020-03-26T12:56:34",
+      "expiration" => "2020-03-27T12:56:34",
+      "metadata" => %{
+        "initial_products" => [
+          "auth"
+        ],
+        "webhook" => "https://example.com/webhook",
+        "country_codes" => [
+          "US",
+          "CA"
+        ],
+        "language" => "en",
+        "account_filters" => %{
+          "depository" => [
+            "checking"
+          ]
+        },
+        "redirect_uri" => "https://example.com/redirect",
+        "client_name" => "Example Client Name"
+      }
+    }
+  end
+
+  def http_response_body(:get_link_token) do
+    %{
+      "link_token" => "link-production-840204-193734",
+      "created_at" => "2020-03-26T12:56:34",
+      "expiration" => "2020-03-27T12:56:34",
+      "metadata" => %{
+        "initial_products" => [
+          "auth"
+        ],
+        "webhook" => "https://example.com/webhook",
+        "country_codes" => [
+          "US",
+          "CA"
+        ],
+        "language" => "en",
+        "account_filters" => %{
+          "depository" => [
+            "checking"
+          ]
+        },
+        "redirect_uri" => "https://example.com/redirect",
+        "client_name" => "Example Client Name"
+      }
     }
   end
 
@@ -1575,6 +1619,100 @@ defmodule Plaid.Factory do
         "y" => "shhexqPB7YffGn6fR6h2UhTSuCtPmfzQJ6ENVIoO4Ys"
       },
       "request_id" => "RZ6Omi1bzzwDaLo"
+    }
+  end
+
+  def http_response_body(:"payment_initiation/payment/create") do
+    %{
+      "payment_id" => "payment-id-sandbox-feca8a7a-5591-4aef-9297-f3062bb735d3",
+      "status" => "PAYMENT_STATUS_INPUT_NEEDED",
+      "request_id" => "4ciYVmesrySiUAB"
+    }
+  end
+
+  def http_response_body(:"payment_initiation/payment/get") do
+    %{
+      "payment_id" => "payment-id-sandbox-feca8a7a-5591-4aef-9297-f3062bb735d3",
+      "payment_token" => "payment-token-sandbox-c6a26505-42b4-46fe-8ecf-bf9edcafbebb",
+      "reference" => "Account Funding 99744",
+      "amount" => %{
+        "currency" => "GBP",
+        "value" => 100
+      },
+      "status" => "PAYMENT_STATUS_INPUT_NEEDED",
+      "last_status_update" => "2019-11-06T21:10:52Z",
+      "payment_expiration_time" => "2019-11-06T21:25:52Z",
+      "recipient_id" => "recipient-id-sandbox-9b6b4679-914b-445b-9450-efbdb80296f6",
+      "request_id" => "aEAQmewMzlVa1k6"
+    }
+  end
+
+  def http_response_body(:"payment_initiation/payment/list") do
+    %{
+      "payments" => [
+        %{
+          "payment_id" => "payment-id-sandbox-feca8a7a-5591-4aef-9297-f3062bb735d3",
+          "payment_token" => "payment-token-sandbox-c6a26505-42b4-46fe-8ecf-bf9edcafbebb",
+          "reference" => "Account Funding 99744",
+          "amount" => %{
+            "currency" => "GBP",
+            "value" => 100
+          },
+          "status" => "PAYMENT_STATUS_INPUT_NEEDED",
+          "last_status_update" => "2019-11-06T21:10:52Z",
+          "payment_expiration_time" => "2019-11-06T21:25:52Z",
+          "recipient_id" => "recipient-id-sandbox-9b6b4679-914b-445b-9450-efbdb80296f6"
+        }
+      ],
+      "next_cursor" => "2020-01-01T00:00:00Z",
+      "request_id" => "aEAQmewMzlVa1k6"
+    }
+  end
+
+  def http_response_body(:"payment_initiation/recipient/create") do
+    %{
+      "recipient_id" => "recipient-id-sandbox-9b6b4679-914b-445b-9450-efbdb80296f6",
+      "request_id" => "4zlKapIkTm8p5KM"
+    }
+  end
+
+  def http_response_body(:"payment_initiation/recipient/get") do
+    %{
+      "recipient_id" => "recipient-id-sandbox-9b6b4679-914b-445b-9450-efbdb80296f6",
+      "name" => "Wonder Wallet",
+      "iban" => "GB29NWBK60161331926819",
+      "address" => %{
+        "street" => [
+          "96 Guild Street",
+          "9th Floor"
+        ],
+        "city" => "London",
+        "postal_code" => "SE14 8JW",
+        "country" => "GB"
+      },
+      "request_id" => "4zlKapIkTm8p5KM"
+    }
+  end
+
+  def http_response_body(:"payment_initiation/recipient/list") do
+    %{
+      "recipients" => [
+        %{
+          "recipient_id" => "recipient-id-sandbox-9b6b4679-914b-445b-9450-efbdb80296f6",
+          "name" => "Wonder Wallet",
+          "iban" => "GB29NWBK60161331926819",
+          "address" => %{
+            "street" => [
+              "96 Guild Street",
+              "9th Floor"
+            ],
+            "city" => "London",
+            "postal_code" => "SE14 8JW",
+            "country" => "GB"
+          }
+        }
+      ],
+      "request_id" => "4zlKapIkTm8p5KM"
     }
   end
 end
