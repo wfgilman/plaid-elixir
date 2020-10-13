@@ -29,20 +29,26 @@ defmodule Plaid.PaymentInitiation.Payments do
 
     @derive Jason.Encoder
     defstruct payment_id: nil,
+              payment_token: nil,
+              payment_token_expiration_time: nil,
               reference: nil,
               amount: 0,
               status: nil,
               last_status_update: nil,
               recipient_id: nil,
+              schedule: nil,
               request_id: nil
 
     @type t :: %__MODULE__{
             payment_id: String.t(),
+            payment_token: String.t(),
+            payment_token_expiration_time: String.t(),
             reference: String.t(),
             amount: Plaid.PaymentInitiation.Payments.Payment.Amount.t(),
             status: String.t(),
             last_status_update: String.t(),
             recipient_id: String.t(),
+            schedule: Plaid.PaymentInitiation.Payments.Payment.Schedule.t(),
             request_id: String.t()
           }
 
@@ -51,13 +57,28 @@ defmodule Plaid.PaymentInitiation.Payments do
       Plaid Payment Amount data structure.
       """
 
-      @derive Jason.Encoder
       defstruct currency: nil,
                 amount: 0
 
       @type t :: %__MODULE__{
               currency: String.t(),
               amount: float
+            }
+    end
+
+    defmodule Schedule do
+      @moduledoc """
+      Plaid Payment Schedule data structure.
+      """
+
+      defstruct interval: nil,
+                interval_execution_day: nil,
+                start_date: nil
+
+      @type t :: %__MODULE__{
+              interval: String.t(),
+              interval_execution_day: integer(),
+              start_date: String.t()
             }
     end
   end
