@@ -78,6 +78,10 @@ defmodule Plaid.Transactions do
       @derive Jason.Encoder
       defstruct address: nil,
                 city: nil,
+                # Deprecated, use :region instead.
+                state: nil,
+                # Deprecated, use :postal_code instead.
+                zip: nil,
                 region: nil,
                 postal_code: nil,
                 country: nil,
@@ -88,6 +92,8 @@ defmodule Plaid.Transactions do
       @type t :: %__MODULE__{
               address: String.t(),
               city: String.t(),
+              state: String.t(),
+              zip: String.t(),
               region: String.t(),
               postal_code: String.t(),
               country: String.t(),

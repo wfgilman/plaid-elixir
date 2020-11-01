@@ -10,12 +10,15 @@ defmodule Plaid.Link do
   @derive Jason.Encoder
   defstruct link_token: nil,
             expiration: nil,
+            # Deprecated, not returned by Plaid.
+            request_id: nil,
             created_at: nil,
             metadata: nil
 
   @type t :: %__MODULE__{
           link_token: String.t(),
           expiration: String.t(),
+          request_id: String.t(),
           created_at: String.t(),
           metadata: Plaid.Link.Metadata.t()
         }
