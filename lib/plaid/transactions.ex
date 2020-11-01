@@ -42,7 +42,11 @@ defmodule Plaid.Transactions do
               pending: false,
               pending_transaction_id: nil,
               transaction_id: nil,
-              transaction_type: nil
+              transaction_type: nil,
+              merchant_name: nil,
+              authorized_date: nil,
+              payment_channel: nil,
+              transaction_code: nil
 
     @type t :: %__MODULE__{
             account_id: String.t(),
@@ -59,7 +63,11 @@ defmodule Plaid.Transactions do
             pending: true | false,
             pending_transaction_id: String.t(),
             transaction_id: String.t(),
-            transaction_type: String.t()
+            transaction_type: String.t(),
+            merchant_name: String.t(),
+            authorized_date: String.t(),
+            payment_channel: String.t(),
+            transaction_code: String.t()
           }
 
     defmodule Location do
@@ -68,15 +76,30 @@ defmodule Plaid.Transactions do
       """
 
       @derive Jason.Encoder
-      defstruct address: nil, city: nil, state: nil, zip: nil, lat: nil, lon: nil
+      defstruct address: nil,
+                city: nil,
+                # Deprecated, use :region instead.
+                state: nil,
+                # Deprecated, use :postal_code instead.
+                zip: nil,
+                region: nil,
+                postal_code: nil,
+                country: nil,
+                lat: nil,
+                lon: nil,
+                store_number: nil
 
       @type t :: %__MODULE__{
               address: String.t(),
               city: String.t(),
               state: String.t(),
               zip: String.t(),
+              region: String.t(),
+              postal_code: String.t(),
+              country: String.t(),
               lat: float,
-              lon: float
+              lon: float,
+              store_number: integer
             }
     end
 

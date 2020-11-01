@@ -420,19 +420,24 @@ defmodule Plaid.Factory do
           "amount" => 2307.01,
           "iso_currency_code" => "USD",
           "unofficial_currency_code" => "USD",
-          "category" => ["Shops", "Computers and Electronics"],
-          "category_id" => "10913000",
+          "category" => [
+            "Shops",
+            "Computers and Electronics"
+          ],
+          "category_id" => "19013000",
           "date" => "2017-01-29",
+          "authorized_date" => "2017-01-27",
           "location" => %{
             "address" => "300 Post St",
             "city" => "San Francisco",
-            "state" => "CA",
-            "zip" => "94108",
-            "coordinates" => %{
-              "lat" => nil,
-              "lon" => nil
-            }
+            "region" => "CA",
+            "postal_code" => "94108",
+            "country" => "US",
+            "lat" => nil,
+            "lon" => nil,
+            "store_number" => "1235"
           },
+          "merchant_name" => "Apple",
           "name" => "Apple Store",
           "payment_meta" => %{
             "by_order_of" => nil,
@@ -444,10 +449,12 @@ defmodule Plaid.Factory do
             "reason" => nil,
             "reference_number" => nil
           },
+          "payment_channel" => "in store",
           "pending" => false,
           "pending_transaction_id" => nil,
           "account_owner" => nil,
           "transaction_id" => "lPNjeW1nR6CDn5okmGQ6hEpMo4lLNoSrzqDje",
+          "transaction_code" => nil,
           "transaction_type" => "place"
         },
         %{
@@ -455,19 +462,24 @@ defmodule Plaid.Factory do
           "amount" => 78.5,
           "iso_currency_code" => "USD",
           "unofficial_currency_code" => "USD",
-          "category" => ["Food and Drink", "Restaurants"],
+          "category" => [
+            "Food and Drink",
+            "Restaurants"
+          ],
           "category_id" => "13005000",
           "date" => "2017-01-29",
+          "authorized_date" => "2017-01-28",
           "location" => %{
             "address" => "262 W 15th St",
             "city" => "New York",
-            "state" => "NY",
-            "zip" => "10011",
-            "coordinates" => %{
-              "lat" => 40.740352,
-              "lon" => -74.001761
-            }
+            "region" => "NY",
+            "postal_code" => "10011",
+            "country" => "US",
+            "lat" => 40.740352,
+            "lon" => -74.001761,
+            "store_number" => "455"
           },
+          "merchant_name" => "Golden Crepes",
           "name" => "Golden Crepes",
           "payment_meta" => %{
             "by_order_of" => nil,
@@ -479,10 +491,12 @@ defmodule Plaid.Factory do
             "reason" => nil,
             "reference_number" => nil
           },
+          "payment_channel" => "in store",
           "pending" => false,
           "pending_transaction_id" => nil,
           "account_owner" => nil,
           "transaction_id" => "4WPD9vV5A1cogJwyQ5kVFB3vPEmpXPS3qvjXQ",
+          "transaction_code" => nil,
           "transaction_type" => "place"
         }
       ],
@@ -1541,9 +1555,53 @@ defmodule Plaid.Factory do
 
   def http_response_body(:create_link_token) do
     %{
-      "link_token" => "link-sandbox-234a923f-8908-41de-a30e-354a3cd5dfef",
-      "expiration" => "2020-08-25T11:00:49Z",
-      "request_id" => "7mtxj0CIzYXiFq2"
+      "link_token" => "link-production-840204-193734",
+      "created_at" => "2020-03-26T12:56:34",
+      "expiration" => "2020-03-27T12:56:34",
+      "metadata" => %{
+        "initial_products" => [
+          "auth"
+        ],
+        "webhook" => "https://example.com/webhook",
+        "country_codes" => [
+          "US",
+          "CA"
+        ],
+        "language" => "en",
+        "account_filters" => %{
+          "depository" => [
+            "checking"
+          ]
+        },
+        "redirect_uri" => "https://example.com/redirect",
+        "client_name" => "Example Client Name"
+      }
+    }
+  end
+
+  def http_response_body(:get_link_token) do
+    %{
+      "link_token" => "link-production-840204-193734",
+      "created_at" => "2020-03-26T12:56:34",
+      "expiration" => "2020-03-27T12:56:34",
+      "metadata" => %{
+        "initial_products" => [
+          "auth"
+        ],
+        "webhook" => "https://example.com/webhook",
+        "country_codes" => [
+          "US",
+          "CA"
+        ],
+        "language" => "en",
+        "account_filters" => %{
+          "depository" => [
+            "checking"
+          ]
+        },
+        "redirect_uri" => "https://example.com/redirect",
+        "client_name" => "Example Client Name"
+      }
     }
   end
 
@@ -1561,6 +1619,100 @@ defmodule Plaid.Factory do
         "y" => "shhexqPB7YffGn6fR6h2UhTSuCtPmfzQJ6ENVIoO4Ys"
       },
       "request_id" => "RZ6Omi1bzzwDaLo"
+    }
+  end
+
+  def http_response_body(:"payment_initiation/payment/create") do
+    %{
+      "payment_id" => "payment-id-sandbox-feca8a7a-5591-4aef-9297-f3062bb735d3",
+      "status" => "PAYMENT_STATUS_INPUT_NEEDED",
+      "request_id" => "4ciYVmesrySiUAB"
+    }
+  end
+
+  def http_response_body(:"payment_initiation/payment/get") do
+    %{
+      "payment_id" => "payment-id-sandbox-feca8a7a-5591-4aef-9297-f3062bb735d3",
+      "payment_token" => "payment-token-sandbox-c6a26505-42b4-46fe-8ecf-bf9edcafbebb",
+      "reference" => "Account Funding 99744",
+      "amount" => %{
+        "currency" => "GBP",
+        "value" => 100
+      },
+      "status" => "PAYMENT_STATUS_INPUT_NEEDED",
+      "last_status_update" => "2019-11-06T21:10:52Z",
+      "payment_expiration_time" => "2019-11-06T21:25:52Z",
+      "recipient_id" => "recipient-id-sandbox-9b6b4679-914b-445b-9450-efbdb80296f6",
+      "request_id" => "aEAQmewMzlVa1k6"
+    }
+  end
+
+  def http_response_body(:"payment_initiation/payment/list") do
+    %{
+      "payments" => [
+        %{
+          "payment_id" => "payment-id-sandbox-feca8a7a-5591-4aef-9297-f3062bb735d3",
+          "payment_token" => "payment-token-sandbox-c6a26505-42b4-46fe-8ecf-bf9edcafbebb",
+          "reference" => "Account Funding 99744",
+          "amount" => %{
+            "currency" => "GBP",
+            "value" => 100
+          },
+          "status" => "PAYMENT_STATUS_INPUT_NEEDED",
+          "last_status_update" => "2019-11-06T21:10:52Z",
+          "payment_expiration_time" => "2019-11-06T21:25:52Z",
+          "recipient_id" => "recipient-id-sandbox-9b6b4679-914b-445b-9450-efbdb80296f6"
+        }
+      ],
+      "next_cursor" => "2020-01-01T00:00:00Z",
+      "request_id" => "aEAQmewMzlVa1k6"
+    }
+  end
+
+  def http_response_body(:"payment_initiation/recipient/create") do
+    %{
+      "recipient_id" => "recipient-id-sandbox-9b6b4679-914b-445b-9450-efbdb80296f6",
+      "request_id" => "4zlKapIkTm8p5KM"
+    }
+  end
+
+  def http_response_body(:"payment_initiation/recipient/get") do
+    %{
+      "recipient_id" => "recipient-id-sandbox-9b6b4679-914b-445b-9450-efbdb80296f6",
+      "name" => "Wonder Wallet",
+      "iban" => "GB29NWBK60161331926819",
+      "address" => %{
+        "street" => [
+          "96 Guild Street",
+          "9th Floor"
+        ],
+        "city" => "London",
+        "postal_code" => "SE14 8JW",
+        "country" => "GB"
+      },
+      "request_id" => "4zlKapIkTm8p5KM"
+    }
+  end
+
+  def http_response_body(:"payment_initiation/recipient/list") do
+    %{
+      "recipients" => [
+        %{
+          "recipient_id" => "recipient-id-sandbox-9b6b4679-914b-445b-9450-efbdb80296f6",
+          "name" => "Wonder Wallet",
+          "iban" => "GB29NWBK60161331926819",
+          "address" => %{
+            "street" => [
+              "96 Guild Street",
+              "9th Floor"
+            ],
+            "city" => "London",
+            "postal_code" => "SE14 8JW",
+            "country" => "GB"
+          }
+        }
+      ],
+      "request_id" => "4zlKapIkTm8p5KM"
     }
   end
 end

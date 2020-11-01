@@ -314,4 +314,28 @@ defmodule Plaid.Utils do
   def map_response(response, :webhook_verification_key) do
     Poison.Decode.transform(response, %{as: %Plaid.WebhookVerificationKey{}})
   end
+
+  def map_response(%{"payment_token" => _} = response, :"payment_initiation/payment") do
+    Poison.Decode.transform(response, %{as: %Plaid.PaymentInitiation.Payments.Payment{}})
+  end
+
+  def map_response(%{"payments" => payments}, :"payment_initiation/payment") do
+    Poison.Decode.transform(payments, %{as: [%Plaid.PaymentInitiation.Payments.Payment{}]})
+  end
+
+  def map_response(response, :"payment_initiation/payment") do
+    Poison.Decode.transform(response, %{as: %Plaid.PaymentInitiation.Payments{}})
+  end
+
+  def map_response(%{"name" => _} = response, :"payment_initiation/recipient") do
+    Poison.Decode.transform(response, %{as: %Plaid.PaymentInitiation.Recipients.Recipient{}})
+  end
+
+  def map_response(%{"recipients" => recipients}, :"payment_initiation/recipient") do
+    Poison.Decode.transform(recipients, %{as: [%Plaid.PaymentInitiation.Recipients.Recipient{}]})
+  end
+
+  def map_response(response, :"payment_initiation/recipient") do
+    Poison.Decode.transform(response, %{as: %Plaid.PaymentInitiation.Recipients{}})
+  end
 end

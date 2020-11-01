@@ -29,7 +29,28 @@ defmodule Plaid.LinkTest do
              })
 
     assert resp.link_token == body["link_token"]
+    assert resp.created_at == body["created_at"]
     assert resp.expiration == body["expiration"]
-    assert resp.request_id == body["request_id"]
+    assert resp.metadata == body["metadata"]
+  end
+
+  test "get_link_token/1 request POST and returns map", %{bypass: bypass} do
+    body = http_response_body(:get_link_token)
+
+    Bypass.expect(bypass, fn conn ->
+      assert "POST" == conn.method
+      assert "link/token/get" == Enum.join(conn.path_info, "/")
+      Plug.Conn.resp(conn, 200, Poison.encode!(body))
+    end)
+
+    assert {:ok, resp} =
+             Plaid.Link.get_link_token(%{
+               link_token: "link-token"
+             })
+
+    assert resp.link_token == body["link_token"]
+    assert resp.created_at == body["created_at"]
+    assert resp.expiration == body["expiration"]
+    assert resp.metadata == body["metadata"]
   end
 end
