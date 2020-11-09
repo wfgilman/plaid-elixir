@@ -106,17 +106,17 @@ defmodule Plaid.ItemTest do
       assert resp.access_token == body["access_token"]
     end
 
-    test "delete/1 requests POST and returns success", %{bypass: bypass} do
-      body = http_response_body(:delete)
+    test "remove/1 requests POST and returns success", %{bypass: bypass} do
+      body = http_response_body(:remove)
 
       Bypass.expect(bypass, fn conn ->
         assert "POST" == conn.method
-        assert "item/delete" == Enum.join(conn.path_info, "/")
+        assert "item/remove" == Enum.join(conn.path_info, "/")
         Plug.Conn.resp(conn, 200, Poison.encode!(body))
       end)
 
-      assert {:ok, resp} = Plaid.Item.delete(%{access_token: "my-token"})
-      assert resp.deleted == body["deleted"]
+      assert {:ok, resp} = Plaid.Item.remove(%{access_token: "my-token"})
+      assert resp.request_id == body["request_id"]
     end
 
     test "deprecated: create_processor_token/1 request POST and returns token", %{bypass: bypass} do

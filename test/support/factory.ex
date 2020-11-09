@@ -163,9 +163,8 @@ defmodule Plaid.Factory do
     }
   end
 
-  def http_response_body(:delete) do
+  def http_response_body(:remove) do
     %{
-      "deleted" => true,
       "request_id" => "s72lQ"
     }
   end
