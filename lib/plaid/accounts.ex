@@ -79,10 +79,10 @@ defmodule Plaid.Accounts do
                 phone_numbers: nil
 
       @type t :: %__MODULE__{
-              addresses: [Plaid.Accounts.Owner.Address.t()],
-              emails: [Plaid.Accounts.Owner.Email.t()],
+              addresses: [Plaid.Accounts.Account.Owner.Address.t()],
+              emails: [Plaid.Accounts.Account.Owner.Email.t()],
               names: [String.t()],
-              phone_numbers: [Plaid.Accounts.Owner.PhoneNumber.t()]
+              phone_numbers: [Plaid.Accounts.Account.Owner.PhoneNumber.t()]
             }
 
       defmodule Address do
