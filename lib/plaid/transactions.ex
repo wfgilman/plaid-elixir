@@ -60,7 +60,7 @@ defmodule Plaid.Transactions do
             location: Plaid.Transactions.Transaction.Location.t(),
             name: String.t(),
             payment_meta: Plaid.Transactions.Transaction.PaymentMeta.t(),
-            pending: true | false,
+            pending: boolean(),
             pending_transaction_id: String.t(),
             transaction_id: String.t(),
             transaction_type: String.t(),
