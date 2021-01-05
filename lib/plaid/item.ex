@@ -206,17 +206,22 @@ defmodule Plaid.Item do
   end
 
   @doc """
-  Deletes an Item.
+  Removes an Item.
 
   Parameters
   ```
   %{access_token: "access-env-identifier"}
   ```
+
+  Response
+  ```
+  {:ok, %{request_id: "[Unique request ID]"}}
+  ```
   """
-  @spec delete(params, config | nil) :: {:ok, map} | {:error, Plaid.Error.t()}
-  def delete(params, config \\ %{}) do
+  @spec remove(params, config | nil) :: {:ok, map} | {:error, Plaid.Error.t()}
+  def remove(params, config \\ %{}) do
     config = validate_cred(config)
-    endpoint = "#{@endpoint}/delete"
+    endpoint = "#{@endpoint}/remove"
 
     make_request_with_cred(:post, endpoint, config, params)
     |> Utils.handle_resp(@endpoint)

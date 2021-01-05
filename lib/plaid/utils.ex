@@ -242,14 +242,6 @@ defmodule Plaid.Utils do
     end)
   end
 
-  def map_response(%{"deleted" => _} = response, :item) do
-    response
-    |> Map.take(["deleted", "request_id"])
-    |> Enum.reduce(%{}, fn {k, v}, acc ->
-      Map.put(acc, String.to_atom(k), v)
-    end)
-  end
-
   def map_response(%{"processor_token" => _} = response, :item) do
     response
     |> Map.take(["processor_token", "request_id"])
@@ -261,6 +253,14 @@ defmodule Plaid.Utils do
   def map_response(%{"stripe_bank_account_token" => _} = response, :item) do
     response
     |> Map.take(["stripe_bank_account_token", "request_id"])
+    |> Enum.reduce(%{}, fn {k, v}, acc ->
+      Map.put(acc, String.to_atom(k), v)
+    end)
+  end
+
+  def map_response(%{"request_id" => _} = response, :item) do
+    response
+    |> Map.take(["request_id"])
     |> Enum.reduce(%{}, fn {k, v}, acc ->
       Map.put(acc, String.to_atom(k), v)
     end)
