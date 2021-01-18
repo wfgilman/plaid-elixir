@@ -15,7 +15,7 @@ defmodule Plaid.Accounts do
           item: Plaid.Item.t(),
           request_id: String.t()
         }
-  @type params :: %{required(atom) => String.t() | map}
+  @type params :: %{required(atom) => String.t() | [String.t()] | map}
   @type config :: %{required(atom) => String.t()}
 
   @endpoint :accounts
