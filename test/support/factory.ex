@@ -1406,4 +1406,12 @@ defmodule Plaid.Factory do
       request_id: "vnfz2k6XTtgjpbX"
     }
   end
+
+  def http_response_body(:create_link_token) do
+    %{
+      "link_token" => "link-sandbox-234a923f-8908-41de-a30e-354a3cd5dfef",
+      "expiration" => "2020-08-25T11:00:49Z",
+      "request_id" => "7mtxj0CIzYXiFq2"
+    }
+  end
 end
