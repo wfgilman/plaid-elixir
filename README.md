@@ -2,10 +2,11 @@
 
 [![Build Status](https://travis-ci.org/wfgilman/plaid-elixir.svg?branch=master)](https://travis-ci.org/wfgilman/plaid-elixir)
 [![Coverage Status](https://coveralls.io/repos/github/wfgilman/plaid-elixir/badge.svg?branch=master)](https://coveralls.io/github/wfgilman/plaid-elixir?branch=master)
-[![Hex.pm Version](https://img.shields.io/hexpm/v/plaid_elixir.svg)](https://hex.pm/packages/plaid_elixir)
-[![Hex.pm Download Total](https://img.shields.io/hexpm/dt/plaid_elixir.svg)](https://hex.pm/packages/plaid_elixir)
-
-[Documentation](https://hexdocs.pm/plaid_elixir)
+[![Module Version](https://img.shields.io/hexpm/v/plaid_elixir.svg)](https://hex.pm/packages/plaid_elixir)
+[![Hex Docs](https://img.shields.io/badge/hex-docs-lightgreen.svg)](https://hexdocs.pm/plaid_elixir/)
+[![Total Download](https://img.shields.io/hexpm/dt/plaid_elixir.svg)](https://hex.pm/packages/plaid_elixir)
+[![License](https://img.shields.io/hexpm/l/plaid_elixir.svg)](https://github.com/wfgilman/plaid-elixir/blob/master/LICENSE)
+[![Last Updated](https://img.shields.io/github/last-commit/wfgilman/plaid-elixir.svg)](https://github.com/wfgilman/plaid-elixir/commits/master)
 
 Elixir library for Plaid's V2 API.
 
@@ -27,7 +28,9 @@ Add to your dependencies in `mix.exs`. The hex specification is required.
 
 ```elixir
 def deps do
-  [{:plaid, "~> 2.0", hex: :plaid_elixir}]
+  [
+    {:plaid, "~> 2.0", hex: :plaid_elixir}
+  ]
 end
 ```
 
@@ -88,3 +91,10 @@ As of version `1.2`, this library natively supports serialization of its structs
 This library uses [bypass](https://github.com/PSPDFKit-labs/bypass) to simulate HTTP responses from Plaid.
 
 It uses Elixir's native formatter as of `1.3.2` and Credo.
+
+## Copyright and License
+
+Copyright (c) 2016 Will Gilman
+
+This work is free. You can redistribute it and/or modify it under the
+terms of the MIT License. See the [LICENSE.md](./LICENSE.md) file for more details.

@@ -1,21 +1,17 @@
 defmodule Plaid.Mixfile do
   use Mix.Project
 
-  @description """
-    An Elixir Library for Plaid's V2 API
-  """
+  @source_url "https://github.com/wfgilman/plaid-elixir"
 
   def project do
     [
       app: :plaid,
       version: "2.4.0",
-      description: @description,
       elixir: "~> 1.5",
       elixirc_paths: elixirc_paths(Mix.env()),
       package: package(),
       deps: deps(),
       docs: docs(),
-      source_url: "https://github.com/wfgilman/plaid-elixir",
       test_coverage: [tool: ExCoveralls],
       preferred_cli_env: [coveralls: :test, "coveralls.detail": :test]
     ]
@@ -36,25 +32,34 @@ defmodule Plaid.Mixfile do
       {:bypass, "~> 0.8", only: [:test]},
       {:credo, "~> 0.5", only: [:dev], runtime: false},
       {:excoveralls, "~> 0.6", only: [:test]},
-      {:ex_doc, "~> 0.21", only: [:dev], runtime: false},
+      {:ex_doc, ">= 0.0.0", only: [:dev], runtime: false},
       {:dialyxir, "~> 1.0.0-rc.6", only: [:dev, :test], runtime: false}
     ]
   end
 
   defp package do
     [
+      description: "An Elixir Library for Plaid's V2 API",
       name: :plaid_elixir,
       files: ["lib", "mix.exs", "README*", "LICENSE*"],
       licenses: ["MIT"],
       maintainers: ["Will Gilman"],
-      links: %{"Github" => "https://github.com/wfgilman/plaid-elixir"}
+      links: %{"GitHub" => @source_url}
     ]
   end
 
   defp docs do
     [
-      extras: ["parameters.md"],
-      logo: "plaid-logo.png"
+      extras: [
+        "LICENSE.md": [title: "License"],
+        "README.md": [title: "Overview"],
+        "parameters.md": []
+      ],
+      main: "readme",
+      logo: "assets/plaid-logo.png",
+      source_url: @source_url,
+      source_ref: "master",
+      formatters: ["html"]
     ]
   end
 end

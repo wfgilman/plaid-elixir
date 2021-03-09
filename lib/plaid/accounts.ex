@@ -162,7 +162,7 @@ defmodule Plaid.Accounts do
   end
 
   @doc """
-  Gets balance for specifed accounts associated with Item.
+  Gets balance for specified accounts associated with Item.
 
   Parameters
   ```
