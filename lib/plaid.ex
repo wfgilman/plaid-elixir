@@ -122,6 +122,7 @@ defmodule Plaid do
   @doc """
   Gets the `public_key` from the config argument or library configuration.
   """
+  @deprecated "Plaid no longer uses public keys for new accounts."
   @spec validate_public_key(map) :: map | no_return
   def validate_public_key(config) do
     %{
