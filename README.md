@@ -33,8 +33,8 @@ end
 
 ## Configuration
 
-All calls to Plaid require either your client id and secret, or public key. Add the
-following configuration to your project to set the values. This configuration is optional
+All calls to Plaid require your client id and secret. Public keys are deprecated as of version `2.4` of the upstream project.
+Add the following configuration to your project to set the values. This configuration is optional
 as of version `1.6`, see below for a runtime configuration. The library will raise an
 error if the relevant credentials are not provided either via `config.exs` or at runtime.
 
