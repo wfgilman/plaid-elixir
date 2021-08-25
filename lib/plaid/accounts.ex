@@ -33,7 +33,8 @@ defmodule Plaid.Accounts do
               mask: nil,
               official_name: nil,
               type: nil,
-              subtype: nil
+              subtype: nil,
+              verification_status: nil
 
     @type t :: %__MODULE__{
             account_id: String.t(),
@@ -43,7 +44,8 @@ defmodule Plaid.Accounts do
             mask: String.t(),
             official_name: String.t(),
             type: String.t(),
-            subtype: String.t()
+            subtype: String.t(),
+            verification_status: String.t()
           }
 
     defmodule Balance do

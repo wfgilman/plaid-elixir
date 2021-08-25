@@ -17,7 +17,8 @@ defmodule Plaid.Factory do
           "name" => "Plaid Checking",
           "official_name" => "Plaid Gold Checking",
           "subtype" => "checking",
-          "type" => "depository"
+          "type" => "depository",
+          "verification_status" => nil
         },
         %{
           "account_id" => "6Myq63K1KDSe3lBwp7K1fnEbNGLV4nSxalVdW",
@@ -32,7 +33,24 @@ defmodule Plaid.Factory do
           "name" => "Plaid Credit Card",
           "official_name" => "Plaid Diamond Credit Card",
           "subtype" => "credit card",
-          "type" => "credit"
+          "type" => "credit",
+          "verification_status" => nil
+        },
+        %{
+          "account_id" => "dhfDuX0N3Yia57IMOGE3m7faUlwvPQLbxs7Oc",
+          "balances" => %{
+            "available" => 200,
+            "current" => 500,
+            "limit" => 4000,
+            "iso_currency_code" => "USD",
+            "unofficial_currency_code" => nil
+          },
+          "mask" => "9876",
+          "name" => "Plaid Platinum Checking",
+          "official_name" => "Plaid Platinum Checking",
+          "subtype" => "checking",
+          "type" => "depository",
+          "verification_status" => "automatically_verified"
         }
       ],
       "item" => %{
