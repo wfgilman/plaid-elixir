@@ -41,7 +41,8 @@ defmodule PlaidTest do
       assert %{
                client_id: "me",
                secret: "shhhh",
-               root_uri: "http://localhost:1234/"
+               root_uri: "http://localhost:1234/",
+               httpoison_options: []
              } == Plaid.validate_cred(config)
     end
 
@@ -54,7 +55,8 @@ defmodule PlaidTest do
       assert %{
                client_id: "you",
                secret: "no secrets",
-               root_uri: "http://localhost:#{bypass.port}/"
+               root_uri: "http://localhost:#{bypass.port}/",
+               httpoison_options: []
              } == Plaid.validate_cred(%{})
     end
 
