@@ -154,11 +154,51 @@ defmodule PlaidTest do
 
       Plaid.make_request(:get, "any")
     end
+
+    test "make_request_with_cred/4 overrides httpoison_options in config", %{bypass: bypass} do
+      Application.put_env(:plaid, :httpoison_options, recv_timeout: 5_000)
+
+      Bypass.expect(bypass, fn conn ->
+        Plug.Conn.resp(conn, 200, "{\"status\":\"ok\"}")
+      end)
+
+      {:ok, resp} =
+        Plaid.make_request_with_cred(:get, "any", %{
+          httpoison_options: [recv_timeout: 12345, ssl: [certfile: "certs/client.crt"]]
+        })
+
+      assert resp.request.options[:recv_timeout] == 12345
+      assert resp.request.options[:ssl] == [certfile: "certs/client.crt"]
+      cleanup_config()
+    end
+
+    test "make_request_with_cred/6 options argument overrides all others", %{bypass: bypass} do
+      Application.put_env(:plaid, :httpoison_options, recv_timeout: 5_000)
+
+      Bypass.expect(bypass, fn conn ->
+        Plug.Conn.resp(conn, 200, "{\"status\":\"ok\"}")
+      end)
+
+      {:ok, resp} =
+        Plaid.make_request_with_cred(
+          :get,
+          "any",
+          %{httpoison_options: [recv_timeout: 12345, ssl: [certfile: "certs/client.crt"]]},
+          %{},
+          %{},
+          recv_timeout: 678_910
+        )
+
+      assert resp.request.options[:recv_timeout] == 678_910
+      assert resp.request.options[:ssl] == [certfile: "certs/client.crt"]
+      cleanup_config()
+    end
   end
 
   defp cleanup_config do
     Application.put_env(:plaid, :client_id, "test_id")
     Application.put_env(:plaid, :secret, "test_secret")
     Application.put_env(:plaid, :public_key, "s3cret")
+    Application.delete_env(:plaid, :httpoison_options)
   end
 end
