@@ -92,7 +92,7 @@ defmodule Plaid do
     request_headers = get_request_headers() |> Map.merge(headers) |> Map.to_list()
     
     options =
-      httpoison_request_options()
+      default_httpoison_request_options()
       |> Keyword.merge(Map.get(config, :httpoison_options, []))
       |> Keyword.merge(options)
     
@@ -108,8 +108,8 @@ defmodule Plaid do
     |> Map.put("Content-Type", "application/json")
   end
 
-  defp httpoison_request_options(config) do
-    Application.get_env(:plaid, :httpoison_options, []) ++ Map.get(config, :httpoison_options, [])
+  defp default_httpoison_request_options do
+    Application.get_env(:plaid, :httpoison_options, [])
   end
 
   @doc """
