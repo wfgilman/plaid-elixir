@@ -229,8 +229,40 @@ defmodule PlaidTest do
       assert {@start_event, %{duration: _}, start_meta} = start
       assert {@stop_event, %{duration: _}, stop_meta} = stop
 
-      assert %{method: "GET", path: "any"} = start_meta
-      assert %{method: "GET", path: "any", status: 200} = stop_meta
+      assert %{method: "GET", path: "any", u: :native} = start_meta
+      assert %{method: "GET", path: "any", status: 200, u: :native} = stop_meta
+    end
+
+    test "are sent when there's a lower level error", %{bypass: bypass} do
+      Bypass.down(bypass)
+
+      {:error, _econnrefused} = Plaid.make_request(:get, "any")
+
+      [start, stop] = receive_events(2)
+
+      assert {@start_event, %{duration: _}, meta} = start
+      assert {@stop_event, %{duration: _}, ^meta} = stop
+
+      assert %{method: "GET", path: "any", u: :native} = meta
+    end
+
+    test "are sent when there's an exception", %{bypass: bypass} do
+      Bypass.expect(bypass, fn conn ->
+        raise SystemLimitError
+      end)
+
+      try do
+        Plaid.make_request(:get, "any")
+      rescue
+        _ -> :ok
+      end
+
+      [start, exception] = receive_events(2)
+
+      assert {@start_event, %{duration: _}, _meta} = start
+      assert {@exception_event, %{duration: _}, meta} = exception
+
+      assert %{method: "GET", path: "any", exception: %SystemLimitError{}, u: :native} = meta
     end
 
     defp receive_events(n, timeout \\ 5_000, acc_events \\ []) do
