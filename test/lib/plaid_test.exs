@@ -195,6 +195,54 @@ defmodule PlaidTest do
     end
   end
 
+  describe "Telemetry events" do
+    @start_event [:plaid, :request, :start]
+    @stop_event [:plaid, :request, :stop]
+    @exception_event [:plaid, :request, :exception]
+
+    setup do
+      id = UUID.uuid4()
+      me = self()
+
+      :ok =
+        :telemetry.attach_many(
+          id,
+          [@start_event, @stop_event, @exception_event],
+          fn name, data, meta, :unused_config ->
+            send(me, {:telemetry_event, name, data, meta})
+          end,
+          :unused_config
+        )
+
+      on_exit(fn -> :telemetry.detach(id) end)
+    end
+
+    test "are sent on make_request/2", %{bypass: bypass} do
+      Bypass.expect(bypass, fn conn ->
+        Plug.Conn.resp(conn, 200, "{\"status\":\"ok\"}")
+      end)
+
+      {:ok, _resp} = Plaid.make_request(:get, "any")
+
+      [start, stop] = receive_events(2)
+
+      assert {@start_event, %{duration: _}, start_meta} = start
+      assert {@stop_event, %{duration: _}, stop_meta} = stop
+
+      assert %{method: "GET", path: "any"} = start_meta
+      assert %{method: "GET", path: "any", status: 200} = stop_meta
+    end
+
+    defp receive_events(n, timeout \\ 5_000, acc_events \\ []) do
+      receive do
+        {:telemetry_event, name, data, meta} ->
+          receive_events(n - 1, timeout, acc_events ++ [{name, data, meta}])
+      after
+        timeout -> :error
+      end
+    end
+  end
+
   defp cleanup_config do
     Application.put_env(:plaid, :client_id, "test_id")
     Application.put_env(:plaid, :secret, "test_secret")

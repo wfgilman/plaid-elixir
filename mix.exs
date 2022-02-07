@@ -33,7 +33,9 @@ defmodule Plaid.Mixfile do
       {:credo, "~> 0.5", only: [:dev], runtime: false},
       {:excoveralls, "~> 0.6", only: [:test]},
       {:ex_doc, ">= 0.0.0", only: [:dev], runtime: false},
-      {:dialyxir, "~> 1.0.0-rc.6", only: [:dev, :test], runtime: false}
+      {:dialyxir, "~> 1.0.0-rc.6", only: [:dev, :test], runtime: false},
+      {:telemetry, "~> 1.0"},
+      {:uuid, "~> 1.1", only: [:test]}
     ]
   end
 
