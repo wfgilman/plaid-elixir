@@ -226,11 +226,11 @@ defmodule PlaidTest do
 
       [start, stop] = receive_events(2)
 
-      assert {@start_event, %{duration: _}, start_meta} = start
+      assert {@start_event, %{system_time: _}, start_meta} = start
       assert {@stop_event, %{duration: _}, stop_meta} = stop
 
-      assert %{method: "GET", path: "any", u: :native} = start_meta
-      assert %{method: "GET", path: "any", status: 200, u: :native} = stop_meta
+      assert %{method: :get, path: "any", u: :native} = start_meta
+      assert %{method: :get, path: "any", status: 200, u: :native} = stop_meta
     end
 
     test "are sent when there's a lower level error", %{bypass: bypass} do
@@ -240,37 +240,42 @@ defmodule PlaidTest do
 
       [start, stop] = receive_events(2)
 
-      assert {@start_event, %{duration: _}, meta} = start
+      assert {@start_event, %{system_time: _}, meta} = start
       assert {@stop_event, %{duration: _}, ^meta} = stop
 
-      assert %{method: "GET", path: "any", u: :native} = meta
+      assert %{method: :get, path: "any", u: :native} = meta
     end
 
     test "are sent when there's an exception", %{bypass: bypass} do
-      Bypass.expect(bypass, fn conn ->
-        raise SystemLimitError
-      end)
+      # A character outside of utf-8 so that Poison raises
+      body = %{key: <<128>>}
 
       try do
-        Plaid.make_request(:get, "any")
+        Plaid.make_request(:get, "any", body)
       rescue
         _ -> :ok
       end
 
       [start, exception] = receive_events(2)
 
-      assert {@start_event, %{duration: _}, _meta} = start
+      assert {@start_event, %{system_time: _}, _meta} = start
       assert {@exception_event, %{duration: _}, meta} = exception
 
-      assert %{method: "GET", path: "any", exception: %SystemLimitError{}, u: :native} = meta
+      assert %{method: :get, path: "any", exception: %Poison.EncodeError{}, u: :native} = meta
     end
 
-    defp receive_events(n, timeout \\ 5_000, acc_events \\ []) do
+    defp receive_events(n, acc_events \\ [])
+
+    defp receive_events(0, acc_events) do
+      acc_events
+    end
+
+    defp receive_events(n, acc_events) do
       receive do
         {:telemetry_event, name, data, meta} ->
-          receive_events(n - 1, timeout, acc_events ++ [{name, data, meta}])
+          receive_events(n - 1, acc_events ++ [{name, data, meta}])
       after
-        timeout -> :error
+        5_000 -> :error
       end
     end
   end

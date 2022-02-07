@@ -80,23 +80,76 @@ defmodule Plaid do
     make_request_with_cred(method, endpoint, %{}, body, headers, options)
   end
 
+  @events_prefix [:plaid, :request]
+
   @doc """
   Makes request with credentials.
   """
   @spec make_request_with_cred(atom, String.t(), map, map, map, Keyword.t()) ::
           {:ok, HTTPoison.Response.t()} | {:error, HTTPoison.Error.t()}
   def make_request_with_cred(method, endpoint, config, body \\ %{}, headers \\ %{}, options \\ []) do
-    request_endpoint = "#{get_root_uri(config)}#{endpoint}"
-    cred = Map.take(config, [:client_id, :secret])
-    request_body = Map.merge(body, cred) |> Poison.encode!()
-    request_headers = get_request_headers() |> Map.merge(headers) |> Map.to_list()
-    
-    options =
-      default_httpoison_request_options()
-      |> Keyword.merge(Map.get(config, :httpoison_options, []))
-      |> Keyword.merge(options)
-    
-    request(method, request_endpoint, request_body, request_headers, options)
+    start_time = System.monotonic_time()
+
+    :telemetry.execute(@events_prefix ++ [:start], %{system_time: start_time}, %{
+      method: method,
+      path: endpoint,
+      u: :native
+    })
+
+    try do
+      request_endpoint = "#{get_root_uri(config)}#{endpoint}"
+      cred = Map.take(config, [:client_id, :secret])
+      request_body = Map.merge(body, cred) |> Poison.encode!()
+      request_headers = get_request_headers() |> Map.merge(headers) |> Map.to_list()
+
+      options =
+        default_httpoison_request_options()
+        |> Keyword.merge(Map.get(config, :httpoison_options, []))
+        |> Keyword.merge(options)
+
+      request(method, request_endpoint, request_body, request_headers, options)
+    rescue
+      exception ->
+        :telemetry.execute(
+          @events_prefix ++ [:exception],
+          %{duration: System.monotonic_time() - start_time},
+          %{
+            method: method,
+            path: endpoint,
+            exception: exception,
+            u: :native
+          }
+        )
+
+        reraise exception, __STACKTRACE__
+    else
+      {:ok, response} = result ->
+        :telemetry.execute(
+          @events_prefix ++ [:stop],
+          %{duration: System.monotonic_time() - start_time},
+          %{
+            method: method,
+            path: endpoint,
+            status: response.status_code,
+            u: :native
+          }
+        )
+
+        result
+
+      {:error, _reason} = result ->
+        :telemetry.execute(
+          @events_prefix ++ [:stop],
+          %{duration: System.monotonic_time() - start_time},
+          %{
+            method: method,
+            path: endpoint,
+            u: :native
+          }
+        )
+
+        result
+    end
   end
 
   def process_response_body(body) do
