@@ -69,6 +69,13 @@ pass in a configuration argument to `Plaid.Accounts.get/2`.
 Plaid.Accounts.get(%{access_token: "my-token"}, %{root_uri: "http://sandbox.plaid.com/", secret: "no-secrets"})
 ```
 
+As of version `2.5` you can pass HTTPoison options to the configuration at runtime. This can be
+useful if you'd like to extend the `recv_timeout` parameter for certain calls to Plaid.
+
+```elixir
+Plaid.Transactions.get(%{access_token: "my-token"}, %{httpoison_options: [recv_timeout: 10_000]})
+```
+
 ## Obtaining Access Tokens
 
 Access tokens are required for almost all calls to Plaid. However, they can only be obtained
