@@ -88,37 +88,43 @@ defmodule Plaid do
   @spec make_request_with_cred(atom, String.t(), map, map, map, Keyword.t()) ::
           {:ok, HTTPoison.Response.t()} | {:error, HTTPoison.Error.t()}
   def make_request_with_cred(method, endpoint, config, body \\ %{}, headers \\ %{}, options \\ []) do
-    start_time = System.monotonic_time()
-
-    :telemetry.execute(@events_prefix ++ [:start], %{system_time: start_time}, %{
+    common_metadata = %{
       method: method,
       path: endpoint,
       u: :native
-    })
+    }
+
+    with_metrics(
+      fn ->
+        request_endpoint = "#{get_root_uri(config)}#{endpoint}"
+        cred = Map.take(config, [:client_id, :secret])
+        request_body = Map.merge(body, cred) |> Poison.encode!()
+        request_headers = get_request_headers() |> Map.merge(headers) |> Map.to_list()
+
+        options =
+          default_httpoison_request_options()
+          |> Keyword.merge(Map.get(config, :httpoison_options, []))
+          |> Keyword.merge(options)
+
+        request(method, request_endpoint, request_body, request_headers, options)
+      end,
+      common_metadata
+    )
+  end
+
+  defp with_metrics(action, metadata) do
+    start_time = System.monotonic_time()
+
+    :telemetry.execute(@events_prefix ++ [:start], %{system_time: start_time}, metadata)
 
     try do
-      request_endpoint = "#{get_root_uri(config)}#{endpoint}"
-      cred = Map.take(config, [:client_id, :secret])
-      request_body = Map.merge(body, cred) |> Poison.encode!()
-      request_headers = get_request_headers() |> Map.merge(headers) |> Map.to_list()
-
-      options =
-        default_httpoison_request_options()
-        |> Keyword.merge(Map.get(config, :httpoison_options, []))
-        |> Keyword.merge(options)
-
-      request(method, request_endpoint, request_body, request_headers, options)
+      action.()
     rescue
       exception ->
         :telemetry.execute(
           @events_prefix ++ [:exception],
           %{duration: System.monotonic_time() - start_time},
-          %{
-            method: method,
-            path: endpoint,
-            exception: exception,
-            u: :native
-          }
+          Map.put(metadata, :exception, exception)
         )
 
         reraise exception, __STACKTRACE__
@@ -127,12 +133,7 @@ defmodule Plaid do
         :telemetry.execute(
           @events_prefix ++ [:stop],
           %{duration: System.monotonic_time() - start_time},
-          %{
-            method: method,
-            path: endpoint,
-            status: response.status_code,
-            u: :native
-          }
+          Map.put(metadata, :status, response.status_code)
         )
 
         result
@@ -141,11 +142,7 @@ defmodule Plaid do
         :telemetry.execute(
           @events_prefix ++ [:stop],
           %{duration: System.monotonic_time() - start_time},
-          %{
-            method: method,
-            path: endpoint,
-            u: :native
-          }
+          metadata
         )
 
         result

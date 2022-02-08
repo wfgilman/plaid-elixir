@@ -246,7 +246,7 @@ defmodule PlaidTest do
       assert %{method: :get, path: "any", u: :native} = meta
     end
 
-    test "are sent when there's an exception", %{bypass: bypass} do
+    test "are sent when there's an exception" do
       # A character outside of utf-8 so that Poison raises
       body = %{key: <<128>>}
 
