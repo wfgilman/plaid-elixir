@@ -133,7 +133,7 @@ defmodule Plaid do
         :telemetry.execute(
           @events_prefix ++ [:stop],
           %{duration: System.monotonic_time() - start_time},
-          Map.put(metadata, :status, response.status_code)
+          Map.merge(metadata, %{result: result, status: response.status_code})
         )
 
         result
@@ -142,7 +142,7 @@ defmodule Plaid do
         :telemetry.execute(
           @events_prefix ++ [:stop],
           %{duration: System.monotonic_time() - start_time},
-          metadata
+          Map.put(metadata, :result, result)
         )
 
         result

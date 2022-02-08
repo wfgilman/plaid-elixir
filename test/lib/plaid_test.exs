@@ -230,7 +230,7 @@ defmodule PlaidTest do
       assert {@stop_event, %{duration: _}, stop_meta} = stop
 
       assert %{method: :get, path: "any", u: :native} = start_meta
-      assert %{method: :get, path: "any", status: 200, u: :native} = stop_meta
+      assert %{method: :get, path: "any", status: 200, u: :native, result: {:ok, _}} = stop_meta
     end
 
     test "are sent when there's a lower level error", %{bypass: bypass} do
@@ -240,10 +240,10 @@ defmodule PlaidTest do
 
       [start, stop] = receive_events(2)
 
-      assert {@start_event, %{system_time: _}, meta} = start
-      assert {@stop_event, %{duration: _}, ^meta} = stop
+      assert {@start_event, %{system_time: _}, _start_meta} = start
+      assert {@stop_event, %{duration: _}, stop_meta} = stop
 
-      assert %{method: :get, path: "any", u: :native} = meta
+      assert %{method: :get, path: "any", u: :native, result: {:error, _reason}} = stop_meta
     end
 
     test "are sent when there's an exception" do
@@ -262,6 +262,7 @@ defmodule PlaidTest do
       assert {@exception_event, %{duration: _}, meta} = exception
 
       assert %{method: :get, path: "any", exception: %Poison.EncodeError{}, u: :native} = meta
+      refute :result in Map.keys(meta)
     end
 
     defp receive_events(n, acc_events \\ [])
