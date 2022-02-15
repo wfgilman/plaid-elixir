@@ -89,6 +89,21 @@ for an access token and item id (both of which should be stored) using
 
 Consult Plaid's documentation for additional detail on this process.
 
+## Metrics
+This library emits [telemetry](https://github.com/beam-telemetry/telemetry) that you can use to get insight into communication
+between your system and Plaid service. Emitted events are designed to be similar to the ones Phoenix emits. Those are the following:
+* `[:plaid, :request, :start]` with `:system_time` measurement - signifies the moment request is being initiated
+* `[:plaid, :request, :stop]` with `:duration` measurement - emitted after request has been finished
+* `[:plaid, :request, :exception]` with `:duration` measurement - emitted in case there's an exception while making a request
+
+Metadata attached (if applicable to event type) are as follows:
+* `:method`, `:path`, `:status` - HTTP information on the request.
+* `:u` - unit in which time is reported. Only value is `:native`.
+* `:exception` - The exception that was thrown during making the request.
+* `:result` - If no exception, contains either `{:ok, %HTTPoison.Response{}}` or `{:error, reason}`
+
+All times are in :native unit.
+
 ## Compatibility
 
 As of version `1.2`, this library natively supports serialization of its structs using `Jason` for compatibility with Phoenix.

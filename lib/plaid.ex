@@ -7,6 +7,8 @@ defmodule Plaid do
 
   use HTTPoison.Base
 
+  @events_prefix [:plaid, :request]
+
   defmodule MissingClientIdError do
     defexception message: """
                  The `client_id` is required for calls to Plaid. Please either configure `client_id`
@@ -79,8 +81,6 @@ defmodule Plaid do
   def make_request(method, endpoint, body \\ %{}, headers \\ %{}, options \\ []) do
     make_request_with_cred(method, endpoint, %{}, body, headers, options)
   end
-
-  @events_prefix [:plaid, :request]
 
   @doc """
   Makes request with credentials.
