@@ -195,6 +195,92 @@ defmodule PlaidTest do
     end
   end
 
+  describe "Telemetry events" do
+    @start_event [:plaid, :request, :start]
+    @stop_event [:plaid, :request, :stop]
+    @exception_event [:plaid, :request, :exception]
+
+    setup do
+      id = UUID.uuid4()
+      me = self()
+
+      :ok =
+        :telemetry.attach_many(
+          id,
+          [@start_event, @stop_event, @exception_event],
+          fn name, data, meta, :unused_config ->
+            send(me, {:telemetry_event, name, data, meta})
+          end,
+          :unused_config
+        )
+
+      on_exit(fn -> :telemetry.detach(id) end)
+    end
+
+    test "are sent on make_request/2", %{bypass: bypass} do
+      Bypass.expect(bypass, fn conn ->
+        Plug.Conn.resp(conn, 200, "{\"status\":\"ok\"}")
+      end)
+
+      {:ok, _resp} = Plaid.make_request(:get, "any")
+
+      [start, stop] = receive_events(2)
+
+      assert {@start_event, %{system_time: _}, start_meta} = start
+      assert {@stop_event, %{duration: _}, stop_meta} = stop
+
+      assert %{method: :get, path: "any", u: :native} = start_meta
+      assert %{method: :get, path: "any", status: 200, u: :native, result: {:ok, _}} = stop_meta
+    end
+
+    test "are sent when there's a lower level error", %{bypass: bypass} do
+      Bypass.down(bypass)
+
+      {:error, _econnrefused} = Plaid.make_request(:get, "any")
+
+      [start, stop] = receive_events(2)
+
+      assert {@start_event, %{system_time: _}, _start_meta} = start
+      assert {@stop_event, %{duration: _}, stop_meta} = stop
+
+      assert %{method: :get, path: "any", u: :native, result: {:error, _reason}} = stop_meta
+    end
+
+    test "are sent when there's an exception" do
+      # A character outside of utf-8 so that Poison raises
+      body = %{key: <<128>>}
+
+      try do
+        Plaid.make_request(:get, "any", body)
+      rescue
+        _ -> :ok
+      end
+
+      [start, exception] = receive_events(2)
+
+      assert {@start_event, %{system_time: _}, _meta} = start
+      assert {@exception_event, %{duration: _}, meta} = exception
+
+      assert %{method: :get, path: "any", exception: %Poison.EncodeError{}, u: :native} = meta
+      refute :result in Map.keys(meta)
+    end
+
+    defp receive_events(n, acc_events \\ [])
+
+    defp receive_events(0, acc_events) do
+      acc_events
+    end
+
+    defp receive_events(n, acc_events) do
+      receive do
+        {:telemetry_event, name, data, meta} ->
+          receive_events(n - 1, acc_events ++ [{name, data, meta}])
+      after
+        5_000 -> :error
+      end
+    end
+  end
+
   defp cleanup_config do
     Application.put_env(:plaid, :client_id, "test_id")
     Application.put_env(:plaid, :secret, "test_secret")

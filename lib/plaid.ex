@@ -7,6 +7,8 @@ defmodule Plaid do
 
   use HTTPoison.Base
 
+  @events_prefix [:plaid, :request]
+
   defmodule MissingClientIdError do
     defexception message: """
                  The `client_id` is required for calls to Plaid. Please either configure `client_id`
@@ -86,17 +88,65 @@ defmodule Plaid do
   @spec make_request_with_cred(atom, String.t(), map, map, map, Keyword.t()) ::
           {:ok, HTTPoison.Response.t()} | {:error, HTTPoison.Error.t()}
   def make_request_with_cred(method, endpoint, config, body \\ %{}, headers \\ %{}, options \\ []) do
-    request_endpoint = "#{get_root_uri(config)}#{endpoint}"
-    cred = Map.take(config, [:client_id, :secret])
-    request_body = Map.merge(body, cred) |> Poison.encode!()
-    request_headers = get_request_headers() |> Map.merge(headers) |> Map.to_list()
-    
-    options =
-      default_httpoison_request_options()
-      |> Keyword.merge(Map.get(config, :httpoison_options, []))
-      |> Keyword.merge(options)
-    
-    request(method, request_endpoint, request_body, request_headers, options)
+    common_metadata = %{
+      method: method,
+      path: endpoint,
+      u: :native
+    }
+
+    with_metrics(
+      fn ->
+        request_endpoint = "#{get_root_uri(config)}#{endpoint}"
+        cred = Map.take(config, [:client_id, :secret])
+        request_body = Map.merge(body, cred) |> Poison.encode!()
+        request_headers = get_request_headers() |> Map.merge(headers) |> Map.to_list()
+
+        options =
+          default_httpoison_request_options()
+          |> Keyword.merge(Map.get(config, :httpoison_options, []))
+          |> Keyword.merge(options)
+
+        request(method, request_endpoint, request_body, request_headers, options)
+      end,
+      common_metadata
+    )
+  end
+
+  defp with_metrics(action, metadata) do
+    start_time = System.monotonic_time()
+
+    :telemetry.execute(@events_prefix ++ [:start], %{system_time: start_time}, metadata)
+
+    try do
+      action.()
+    rescue
+      exception ->
+        :telemetry.execute(
+          @events_prefix ++ [:exception],
+          %{duration: System.monotonic_time() - start_time},
+          Map.put(metadata, :exception, exception)
+        )
+
+        reraise exception, __STACKTRACE__
+    else
+      {:ok, response} = result ->
+        :telemetry.execute(
+          @events_prefix ++ [:stop],
+          %{duration: System.monotonic_time() - start_time},
+          Map.merge(metadata, %{result: result, status: response.status_code})
+        )
+
+        result
+
+      {:error, _reason} = result ->
+        :telemetry.execute(
+          @events_prefix ++ [:stop],
+          %{duration: System.monotonic_time() - start_time},
+          Map.put(metadata, :result, result)
+        )
+
+        result
+    end
   end
 
   def process_response_body(body) do
