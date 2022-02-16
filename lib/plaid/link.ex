@@ -22,7 +22,7 @@ defmodule Plaid.Link do
           created_at: String.t(),
           metadata: Plaid.Link.Metadata.t()
         }
-  @type params :: %{required(atom) => String.t()}
+  @type params :: %{required(atom) => String.t() | [String.t()] | map}
   @type config :: %{required(atom) => String.t()}
 
   @endpoint :link
@@ -39,16 +39,22 @@ defmodule Plaid.Link do
               language: nil,
               account_filters: nil,
               redirect_uri: nil,
-              client_name: nil
+              products: nil,
+              client_name: nil,
+              user: nil,
+              access_token: nil
 
     @type t :: %__MODULE__{
             initial_products: [String.t()],
+            products: [String.t()],
             webhook: String.t(),
             country_codes: [String.t()],
             language: String.t(),
             account_filters: map(),
             redirect_uri: String.t(),
-            client_name: String.t()
+            client_name: String.t(),
+            user: map(),
+            access_token: String.t()
           }
   end
 
