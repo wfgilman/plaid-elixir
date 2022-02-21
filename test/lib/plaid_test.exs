@@ -217,12 +217,12 @@ defmodule PlaidTest do
       on_exit(fn -> :telemetry.detach(id) end)
     end
 
-    test "are sent on make_request/2", %{bypass: bypass} do
+    test "are sent on make_request_with_cred", %{bypass: bypass} do
       Bypass.expect(bypass, fn conn ->
         Plug.Conn.resp(conn, 200, "{\"status\":\"ok\"}")
       end)
 
-      {:ok, _resp} = Plaid.make_request(:get, "any")
+      {:ok, _resp} = Plaid.make_request_with_cred(:get, "any", %{})
 
       [start, stop] = receive_events(2)
 
@@ -236,7 +236,7 @@ defmodule PlaidTest do
     test "are sent when there's a lower level error", %{bypass: bypass} do
       Bypass.down(bypass)
 
-      {:error, _econnrefused} = Plaid.make_request(:get, "any")
+      {:error, _econnrefused} = Plaid.make_request_with_cred(:get, "any", %{})
 
       [start, stop] = receive_events(2)
 
@@ -251,7 +251,7 @@ defmodule PlaidTest do
       body = %{key: <<128>>}
 
       try do
-        Plaid.make_request(:get, "any", body)
+        Plaid.make_request_with_cred(:get, "any", %{}, body)
       rescue
         _ -> :ok
       end
@@ -263,6 +263,31 @@ defmodule PlaidTest do
 
       assert %{method: :get, path: "any", exception: %Poison.EncodeError{}, u: :native} = meta
       refute :result in Map.keys(meta)
+    end
+
+    test "contain telemetry_metadata passed in config", %{bypass: bypass} do
+      Bypass.expect(bypass, fn conn ->
+        Plug.Conn.resp(conn, 200, "{\"status\":\"ok\"}")
+      end)
+
+      {:ok, _resp} =
+        Plaid.make_request_with_cred(:get, "any", %{telemetry_metadata: %{ins_id: "ins_1"}})
+
+      [start, stop] = receive_events(2)
+
+      assert {@start_event, %{system_time: _}, start_meta} = start
+      assert {@stop_event, %{duration: _}, stop_meta} = stop
+
+      assert %{method: :get, path: "any", u: :native, ins_id: "ins_1"} = start_meta
+
+      assert %{
+               method: :get,
+               path: "any",
+               status: 200,
+               u: :native,
+               result: {:ok, _},
+               ins_id: "ins_1"
+             } = stop_meta
     end
 
     defp receive_events(n, acc_events \\ [])

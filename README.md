@@ -102,6 +102,9 @@ Metadata attached (if applicable to event type) are as follows:
 * `:exception` - The exception that was thrown during making the request.
 * `:result` - If no exception, contains either `{:ok, %HTTPoison.Response{}}` or `{:error, reason}`
 
+Additionally, you can pass your custom metadata through the `config` parameter when calling a product endpoint.
+Put it under `telemetry_metadata` and it will be merged to the standard metadata map.
+
 All times are in :native unit.
 
 ## Compatibility
