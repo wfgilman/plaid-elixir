@@ -217,12 +217,12 @@ defmodule PlaidTest do
       on_exit(fn -> :telemetry.detach(id) end)
     end
 
-    test "are sent on make_request/2", %{bypass: bypass} do
+    test "are sent on make_request_with_cred", %{bypass: bypass} do
       Bypass.expect(bypass, fn conn ->
         Plug.Conn.resp(conn, 200, "{\"status\":\"ok\"}")
       end)
 
-      {:ok, _resp} = Plaid.make_request(:get, "any")
+      {:ok, _resp} = Plaid.make_request_with_cred(:get, "any", %{})
 
       [start, stop] = receive_events(2)
 
@@ -236,7 +236,7 @@ defmodule PlaidTest do
     test "are sent when there's a lower level error", %{bypass: bypass} do
       Bypass.down(bypass)
 
-      {:error, _econnrefused} = Plaid.make_request(:get, "any")
+      {:error, _econnrefused} = Plaid.make_request_with_cred(:get, "any", %{})
 
       [start, stop] = receive_events(2)
 
@@ -251,7 +251,7 @@ defmodule PlaidTest do
       body = %{key: <<128>>}
 
       try do
-        Plaid.make_request(:get, "any", body)
+        Plaid.make_request_with_cred(:get, "any", %{}, body)
       rescue
         _ -> :ok
       end
