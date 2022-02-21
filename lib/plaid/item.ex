@@ -29,7 +29,7 @@ defmodule Plaid.Item do
           request_id: String.t(),
           status: Plaid.Item.Status.t()
         }
-  @type params :: %{required(atom) => String.t()}
+  @type params :: %{required(atom) => String.t() | [String.t()] | map}
   @type config :: %{required(atom) => String.t()}
   @type service :: :dwolla | :modern_treasury
 

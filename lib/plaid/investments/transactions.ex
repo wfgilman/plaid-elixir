@@ -83,7 +83,7 @@ defmodule Plaid.Investments.Transactions do
   ```
   """
   @spec get(params, config | nil) ::
-          {:ok, Plaid.Investments.Tansactions.t()} | {:error, Plaid.Error.t()}
+          {:ok, Plaid.Investments.Transactions.t()} | {:error, Plaid.Error.t()}
   def get(params, config \\ %{}) do
     config = validate_cred(config)
     endpoint = "#{@endpoint}/get"

@@ -27,7 +27,10 @@ defmodule Plaid.Auth do
             optional(:account_ids) => [String.t()]
           }
         }
-  @type config :: %{required(atom) => String.t()}
+  @type config :: %{
+          required(atom) => String.t(),
+          optional(:httpoison_options) => [map()]
+        }
 
   @endpoint :auth
 
