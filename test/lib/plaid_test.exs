@@ -265,6 +265,22 @@ defmodule PlaidTest do
       refute :result in Map.keys(meta)
     end
 
+    test "contain telemetry_metadata passed in config", %{bypass: bypass} do
+      Bypass.expect(bypass, fn conn ->
+        Plug.Conn.resp(conn, 200, "{\"status\":\"ok\"}")
+      end)
+
+      {:ok, _resp} = Plaid.make_request_with_cred(:get, "any", %{telemetry_metadata: %{ins_id: "ins_1"}})
+
+      [start, stop] = receive_events(2)
+
+      assert {@start_event, %{system_time: _}, start_meta} = start
+      assert {@stop_event, %{duration: _}, stop_meta} = stop
+
+      assert %{method: :get, path: "any", u: :native, ins_id: "ins_1"} = start_meta
+      assert %{method: :get, path: "any", status: 200, u: :native, result: {:ok, _}, ins_id: "ins_1"} = stop_meta
+    end
+
     defp receive_events(n, acc_events \\ [])
 
     defp receive_events(0, acc_events) do
