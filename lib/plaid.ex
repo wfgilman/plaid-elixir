@@ -89,11 +89,13 @@ defmodule Plaid do
           {:ok, HTTPoison.Response.t()} | {:error, HTTPoison.Error.t()}
   def make_request_with_cred(method, endpoint, config, body \\ %{}, headers \\ %{}, options \\ []) do
     passed_metadata = config[:telemetry_metadata] || %{}
-    common_metadata = Map.merge(passed_metadata, %{
-      method: method,
-      path: endpoint,
-      u: :native
-    })
+
+    common_metadata =
+      Map.merge(passed_metadata, %{
+        method: method,
+        path: endpoint,
+        u: :native
+      })
 
     with_metrics(
       fn ->
