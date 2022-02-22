@@ -29,13 +29,14 @@ defmodule Plaid.Mixfile do
       {:httpoison, "~> 1.4"},
       {:poison, "~> 4.0"},
       {:jason, "~> 1.1"},
-      {:bypass, "~> 0.8", only: [:test]},
+      {:bypass, "~> 2.1", only: [:test]},
       {:credo, "~> 0.5", only: [:dev], runtime: false},
       {:excoveralls, "~> 0.6", only: [:test]},
       {:ex_doc, ">= 0.0.0", only: [:dev], runtime: false},
       {:dialyxir, "~> 1.0.0-rc.6", only: [:dev, :test], runtime: false},
       {:telemetry, "~> 1.0"},
-      {:uuid, "~> 1.1", only: [:test]}
+      {:uuid, "~> 1.1", only: [:test]},
+      {:mox, "~> 1.0", only: :test}
     ]
   end
 
