@@ -42,7 +42,8 @@ defmodule PlaidTest do
                client_id: "me",
                secret: "shhhh",
                root_uri: "http://localhost:1234/",
-               httpoison_options: []
+               httpoison_options: [],
+               telemetry_metadata: %{}
              } == Plaid.validate_cred(config)
     end
 
@@ -56,7 +57,8 @@ defmodule PlaidTest do
                client_id: "you",
                secret: "no secrets",
                root_uri: "http://localhost:#{bypass.port}/",
-               httpoison_options: []
+               httpoison_options: [],
+               telemetry_metadata: %{}
              } == Plaid.validate_cred(%{})
     end
 
@@ -70,6 +72,18 @@ defmodule PlaidTest do
       Application.put_env(:plaid, :secret, nil)
       assert_raise Plaid.MissingSecretError, fn -> Plaid.validate_cred(%{client_id: "me"}) end
       cleanup_config()
+    end
+
+    test "validate_cred/1 preserves telemetry_metadata and httpoison_options" do
+      config = %{
+        httpoison_options: [some_key: "some_value"],
+        telemetry_metadata: %{ins_id: "ins_id"}
+      }
+
+      assert %{
+               httpoison_options: [some_key: "some_value"],
+               telemetry_metadata: %{ins_id: "ins_id"}
+             } = Plaid.validate_cred(config)
     end
 
     test "validate_public_key/1 uses configuration value when no config is passed as argument", %{

@@ -174,7 +174,8 @@ defmodule Plaid do
       client_id: get_client_id(config),
       secret: get_secret(config),
       root_uri: get_root_uri(config),
-      httpoison_options: Map.get(config, :httpoison_options, [])
+      httpoison_options: Map.get(config, :httpoison_options, []),
+      telemetry_metadata: Map.get(config, :telemetry_metadata, %{})
     }
   end
 
