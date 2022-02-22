@@ -1,21 +1,56 @@
 defmodule Plaid.AuthTest do
-  use ExUnit.Case
+  import Mox
+  use ExUnit.Case, async: false
 
   import Plaid.Factory
 
-  setup do
-    bypass = Bypass.open()
-    Application.put_env(:plaid, :root_uri, "http://localhost:#{bypass.port}/")
+  setup context do
+    verify_on_exit!()
+
+    bypass =
+      if context[:integration] do
+        bypass = Bypass.open()
+        Application.put_env(:plaid, :client, Plaid)
+        Application.put_env(:plaid, :root_uri, "http://localhost:#{bypass.port}/")
+        bypass
+      end
+
+    on_exit(fn -> Application.put_env(:plaid, :client, PlaidMock) end)
     {:ok, bypass: bypass}
   end
 
-  describe "auth" do
-    test "get/1 requests POST and returns Plaid.Auth", %{bypass: bypass} do
+  @moduletag :auth
+
+  describe "auth unit tests" do
+    @describetag :unit
+
+    test "get/1 requests POST and returns Plaid.Auth" do
+      body = http_response_body(:auth)
+
+      expect(PlaidMock, :make_request_with_cred, fn method,
+                                                    endpoint,
+                                                    _config,
+                                                    _body,
+                                                    _headers,
+                                                    _options ->
+        assert method == :post
+        assert endpoint == "auth/get"
+        {:ok, %HTTPoison.Response{status_code: 200, body: body}}
+      end)
+
+      assert {:ok, resp} = Plaid.Auth.get(%{access_token: "my-token"})
+      assert Plaid.Auth == resp.__struct__
+      assert {:ok, _} = Jason.encode(resp)
+    end
+  end
+
+  describe "auth integration tests" do
+    @describetag :integration
+
+    test "get/1 returns Plaid.Auth", %{bypass: bypass} do
       body = http_response_body(:auth)
 
       Bypass.expect(bypass, fn conn ->
-        assert "POST" == conn.method
-        assert "auth/get" == Enum.join(conn.path_info, "/")
         Plug.Conn.resp(conn, 200, Poison.encode!(body))
       end)
 

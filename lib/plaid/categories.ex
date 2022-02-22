@@ -29,7 +29,11 @@ defmodule Plaid.Categories do
     config = Map.drop(config, [:public_key, :client_id, :secret])
     endpoint = "#{@endpoint}/get"
 
-    Plaid.make_request_with_cred(:post, endpoint, config)
+    client().make_request_with_cred(:post, endpoint, config, %{}, %{}, [])
     |> Plaid.Utils.handle_resp(@endpoint)
+  end
+
+  defp client do
+    Application.get_env(:plaid, :client, Plaid)
   end
 end
