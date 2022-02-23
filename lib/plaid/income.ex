@@ -3,7 +3,7 @@ defmodule Plaid.Income do
   Functions for Plaid `income` endpoint.
   """
 
-  import Plaid, only: [make_request_with_cred: 4, validate_cred: 1]
+  import Plaid, only: [validate_cred: 1]
 
   alias Plaid.Utils
 
@@ -78,8 +78,11 @@ defmodule Plaid.Income do
     config = validate_cred(config)
     endpoint = "#{@endpoint}/get"
 
-    :post
-    |> make_request_with_cred(endpoint, config, params)
+    client().make_request_with_cred(:post, endpoint, config, params, %{}, [])
     |> Utils.handle_resp(@endpoint)
+  end
+
+  defp client do
+    Application.get_env(:plaid, :client, Plaid)
   end
 end

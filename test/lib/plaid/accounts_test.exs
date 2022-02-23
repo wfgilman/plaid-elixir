@@ -1,7 +1,7 @@
 defmodule Plaid.AccountsTest do
-  import Mox
   use ExUnit.Case, async: false
 
+  import Mox
   import Plaid.Factory
 
   setup context do
@@ -16,7 +16,7 @@ defmodule Plaid.AccountsTest do
       end
 
     on_exit(fn -> Application.put_env(:plaid, :client, PlaidMock) end)
-    {:ok, bypass: bypass}
+    {:ok, bypass: bypass, params: %{access_token: "my-token"}}
   end
 
   @moduletag :accounts
@@ -24,7 +24,7 @@ defmodule Plaid.AccountsTest do
   describe "accounts unit tests" do
     @describetag :unit
 
-    test "get/1 requests POST and returns Plaid.Accounts" do
+    test "get/1 requests POST and returns Plaid.Accounts", %{params: params} do
       body = http_response_body(:accounts)
 
       expect(PlaidMock, :make_request_with_cred, fn method,
@@ -38,12 +38,12 @@ defmodule Plaid.AccountsTest do
         {:ok, %HTTPoison.Response{status_code: 200, body: body}}
       end)
 
-      assert {:ok, resp} = Plaid.Accounts.get(%{access_token: "my-token"})
+      assert {:ok, resp} = Plaid.Accounts.get(params)
       assert Plaid.Accounts == resp.__struct__
       assert {:ok, _} = Jason.encode(resp)
     end
 
-    test "get/1 returns error" do
+    test "get/1 returns error", %{params: params} do
       body = http_response_body(:error)
 
       expect(PlaidMock, :make_request_with_cred, fn _method,
@@ -55,12 +55,12 @@ defmodule Plaid.AccountsTest do
         {:ok, %HTTPoison.Response{status_code: 400, body: body}}
       end)
 
-      assert {:error, resp} = Plaid.Accounts.get(%{access_token: "my-token"})
+      assert {:error, resp} = Plaid.Accounts.get(params)
       assert Plaid.Error == resp.__struct__
       assert {:ok, _} = Jason.encode(resp)
     end
 
-    test "get_balance/1 requests POST and returns Plaid.Accounts" do
+    test "get_balance/1 requests POST and returns Plaid.Accounts", %{params: params} do
       body = http_response_body(:accounts)
 
       expect(PlaidMock, :make_request_with_cred, fn method,
@@ -74,7 +74,7 @@ defmodule Plaid.AccountsTest do
         {:ok, %HTTPoison.Response{status_code: 200, body: body}}
       end)
 
-      assert {:ok, resp} = Plaid.Accounts.get_balance(%{access_token: "my-token"})
+      assert {:ok, resp} = Plaid.Accounts.get_balance(params)
       assert Plaid.Accounts == resp.__struct__
       assert {:ok, _} = Jason.encode(resp)
     end
@@ -83,26 +83,26 @@ defmodule Plaid.AccountsTest do
   describe "accounts integration test" do
     @describetag :integration
 
-    test "get/1 returns Plaid.Accounts", %{bypass: bypass} do
+    test "get/1 returns Plaid.Accounts", %{bypass: bypass, params: params} do
       body = http_response_body(:accounts)
 
       Bypass.expect(bypass, fn conn ->
         Plug.Conn.resp(conn, 200, Poison.encode!(body))
       end)
 
-      assert {:ok, resp} = Plaid.Accounts.get(%{access_token: "my-token"})
+      assert {:ok, resp} = Plaid.Accounts.get(params)
       assert Plaid.Accounts == resp.__struct__
       assert {:ok, _} = Jason.encode(resp)
     end
 
-    test "get_balance/1 returns Plaid.Accounts", %{bypass: bypass} do
+    test "get_balance/1 returns Plaid.Accounts", %{bypass: bypass, params: params} do
       body = http_response_body(:accounts)
 
       Bypass.expect(bypass, fn conn ->
         Plug.Conn.resp(conn, 200, Poison.encode!(body))
       end)
 
-      assert {:ok, resp} = Plaid.Accounts.get_balance(%{access_token: "my-token"})
+      assert {:ok, resp} = Plaid.Accounts.get_balance(params)
       assert Plaid.Accounts == resp.__struct__
       assert {:ok, _} = Jason.encode(resp)
     end

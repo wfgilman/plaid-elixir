@@ -3,7 +3,7 @@ defmodule Plaid.Institutions do
   Functions for Plaid `institutions` endpoint.
   """
 
-  import Plaid, only: [make_request_with_cred: 4, validate_cred: 1]
+  import Plaid, only: [validate_cred: 1]
 
   alias Plaid.Utils
 
@@ -261,7 +261,7 @@ defmodule Plaid.Institutions do
     config = validate_cred(config)
     endpoint = "#{@endpoint}/get"
 
-    make_request_with_cred(:post, endpoint, config, params)
+    client().make_request_with_cred(:post, endpoint, config, params, %{}, [])
     |> Utils.handle_resp(@endpoint)
   end
 
@@ -284,7 +284,7 @@ defmodule Plaid.Institutions do
     params = if is_binary(params), do: %{institution_id: params}, else: params
     endpoint = "#{@endpoint}/get_by_id"
 
-    make_request_with_cred(:post, endpoint, config, params)
+    client().make_request_with_cred(:post, endpoint, config, params, %{}, [])
     |> Utils.handle_resp(:institution)
   end
 
@@ -301,7 +301,11 @@ defmodule Plaid.Institutions do
     config = validate_cred(config)
     endpoint = "#{@endpoint}/search"
 
-    make_request_with_cred(:post, endpoint, config, params)
+    client().make_request_with_cred(:post, endpoint, config, params, %{}, [])
     |> Utils.handle_resp(@endpoint)
+  end
+
+  defp client do
+    Application.get_env(:plaid, :client, Plaid)
   end
 end

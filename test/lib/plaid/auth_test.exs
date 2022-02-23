@@ -1,7 +1,7 @@
 defmodule Plaid.AuthTest do
-  import Mox
   use ExUnit.Case, async: false
 
+  import Mox
   import Plaid.Factory
 
   setup context do
@@ -16,7 +16,7 @@ defmodule Plaid.AuthTest do
       end
 
     on_exit(fn -> Application.put_env(:plaid, :client, PlaidMock) end)
-    {:ok, bypass: bypass}
+    {:ok, bypass: bypass, params: %{access_token: "my-token"}}
   end
 
   @moduletag :auth
@@ -24,7 +24,7 @@ defmodule Plaid.AuthTest do
   describe "auth unit tests" do
     @describetag :unit
 
-    test "get/1 requests POST and returns Plaid.Auth" do
+    test "get/1 requests POST and returns Plaid.Auth", %{params: params} do
       body = http_response_body(:auth)
 
       expect(PlaidMock, :make_request_with_cred, fn method,
@@ -38,7 +38,7 @@ defmodule Plaid.AuthTest do
         {:ok, %HTTPoison.Response{status_code: 200, body: body}}
       end)
 
-      assert {:ok, resp} = Plaid.Auth.get(%{access_token: "my-token"})
+      assert {:ok, resp} = Plaid.Auth.get(params)
       assert Plaid.Auth == resp.__struct__
       assert {:ok, _} = Jason.encode(resp)
     end
@@ -47,14 +47,14 @@ defmodule Plaid.AuthTest do
   describe "auth integration tests" do
     @describetag :integration
 
-    test "get/1 returns Plaid.Auth", %{bypass: bypass} do
+    test "get/1 returns Plaid.Auth", %{bypass: bypass, params: params} do
       body = http_response_body(:auth)
 
       Bypass.expect(bypass, fn conn ->
         Plug.Conn.resp(conn, 200, Poison.encode!(body))
       end)
 
-      assert {:ok, resp} = Plaid.Auth.get(%{access_token: "my-token"})
+      assert {:ok, resp} = Plaid.Auth.get(params)
       assert Plaid.Auth == resp.__struct__
       assert {:ok, _} = Jason.encode(resp)
     end

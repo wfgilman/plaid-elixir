@@ -1,7 +1,7 @@
 defmodule Plaid.CategoriesTest do
-  import Mox
   use ExUnit.Case, async: false
 
+  import Mox
   import Plaid.Factory
 
   setup context do
