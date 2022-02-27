@@ -3,7 +3,6 @@ defmodule Plaid.Utils do
   Utility functions.
   """
 
-  @type response :: %{required(String.t()) => any}
   @type endpoint :: atom
 
   @doc """
@@ -24,11 +23,7 @@ defmodule Plaid.Utils do
     {:error, error}
   end
 
-  @doc """
-  Maps an endpoint's response to the corresponding internal data structure.
-  """
-  @spec map_response(response, endpoint) :: any
-  def map_response(response, :categories) do
+  defp map_response(response, :categories) do
     Poison.Decode.transform(
       response,
       %{
@@ -41,7 +36,7 @@ defmodule Plaid.Utils do
     )
   end
 
-  def map_response(response, :income) do
+  defp map_response(response, :income) do
     Poison.Decode.transform(
       response,
       %{
@@ -57,7 +52,7 @@ defmodule Plaid.Utils do
     )
   end
 
-  def map_response(response, :institutions) do
+  defp map_response(response, :institutions) do
     Poison.Decode.transform(
       response,
       %{
@@ -90,7 +85,7 @@ defmodule Plaid.Utils do
     )
   end
 
-  def map_response(%{"institution" => institution} = response, :institution) do
+  defp map_response(%{"institution" => institution} = response, :institution) do
     new_response = response |> Map.take(["request_id"]) |> Map.merge(institution)
 
     Poison.Decode.transform(
@@ -120,7 +115,7 @@ defmodule Plaid.Utils do
     )
   end
 
-  def map_response(response, :transactions) do
+  defp map_response(response, :transactions) do
     Poison.Decode.transform(
       response,
       %{
@@ -142,7 +137,7 @@ defmodule Plaid.Utils do
     )
   end
 
-  def map_response(response, :accounts) do
+  defp map_response(response, :accounts) do
     Poison.Decode.transform(
       response,
       %{
@@ -156,7 +151,7 @@ defmodule Plaid.Utils do
     )
   end
 
-  def map_response(response, :auth) do
+  defp map_response(response, :auth) do
     Poison.Decode.transform(
       response,
       %{
@@ -178,7 +173,7 @@ defmodule Plaid.Utils do
     )
   end
 
-  def map_response(response, :identity) do
+  defp map_response(response, :identity) do
     Poison.Decode.transform(
       response,
       %{
@@ -201,7 +196,7 @@ defmodule Plaid.Utils do
     )
   end
 
-  def map_response(%{"item" => item} = response, :item) do
+  defp map_response(%{"item" => item} = response, :item) do
     new_response = response |> Map.take(["request_id", "status"]) |> Map.merge(item)
 
     Poison.Decode.transform(
@@ -218,7 +213,7 @@ defmodule Plaid.Utils do
     )
   end
 
-  def map_response(%{"new_access_token" => _} = response, :item) do
+  defp map_response(%{"new_access_token" => _} = response, :item) do
     response
     |> Map.take(["new_access_token", "request_id"])
     |> Enum.reduce(%{}, fn {k, v}, acc ->
@@ -226,7 +221,7 @@ defmodule Plaid.Utils do
     end)
   end
 
-  def map_response(%{"access_token" => _} = response, :item) do
+  defp map_response(%{"access_token" => _} = response, :item) do
     response
     |> Map.take(["access_token", "item_id", "request_id"])
     |> Enum.reduce(%{}, fn {k, v}, acc ->
@@ -234,7 +229,7 @@ defmodule Plaid.Utils do
     end)
   end
 
-  def map_response(%{"public_token" => _} = response, :item) do
+  defp map_response(%{"public_token" => _} = response, :item) do
     response
     |> Map.take(["public_token", "expiration", "request_id"])
     |> Enum.reduce(%{}, fn {k, v}, acc ->
@@ -242,7 +237,7 @@ defmodule Plaid.Utils do
     end)
   end
 
-  def map_response(%{"processor_token" => _} = response, :item) do
+  defp map_response(%{"processor_token" => _} = response, :item) do
     response
     |> Map.take(["processor_token", "request_id"])
     |> Enum.reduce(%{}, fn {k, v}, acc ->
@@ -250,7 +245,7 @@ defmodule Plaid.Utils do
     end)
   end
 
-  def map_response(%{"stripe_bank_account_token" => _} = response, :item) do
+  defp map_response(%{"stripe_bank_account_token" => _} = response, :item) do
     response
     |> Map.take(["stripe_bank_account_token", "request_id"])
     |> Enum.reduce(%{}, fn {k, v}, acc ->
@@ -258,7 +253,7 @@ defmodule Plaid.Utils do
     end)
   end
 
-  def map_response(%{"request_id" => _} = response, :item) do
+  defp map_response(%{"request_id" => _} = response, :item) do
     response
     |> Map.take(["request_id"])
     |> Enum.reduce(%{}, fn {k, v}, acc ->
@@ -266,7 +261,7 @@ defmodule Plaid.Utils do
     end)
   end
 
-  def map_response(response, :"investments/holdings") do
+  defp map_response(response, :"investments/holdings") do
     Poison.Decode.transform(
       response,
       %{
@@ -284,7 +279,7 @@ defmodule Plaid.Utils do
     )
   end
 
-  def map_response(response, :"investments/transactions") do
+  defp map_response(response, :"investments/transactions") do
     Poison.Decode.transform(
       response,
       %{
@@ -302,7 +297,7 @@ defmodule Plaid.Utils do
     )
   end
 
-  def map_response(response, :link) do
+  defp map_response(response, :link) do
     Poison.Decode.transform(
       response,
       %{
@@ -311,31 +306,61 @@ defmodule Plaid.Utils do
     )
   end
 
-  def map_response(response, :webhook_verification_key) do
+  defp map_response(response, :webhook_verification_key) do
     Poison.Decode.transform(response, %{as: %Plaid.WebhookVerificationKey{}})
   end
 
-  def map_response(%{"payment_token" => _} = response, :"payment_initiation/payment") do
-    Poison.Decode.transform(response, %{as: %Plaid.PaymentInitiation.Payments.Payment{}})
+  defp map_response(%{"payments" => _} = response, :"payment_initiation/payment") do
+    Poison.Decode.transform(
+      response,
+      %{
+        as: %Plaid.PaymentInitiation.Payments{
+          payments: [
+            %Plaid.PaymentInitiation.Payments.Payment{
+              amount: %Plaid.PaymentInitiation.Payments.Payment.Amount{},
+              schedule: %Plaid.PaymentInitiation.Payments.Payment.Schedule{}
+            }
+          ]
+        }
+      }
+    )
   end
 
-  def map_response(%{"payments" => payments}, :"payment_initiation/payment") do
-    Poison.Decode.transform(payments, %{as: [%Plaid.PaymentInitiation.Payments.Payment{}]})
+  defp map_response(response, :"payment_initiation/payment") do
+    Poison.Decode.transform(
+      response,
+      %{
+        as: %Plaid.PaymentInitiation.Payments.Payment{
+          amount: %Plaid.PaymentInitiation.Payments.Payment.Amount{},
+          schedule: %Plaid.PaymentInitiation.Payments.Payment.Schedule{}
+        }
+      }
+    )
   end
 
-  def map_response(response, :"payment_initiation/payment") do
-    Poison.Decode.transform(response, %{as: %Plaid.PaymentInitiation.Payments{}})
+  defp map_response(%{"recipients" => _} = response, :"payment_initiation/recipient") do
+    Poison.Decode.transform(
+      response,
+      %{
+        as: %Plaid.PaymentInitiation.Recipients{
+          recipients: [
+            %Plaid.PaymentInitiation.Recipients.Recipient{
+              address: %Plaid.PaymentInitiation.Recipients.Recipient.Address{}
+            }
+          ]
+        }
+      }
+    )
   end
 
-  def map_response(%{"name" => _} = response, :"payment_initiation/recipient") do
-    Poison.Decode.transform(response, %{as: %Plaid.PaymentInitiation.Recipients.Recipient{}})
-  end
-
-  def map_response(%{"recipients" => recipients}, :"payment_initiation/recipient") do
-    Poison.Decode.transform(recipients, %{as: [%Plaid.PaymentInitiation.Recipients.Recipient{}]})
-  end
-
-  def map_response(response, :"payment_initiation/recipient") do
-    Poison.Decode.transform(response, %{as: %Plaid.PaymentInitiation.Recipients{}})
+  defp map_response(response, :"payment_initiation/recipient") do
+    Poison.Decode.transform(
+      response,
+      %{
+        as: %Plaid.PaymentInitiation.Recipients.Recipient{
+          address: %Plaid.PaymentInitiation.Recipients.Recipient.Address{}
+        }
+      }
+    )
   end
 end

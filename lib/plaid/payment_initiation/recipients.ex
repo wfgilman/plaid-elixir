@@ -8,11 +8,10 @@ defmodule Plaid.PaymentInitiation.Recipients do
   alias Plaid.Utils
 
   @derive Jason.Encoder
-  defstruct recipient_id: nil,
-            request_id: nil
+  defstruct recipients: [], request_id: nil
 
   @type t :: %__MODULE__{
-          recipient_id: String.t(),
+          recipients: [Plaid.PaymentInitiation.Recipients.Recipient.t()],
           request_id: String.t()
         }
   @type params :: %{required(atom) => String.t() | map}

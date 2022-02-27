@@ -8,13 +8,13 @@ defmodule Plaid.PaymentInitiation.Payments do
   alias Plaid.Utils
 
   @derive Jason.Encoder
-  defstruct payment_id: nil,
-            status: nil,
+  defstruct payments: [],
+            next_cursor: nil,
             request_id: nil
 
   @type t :: %__MODULE__{
-          payment_id: String.t(),
-          status: String.t(),
+          payments: [Plaid.PaymentInitiation.Payments.Payment.t()],
+          next_cursor: String.t(),
           request_id: String.t()
         }
   @type params :: %{required(atom) => String.t() | map}
@@ -32,7 +32,7 @@ defmodule Plaid.PaymentInitiation.Payments do
               payment_token: nil,
               payment_token_expiration_time: nil,
               reference: nil,
-              amount: 0,
+              amount: nil,
               status: nil,
               last_status_update: nil,
               recipient_id: nil,
