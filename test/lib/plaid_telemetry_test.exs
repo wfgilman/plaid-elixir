@@ -83,7 +83,9 @@ defmodule PlaidTelemetryTest do
           nil
         )
 
-      PlaidTelemetry.instrument(fn -> fun(:error) end, %{type: :cowabunga})
+      assert_raise RuntimeError, fn ->
+        PlaidTelemetry.instrument(fn -> fun(:exception) end, %{type: :cowabunga})
+      end
 
       :telemetry.detach("send-exception-event")
     end
