@@ -8,8 +8,8 @@ defmodule Plaid.Utils do
   @doc """
   Handles Plaid response and maps to the correct data structure.
   """
-  @spec handle_resp({:ok, HTTPoison.Response.t()} | {:error, HTTPoison.Error.t()}, endpoint) ::
-          {:ok, any} | {:error, Plaid.Error.t() | HTTPoison.Error.t()}
+  @callback handle_resp({:ok, HTTPoison.Response.t()} | {:error, HTTPoison.Error.t()}, endpoint) ::
+              {:ok, any} | {:error, Plaid.Error.t() | HTTPoison.Error.t()}
   def handle_resp({:ok, %HTTPoison.Response{status_code: code} = resp}, endpoint)
       when code in 200..201 do
     {:ok, map_response(resp.body, endpoint)}

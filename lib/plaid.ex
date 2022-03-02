@@ -49,37 +49,49 @@ defmodule Plaid do
                  """
   end
 
-  @doc """
-  Gets credentials from configuration.
-  """
-  @spec get_cred() :: map | no_return
-  @deprecated "Use `Plaid.validate_cred/1` which accepts a runtime config argument."
-  def get_cred do
-    %{
-      client_id: get_client_id(%{}),
-      secret: get_secret(%{})
-    }
+  @callback valid_credentials?(map) :: true | no_return
+  def valid_credentials?(config) do
+    _ = get_client_id(config)
+    _ = get_secret(config)
+    true
   end
 
-  @doc """
-  Gets public_key from configuration.
-  """
-  @spec get_key() :: map | no_return
-  @deprecated "Use `Plaid.validate_public_key/1` which accepts a runtime config argument."
-  def get_key do
-    %{
-      public_key: get_public_key(%{})
-    }
+  @callback make_request(atom, String.t(), map, map | nil) ::
+              {:ok, HTTPoison.Response.t()} | {:error, HTTPoison.Error.t()}
+  def make_request(method, endpoint, parameters, config \\ %{}) do
+    request_body = build_request_body(parameters, config)
+    url = "#{get_root_uri(config)}#{endpoint}"
+    headers = [{"Content-Type", "application/json"}]
+    options = build_http_client_options(config)
+    metadata = build_instrumentation_metadata(method, endpoint, config)
+    client = config[:client] || PlaidHTTP
+    telemetry = config[:telemetry] || PlaidTelemetry
+
+    telemetry.instrument(
+      fn -> client.call(method, url, request_body, headers, options) end,
+      metadata
+    )
   end
 
-  @doc """
-  Makes request without credentials.
-  """
-  @spec make_request(atom, String.t(), map, map, Keyword.t()) ::
-          {:ok, HTTPoison.Response.t()} | {:error, HTTPoison.Error.t()}
-  @deprecated "Use `Plaid.make_request_with_cred/3`. This function doesn't allow runtime configuration of the root_uri."
-  def make_request(method, endpoint, body \\ %{}, headers \\ %{}, options \\ []) do
-    make_request_with_cred(method, endpoint, %{}, body, headers, options)
+  defp build_request_body(parameters, config) do
+    config
+    |> Map.take([:client_id, :secret])
+    |> Map.merge(parameters)
+  end
+
+  defp build_http_client_options(config) do
+    Keyword.merge(
+      Application.get_env(:plaid, :httpoison_options, []),
+      config[:httpoison_options] || []
+    )
+  end
+
+  defp build_instrumentation_metadata(method, endpoint, config) do
+    Map.new()
+    |> Map.put(:method, method)
+    |> Map.put(:path, endpoint)
+    |> Map.put(:u, :native)
+    |> Map.merge(config[:telemetry_metadata] || %{})
   end
 
   @doc """
@@ -178,20 +190,8 @@ defmodule Plaid do
     }
   end
 
-  @doc """
-  Gets the `public_key` from the config argument or library configuration.
-  """
-  @deprecated "Plaid no longer uses public keys for new accounts."
-  @spec validate_public_key(map) :: map | no_return
-  def validate_public_key(config) do
-    %{
-      public_key: get_public_key(config),
-      root_uri: get_root_uri(config)
-    }
-  end
-
   defp get_client_id(config) do
-    case Map.get(config, :client_id) || Application.get_env(:plaid, :client_id) do
+    case config[:client_id] || Application.get_env(:plaid, :client_id) do
       nil ->
         raise MissingClientIdError
 
@@ -201,7 +201,7 @@ defmodule Plaid do
   end
 
   defp get_secret(config) do
-    case Map.get(config, :secret) || Application.get_env(:plaid, :secret) do
+    case config[:secret] || Application.get_env(:plaid, :secret) do
       nil ->
         raise MissingSecretError
 
@@ -210,18 +210,8 @@ defmodule Plaid do
     end
   end
 
-  defp get_public_key(config) do
-    case Map.get(config, :public_key) || Application.get_env(:plaid, :public_key) do
-      nil ->
-        raise MissingPublicKeyError
-
-      public_key ->
-        public_key
-    end
-  end
-
   defp get_root_uri(config) do
-    case Map.get(config, :root_uri) || Application.get_env(:plaid, :root_uri) do
+    case config[:root_uri] || Application.get_env(:plaid, :root_uri) do
       nil ->
         raise MissingRootUriError
 

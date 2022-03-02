@@ -24,18 +24,20 @@ defmodule Plaid.AccountsTest do
   describe "accounts unit tests" do
     @describetag :unit
 
-    test "get/1 requests POST and returns Plaid.Accounts", %{params: params} do
-      body = http_response_body(:accounts)
-
-      expect(PlaidMock, :make_request_with_cred, fn method,
-                                                    endpoint,
-                                                    _config,
-                                                    _body,
-                                                    _headers,
-                                                    _options ->
+    test "get/1 makes correct requests", %{params: params} do
+      PlaidMock
+      |> expect(:make_request_with_cred, fn method,
+                                            endpoint,
+                                            _config,
+                                            _body,
+                                            _headers,
+                                            _options ->
         assert method == :post
         assert endpoint == "accounts/get"
-        {:ok, %HTTPoison.Response{status_code: 200, body: body}}
+        {:ok, %HTTPoison.Response{}}
+      end)
+      |> expect(:handle_resp, fn _response, endpoint ->
+        assert endpoint == :accounts
       end)
 
       assert {:ok, resp} = Plaid.Accounts.get(params)
