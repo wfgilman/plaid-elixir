@@ -3,10 +3,6 @@ defmodule Plaid.Accounts do
   Functions for Plaid `accounts` endpoint.
   """
 
-  import Plaid, only: [validate_cred: 1]
-
-  alias Plaid.Utils
-
   @derive Jason.Encoder
   defstruct accounts: [], item: nil, request_id: nil
 
@@ -15,8 +11,9 @@ defmodule Plaid.Accounts do
           item: Plaid.Item.t(),
           request_id: String.t()
         }
-  @type params :: %{required(atom) => String.t() | [String.t()] | map}
-  @type config :: %{required(atom) => String.t()}
+  @type params :: %{required(atom) => term}
+  @type config :: %{required(atom) => String.t() | list}
+  @type error :: {:error, Plaid.Error.t() | HTTPoison.Error.t()} | no_return
 
   @endpoint :accounts
 
@@ -152,13 +149,15 @@ defmodule Plaid.Accounts do
   %{access_token: "access-token"}
   ```
   """
-  @spec get(params, config | nil) :: {:ok, Plaid.Accounts.t()} | {:error, Plaid.Error.t()}
+  @spec get(params, config | nil) :: {:ok, Plaid.Accounts.t()} | error
   def get(params, config \\ %{}) do
-    config = validate_cred(config)
-    endpoint = "#{@endpoint}/get"
+    client = config[:client] || Plaid
 
-    client().make_request_with_cred(:post, endpoint, config, params, %{}, [])
-    |> Utils.handle_resp(@endpoint)
+    if client.valid_credentials?(config) do
+      :post
+      |> client.make_request("#{@endpoint}/get", params, config)
+      |> client.handle_response(@endpoint, config)
+    end
   end
 
   @doc """
@@ -169,16 +168,14 @@ defmodule Plaid.Accounts do
   %{access_token: "access-token", options: %{account_ids: ["account-id"]}}
   ```
   """
-  @spec get_balance(params, config | nil) :: {:ok, Plaid.Accounts.t()} | {:error, Plaid.Error.t()}
+  @spec get_balance(params, config | nil) :: {:ok, Plaid.Accounts.t()} | error
   def get_balance(params, config \\ %{}) do
-    config = validate_cred(config)
-    endpoint = "#{@endpoint}/balance/get"
+    client = config[:client] || Plaid
 
-    client().make_request_with_cred(:post, endpoint, config, params, %{}, [])
-    |> Utils.handle_resp(@endpoint)
-  end
-
-  defp client do
-    Application.get_env(:plaid, :client, Plaid)
+    if client.valid_credentials?(config) do
+      :post
+      |> client.make_request("#{@endpoint}/balance/get", params, config)
+      |> client.handle_response(@endpoint, config)
+    end
   end
 end

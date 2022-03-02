@@ -1,112 +1,169 @@
 defmodule Plaid.AccountsTest do
-  use ExUnit.Case, async: false
+  use ExUnit.Case, async: true
 
   import Mox
-  import Plaid.Factory
 
-  setup context do
+  setup do
     verify_on_exit!()
-
-    bypass =
-      if context[:integration] do
-        bypass = Bypass.open()
-        Application.put_env(:plaid, :client, Plaid)
-        Application.put_env(:plaid, :root_uri, "http://localhost:#{bypass.port}/")
-        bypass
-      end
-
-    on_exit(fn -> Application.put_env(:plaid, :client, PlaidMock) end)
-    {:ok, bypass: bypass, params: %{access_token: "my-token"}}
+    {:ok, params: %{access_token: "my-token"}, config: %{client: PlaidMock}}
   end
 
   @moduletag :accounts
 
-  describe "accounts unit tests" do
-    @describetag :unit
+  @tag :unit
+  test "accounts data structure encodes with Jason" do
+    assert {:ok, _} =
+             Jason.encode(%Plaid.Accounts{
+               accounts: [
+                 %Plaid.Accounts.Account{
+                   balances: %Plaid.Accounts.Account.Balance{},
+                   owners: [
+                     %Plaid.Accounts.Account.Owner{
+                       addresses: [%Plaid.Accounts.Account.Owner.Address{}],
+                       emails: [%Plaid.Accounts.Account.Owner.Email{}],
+                       phone_numbers: [%Plaid.Accounts.Account.Owner.PhoneNumber{}]
+                     }
+                   ]
+                 }
+               ]
+             })
+  end
 
-    test "get/1 makes correct requests", %{params: params} do
+  describe "accounts get/2" do
+    @tag :unit
+    test "makes post call to accounts/get endpoint", %{params: params, config: config} do
       PlaidMock
-      |> expect(:make_request_with_cred, fn method,
-                                            endpoint,
-                                            _config,
-                                            _body,
-                                            _headers,
-                                            _options ->
+      |> expect(:valid_credentials?, fn _config -> true end)
+      |> expect(:make_request, fn method, endpoint, _params, _config ->
         assert method == :post
         assert endpoint == "accounts/get"
         {:ok, %HTTPoison.Response{}}
       end)
-      |> expect(:handle_resp, fn _response, endpoint ->
+      |> expect(:handle_response, fn _response, endpoint, _config ->
         assert endpoint == :accounts
+        {:ok, %Plaid.Accounts{}}
       end)
 
-      assert {:ok, resp} = Plaid.Accounts.get(params)
-      assert Plaid.Accounts == resp.__struct__
-      assert {:ok, _} = Jason.encode(resp)
+      assert {:ok, %Plaid.Accounts{}} = Plaid.Accounts.get(params, config)
     end
 
-    test "get/1 returns error", %{params: params} do
-      body = http_response_body(:error)
-
-      expect(PlaidMock, :make_request_with_cred, fn _method,
-                                                    _endpoint,
-                                                    _config,
-                                                    _body,
-                                                    _headers,
-                                                    _options ->
-        {:ok, %HTTPoison.Response{status_code: 400, body: body}}
+    @tag :unit
+    test "raises if credentials aren't provided", %{params: params, config: config} do
+      PlaidMock
+      |> expect(:valid_credentials?, fn _config ->
+        raise Plaid.MissingClientIdError
       end)
 
-      assert {:error, resp} = Plaid.Accounts.get(params)
-      assert Plaid.Error == resp.__struct__
-      assert {:ok, _} = Jason.encode(resp)
+      assert_raise Plaid.MissingClientIdError, fn ->
+        Plaid.Accounts.get(params, config)
+      end
     end
 
-    test "get_balance/1 requests POST and returns Plaid.Accounts", %{params: params} do
-      body = http_response_body(:accounts)
+    @tag :integration
+    test "returns Plaid.Accounts data structure", %{params: params} do
+      bypass = Bypass.open()
 
-      expect(PlaidMock, :make_request_with_cred, fn method,
-                                                    endpoint,
-                                                    _config,
-                                                    _body,
-                                                    _headers,
-                                                    _options ->
-        assert method == :post
-        assert endpoint == "accounts/balance/get"
-        {:ok, %HTTPoison.Response{status_code: 200, body: body}}
+      config = %{
+        client_id: "test_id",
+        secret: "test_secret",
+        root_uri: "http://localhost:#{bypass.port}/"
+      }
+
+      body = Plaid.Factory.http_response_body(:accounts)
+
+      Bypass.expect(bypass, fn conn ->
+        Plug.Conn.resp(conn, 200, Poison.encode!(body))
       end)
 
-      assert {:ok, resp} = Plaid.Accounts.get_balance(params)
-      assert Plaid.Accounts == resp.__struct__
-      assert {:ok, _} = Jason.encode(resp)
+      assert {:ok, %Plaid.Accounts{}} = Plaid.Accounts.get(params, config)
+    end
+
+    @tag :integration
+    test "returns Plaid.Error", %{params: params} do
+      bypass = Bypass.open()
+
+      config = %{
+        client_id: "test_id",
+        secret: "test_secret",
+        root_uri: "http://localhost:#{bypass.port}/"
+      }
+
+      body = Plaid.Factory.http_response_body(:error)
+
+      Bypass.expect(bypass, fn conn ->
+        Plug.Conn.resp(conn, 400, Poison.encode!(body))
+      end)
+
+      assert {:error, %Plaid.Error{}} = Plaid.Accounts.get(params, config)
     end
   end
 
-  describe "accounts integration test" do
-    @describetag :integration
-
-    test "get/1 returns Plaid.Accounts", %{bypass: bypass, params: params} do
-      body = http_response_body(:accounts)
-
-      Bypass.expect(bypass, fn conn ->
-        Plug.Conn.resp(conn, 200, Poison.encode!(body))
+  describe "accounts get_balance/2" do
+    @tag :unit
+    test "makes post request to accounts/balance/get endpoint", %{params: params, config: config} do
+      PlaidMock
+      |> expect(:valid_credentials?, fn _config -> true end)
+      |> expect(:make_request, fn method, endpoint, _params, _config ->
+        assert method == :post
+        assert endpoint == "accounts/balance/get"
+        {:ok, %HTTPoison.Response{}}
+      end)
+      |> expect(:handle_response, fn _response, endpoint, _config ->
+        assert endpoint == :accounts
+        {:ok, %Plaid.Accounts{}}
       end)
 
-      assert {:ok, resp} = Plaid.Accounts.get(params)
-      assert Plaid.Accounts == resp.__struct__
-      assert {:ok, _} = Jason.encode(resp)
+      assert {:ok, %Plaid.Accounts{}} = Plaid.Accounts.get_balance(params, config)
     end
 
-    test "get_balance/1 returns Plaid.Accounts", %{bypass: bypass, params: params} do
-      body = http_response_body(:accounts)
+    @tag :unit
+    test "raises if credentials aren't provided", %{params: params, config: config} do
+      PlaidMock
+      |> expect(:valid_credentials?, fn _config ->
+        raise Plaid.MissingClientIdError
+      end)
+
+      assert_raise Plaid.MissingClientIdError, fn ->
+        Plaid.Accounts.get_balance(params, config)
+      end
+    end
+
+    @tag :integration
+    test "returns Plaid.Accounts data structure", %{params: params} do
+      bypass = Bypass.open()
+
+      config = %{
+        client_id: "test_id",
+        secret: "test_secret",
+        root_uri: "http://localhost:#{bypass.port}/"
+      }
+
+      body = Plaid.Factory.http_response_body(:accounts)
 
       Bypass.expect(bypass, fn conn ->
         Plug.Conn.resp(conn, 200, Poison.encode!(body))
       end)
 
-      assert {:ok, resp} = Plaid.Accounts.get_balance(params)
-      assert Plaid.Accounts == resp.__struct__
-      assert {:ok, _} = Jason.encode(resp)
+      assert {:ok, %Plaid.Accounts{}} = Plaid.Accounts.get_balance(params, config)
+    end
+
+    @tag :integration
+    test "returns Plaid.Error", %{params: params} do
+      bypass = Bypass.open()
+
+      config = %{
+        client_id: "test_id",
+        secret: "test_secret",
+        root_uri: "http://localhost:#{bypass.port}/"
+      }
+
+      body = Plaid.Factory.http_response_body(:error)
+
+      Bypass.expect(bypass, fn conn ->
+        Plug.Conn.resp(conn, 400, Poison.encode!(body))
+      end)
+
+      assert {:error, %Plaid.Error{}} = Plaid.Accounts.get(params, config)
     end
   end
 end

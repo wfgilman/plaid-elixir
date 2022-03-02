@@ -58,7 +58,7 @@ defmodule PlaidTest do
         client_id: "test_id",
         secret: "test_secret",
         root_uri: "https://test-uri",
-        client: PlaidHTTPMock
+        http_client: PlaidHTTPMock
       })
     end
 
@@ -70,7 +70,7 @@ defmodule PlaidTest do
 
       Plaid.make_request(:post, "some/endpoint", %{}, %{
         root_uri: "https://test-uri/",
-        client: PlaidHTTPMock
+        http_client: PlaidHTTPMock
       })
     end
 
@@ -78,7 +78,7 @@ defmodule PlaidTest do
       Application.put_env(:plaid, :root_uri, nil)
 
       assert_raise Plaid.MissingRootUriError, fn ->
-        Plaid.make_request(:post, "some/endpoint", %{}, %{client: PlaidHTTPMock})
+        Plaid.make_request(:post, "some/endpoint", %{}, %{http_client: PlaidHTTPMock})
       end
     end
 
@@ -90,7 +90,7 @@ defmodule PlaidTest do
 
       Plaid.make_request(:post, "some/endpoint", %{}, %{
         root_uri: "https://test-uri/",
-        client: PlaidHTTPMock
+        http_client: PlaidHTTPMock
       })
     end
 
@@ -100,7 +100,7 @@ defmodule PlaidTest do
         {:ok, %HTTPoison.Response{}}
       end)
 
-      Plaid.make_request(:post, "some/endpoint", %{}, %{client: PlaidHTTPMock})
+      Plaid.make_request(:post, "some/endpoint", %{}, %{http_client: PlaidHTTPMock})
     end
 
     test "takes HTTPoison options from application configuration" do
@@ -111,7 +111,7 @@ defmodule PlaidTest do
         {:ok, %HTTPoison.Response{}}
       end)
 
-      Plaid.make_request(:post, "some/endpoint", %{}, %{client: PlaidHTTPMock})
+      Plaid.make_request(:post, "some/endpoint", %{}, %{http_client: PlaidHTTPMock})
     end
 
     test "runtime HTTPoison options override application configuration" do
@@ -125,7 +125,7 @@ defmodule PlaidTest do
 
       Plaid.make_request(:post, "some/endpoint", %{}, %{
         httpoison_options: [recv_timeout: 5_678, ssl: [certfile: "certs/client.crt"]],
-        client: PlaidHTTPMock
+        http_client: PlaidHTTPMock
       })
     end
 

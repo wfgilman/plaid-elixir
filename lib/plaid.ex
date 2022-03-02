@@ -49,6 +49,9 @@ defmodule Plaid do
                  """
   end
 
+  @doc """
+  Validate credentials are available for the HTTP request.
+  """
   @callback valid_credentials?(map) :: true | no_return
   def valid_credentials?(config) do
     _ = get_client_id(config)
@@ -56,6 +59,9 @@ defmodule Plaid do
     true
   end
 
+  @doc """
+  Make HTTP request to Plaid.
+  """
   @callback make_request(atom, String.t(), map, map | nil) ::
               {:ok, HTTPoison.Response.t()} | {:error, HTTPoison.Error.t()}
   def make_request(method, endpoint, parameters, config \\ %{}) do
@@ -64,11 +70,11 @@ defmodule Plaid do
     headers = [{"Content-Type", "application/json"}]
     options = build_http_client_options(config)
     metadata = build_instrumentation_metadata(method, endpoint, config)
-    client = config[:client] || PlaidHTTP
+    http_client = config[:http_client] || PlaidHTTP
     telemetry = config[:telemetry] || PlaidTelemetry
 
     telemetry.instrument(
-      fn -> client.call(method, url, request_body, headers, options) end,
+      fn -> http_client.call(method, url, request_body, headers, options) end,
       metadata
     )
   end
@@ -92,6 +98,19 @@ defmodule Plaid do
     |> Map.put(:path, endpoint)
     |> Map.put(:u, :native)
     |> Map.merge(config[:telemetry_metadata] || %{})
+  end
+
+  @doc """
+  Handles HTTP client response from Plaid.
+  """
+  @callback handle_response(
+              {:ok, HTTPoison.Response.t()} | {:error, HTTPoison.Error.t()},
+              atom,
+              map
+            ) :: {:ok, any} | {:error, Plaid.Error.t() | HTTPoison.Error.t()}
+  def handle_response(response, endpoint, config \\ %{}) do
+    handler = config[:handler] || PlaidHandler
+    handler.handle_resp(response, endpoint)
   end
 
   @doc """
