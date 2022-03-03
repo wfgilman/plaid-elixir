@@ -149,7 +149,7 @@ defmodule Plaid.Accounts do
   %{access_token: "access-token"}
   ```
   """
-  @spec get(params, config | nil) :: {:ok, Plaid.Accounts.t()} | error
+  @spec get(params, config) :: {:ok, Plaid.Accounts.t()} | error
   def get(params, config \\ %{}) do
     client = config[:client] || Plaid
 
@@ -168,7 +168,7 @@ defmodule Plaid.Accounts do
   %{access_token: "access-token", options: %{account_ids: ["account-id"]}}
   ```
   """
-  @spec get_balance(params, config | nil) :: {:ok, Plaid.Accounts.t()} | error
+  @spec get_balance(params, config) :: {:ok, Plaid.Accounts.t()} | error
   def get_balance(params, config \\ %{}) do
     client = config[:client] || Plaid
 

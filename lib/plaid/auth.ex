@@ -3,17 +3,13 @@ defmodule Plaid.Auth do
   Functions for Plaid `auth` endpoint.
   """
 
-  import Plaid, only: [validate_cred: 1]
-
-  alias Plaid.Utils
-
   @derive Jason.Encoder
   defstruct accounts: [], item: nil, numbers: [], request_id: nil
 
   @type t :: %__MODULE__{
           accounts: [Plaid.Accounts.Account.t()],
           item: Plaid.Item.t(),
-          numbers: %{
+          numbers: %Plaid.Auth.Numbers{
             ach: [Plaid.Auth.Numbers.ACH.t()],
             eft: [Plaid.Auth.Numbers.EFT.t()],
             international: [Plaid.Auth.Numbers.International.t()],
@@ -21,16 +17,9 @@ defmodule Plaid.Auth do
           },
           request_id: String.t()
         }
-  @type params :: %{
-          required(:access_token) => String.t(),
-          optional(:options) => %{
-            optional(:account_ids) => [String.t()]
-          }
-        }
-  @type config :: %{
-          required(atom) => String.t(),
-          optional(:httpoison_options) => [map()]
-        }
+  @type params :: %{required(atom) => term}
+  @type config :: %{required(atom) => String.t() | list}
+  @type error :: {:error, Plaid.Error.t() | HTTPoison.Error.t()} | no_return
 
   @endpoint :auth
 
@@ -128,16 +117,14 @@ defmodule Plaid.Auth do
   }
   ```
   """
-  @spec get(params, config | nil) :: {:ok, Plaid.Auth.t()} | {:error, Plaid.Error.t()}
+  @spec get(params, config) :: {:ok, Plaid.Auth.t()} | error
   def get(params, config \\ %{}) do
-    config = validate_cred(config)
-    endpoint = "#{@endpoint}/get"
+    client = config[:client] || Plaid
 
-    client().make_request_with_cred(:post, endpoint, config, params, %{}, [])
-    |> Utils.handle_resp(@endpoint)
-  end
-
-  defp client do
-    Application.get_env(:plaid, :client, Plaid)
+    if client.valid_credentials?(config) do
+      :post
+      |> client.make_request("#{@endpoint}/get", params, config)
+      |> client.handle_response(@endpoint, config)
+    end
   end
 end
