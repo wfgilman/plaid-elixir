@@ -1,63 +1,68 @@
 defmodule Plaid.CategoriesTest do
-  use ExUnit.Case, async: false
+  use ExUnit.Case, async: true
 
   import Mox
-  import Plaid.Factory
 
-  setup context do
+  setup do
     verify_on_exit!()
-
-    bypass =
-      if context[:integration] do
-        bypass = Bypass.open()
-        Application.put_env(:plaid, :client, Plaid)
-        Application.put_env(:plaid, :root_uri, "http://localhost:#{bypass.port}/")
-        bypass
-      end
-
-    on_exit(fn -> Application.put_env(:plaid, :client, PlaidMock) end)
-    {:ok, bypass: bypass}
+    {:ok, %{config: %{client: PlaidMock}}}
   end
 
   @moduletag :categories
 
-  describe "categories unit tests" do
-    @describetag :unit
-
-    test "get/0 requests POST and returns Plaid.Categories" do
-      body = http_response_body(:categories)
-
-      expect(PlaidMock, :make_request_with_cred, fn method,
-                                                    endpoint,
-                                                    _config,
-                                                    _body,
-                                                    _headers,
-                                                    _options ->
-        assert method == :post
-        assert endpoint == "categories/get"
-        {:ok, %HTTPoison.Response{status_code: 200, body: body}}
-      end)
-
-      assert {:ok, resp} = Plaid.Categories.get()
-      assert Plaid.Categories == resp.__struct__
-      assert {:ok, _} = Jason.encode(resp)
-    end
+  @tag :unit
+  test "categories data structure encodes with Jason" do
+    assert {:ok, _} =
+             Jason.encode(%Plaid.Categories{
+               categories: [%Plaid.Categories.Category{}]
+             })
   end
 
-  describe "categories integration tests" do
-    @describetag :integration
+  describe "get/1" do
+    @tag :unit
+    test "makes post call to categories/get endpoint", %{config: config} do
+      PlaidMock
+      |> expect(:make_request, fn method, endpoint, _params, _config ->
+        assert method == :post
+        assert endpoint == "categories/get"
+        {:ok, %HTTPoison.Response{}}
+      end)
+      |> expect(:handle_response, fn _response, endpoint, _config ->
+        assert endpoint == :categories
+        {:ok, %Plaid.Categories{}}
+      end)
 
-    test "get/0 returns Plaid.Categories", %{bypass: bypass} do
-      body = http_response_body(:categories)
+      assert {:ok, %Plaid.Categories{}} = Plaid.Categories.get(config)
+    end
+
+    @tag :integration
+    test "returns Plaid.Categories data structure" do
+      bypass = Bypass.open()
+
+      body = Plaid.Factory.http_response_body(:categories)
+
+      config = %{root_uri: "http://localhost:#{bypass.port}/"}
 
       Bypass.expect(bypass, fn conn ->
         Plug.Conn.resp(conn, 200, Poison.encode!(body))
       end)
 
-      assert {:ok, resp} = Plaid.Categories.get()
-      assert Plaid.Categories == resp.__struct__
-      assert {:ok, _} = Jason.encode(resp)
-      assert Enum.count(resp.categories) == 1
+      assert {:ok, %Plaid.Categories{}} = Plaid.Categories.get(config)
+    end
+
+    @tag :integration
+    test "returns Plaid.Error" do
+      bypass = Bypass.open()
+
+      body = Plaid.Factory.http_response_body(:error)
+
+      config = %{root_uri: "http://localhost:#{bypass.port}/"}
+
+      Bypass.expect(bypass, fn conn ->
+        Plug.Conn.resp(conn, 400, Poison.encode!(body))
+      end)
+
+      assert {:error, %Plaid.Error{}} = Plaid.Categories.get(config)
     end
   end
 end

@@ -12,7 +12,7 @@ defmodule Plaid.Accounts do
           request_id: String.t()
         }
   @type params :: %{required(atom) => term}
-  @type config :: %{required(atom) => String.t() | list}
+  @type config :: %{required(atom) => String.t() | keyword}
   @type error :: {:error, Plaid.Error.t() | HTTPoison.Error.t()} | no_return
 
   @endpoint :accounts

@@ -7,7 +7,8 @@ defmodule Plaid.Categories do
   defstruct categories: [], request_id: nil
 
   @type t :: %__MODULE__{categories: [Plaid.Categories.Category.t()], request_id: String.t()}
-  @type config :: %{required(atom) => String.t()}
+  @type config :: %{required(atom) => String.t() | keyword}
+  @type error :: {:error, Plaid.Error.t() | HTTPoison.Error.t()}
 
   @endpoint :categories
 
@@ -24,16 +25,13 @@ defmodule Plaid.Categories do
   @doc """
   Gets all categories.
   """
-  @spec get(config | nil) :: {:ok, Plaid.Categories.t()} | {:error, Plaid.Error.t()}
+  @spec get(config) :: {:ok, Plaid.Categories.t()} | error
   def get(config \\ %{}) do
+    client = config[:client] || Plaid
     config = Map.drop(config, [:public_key, :client_id, :secret])
-    endpoint = "#{@endpoint}/get"
 
-    client().make_request_with_cred(:post, endpoint, config, %{}, %{}, [])
-    |> Plaid.Utils.handle_resp(@endpoint)
-  end
-
-  defp client do
-    Application.get_env(:plaid, :client, Plaid)
+    :post
+    |> client.make_request("#{@endpoint}/get", %{}, config)
+    |> client.handle_response(@endpoint, config)
   end
 end
