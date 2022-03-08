@@ -301,7 +301,7 @@ defmodule PlaidHandler do
     Poison.Decode.transform(
       response,
       %{
-        as: %Plaid.Link{}
+        as: %Plaid.Link{metadata: %Plaid.Link.Metadata{}}
       }
     )
   end
