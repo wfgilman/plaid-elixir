@@ -1,77 +1,92 @@
 defmodule Plaid.IncomeTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
 
   import Mox
-  import Plaid.Factory
 
-  setup context do
+  setup do
     verify_on_exit!()
-
-    bypass =
-      if context[:integration] do
-        bypass = Bypass.open()
-        Application.put_env(:plaid, :client, Plaid)
-        Application.put_env(:plaid, :root_uri, "http://localhost:#{bypass.port}/")
-        bypass
-      end
-
-    on_exit(fn -> Application.put_env(:plaid, :client, PlaidMock) end)
-    {:ok, bypass: bypass, params: %{access_token: "my-token"}}
+    {:ok, params: %{access_token: "my-token"}, config: %{client: PlaidMock}}
   end
 
   @moduletag :income
 
-  describe "income unit tests" do
-    @describetag :unit
-
-    test "get/1 requests POST and returns Plaid.Income", %{params: params} do
-      body = http_response_body(:income)
-
-      expect(PlaidMock, :make_request_with_cred, fn method,
-                                                    endpoint,
-                                                    _config,
-                                                    _body,
-                                                    _headers,
-                                                    _options ->
-        assert method == :post
-        assert endpoint == "income/get"
-        {:ok, %HTTPoison.Response{status_code: 200, body: body}}
-      end)
-
-      assert {:ok, %Plaid.Income{} = resp} = Plaid.Income.get(params)
-      assert {:ok, _} = Jason.encode(resp)
-    end
-
-    test "get/1 requests Plaid.Error", %{params: params} do
-      body = http_response_body(:error)
-
-      expect(PlaidMock, :make_request_with_cred, fn _method,
-                                                    _endpoint,
-                                                    _config,
-                                                    _body,
-                                                    _headers,
-                                                    _options ->
-        {:ok, %HTTPoison.Response{status_code: 400, body: body}}
-      end)
-
-      assert {:error, %Plaid.Error{}} = Plaid.Income.get(params)
-    end
+  @tag :unit
+  test "income data structure encodes with Jason" do
+    assert {:ok, _} =
+             Jason.encode(%Plaid.Income{
+               item: %Plaid.Item{},
+               income: %Plaid.Income.Income{
+                 income_streams: [%Plaid.Income.Income.IncomeStream{}]
+               }
+             })
   end
 
-  describe "income integration tests" do
-    @describetag :integration
-    test "get/1 requests POST and returns Plaid.Income", %{bypass: bypass, params: params} do
-      body = http_response_body(:income)
+  describe "income get/2" do
+    @tag :unit
+    test "makes post request to income/get enpoint", %{params: params, config: config} do
+      PlaidMock
+      |> expect(:valid_credentials?, fn _config -> true end)
+      |> expect(:make_request, fn method, endpoint, _params, _config ->
+        assert method == :post
+        assert endpoint == "income/get"
+        {:ok, %HTTPoison.Response{}}
+      end)
+      |> expect(:handle_response, fn _response, endpoint, _config ->
+        assert endpoint == :income
+        {:ok, %Plaid.Income{}}
+      end)
+
+      assert {:ok, %Plaid.Income{}} = Plaid.Income.get(params, config)
+    end
+
+    @tag :unit
+    test "raises if credentials aren't provided", %{params: params, config: config} do
+      PlaidMock
+      |> expect(:valid_credentials?, fn _config ->
+        raise Plaid.MissingClientIdError
+      end)
+
+      assert_raise Plaid.MissingClientIdError, fn ->
+        Plaid.Identity.get(params, config)
+      end
+    end
+
+    @tag :integration
+    test "returns Plaid.Income data structure", %{params: params} do
+      bypass = Bypass.open()
+
+      config = %{
+        client_id: "test_id",
+        secret: "test_secret",
+        root_uri: "http://localhost:#{bypass.port}/"
+      }
+
+      body = Plaid.Factory.http_response_body(:income)
 
       Bypass.expect(bypass, fn conn ->
-        assert "POST" == conn.method
-        assert "income/get" == Enum.join(conn.path_info, "/")
         Plug.Conn.resp(conn, 200, Poison.encode!(body))
       end)
 
-      assert {:ok, resp} = Plaid.Income.get(params)
-      assert Plaid.Income == resp.__struct__
-      assert {:ok, _} = Jason.encode(resp)
+      assert {:ok, %Plaid.Income{}} = Plaid.Income.get(params, config)
+    end
+
+    @tag :integration
+    test "returns Plaid.Error", %{params: params} do
+      bypass = Bypass.open()
+
+      config = %{
+        client_id: "test_id",
+        secret: "test_secret",
+        root_uri: "http://localhost:#{bypass.port}/"
+      }
+
+      body = Plaid.Factory.http_response_body(:error)
+
+      Bypass.expect(bypass, fn conn ->
+        Plug.Conn.resp(conn, 400, Poison.encode!(body))
+      end)
+
+      assert {:error, %Plaid.Error{}} = Plaid.Income.get(params, config)
     end
   end
 end

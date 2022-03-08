@@ -3,10 +3,6 @@ defmodule Plaid.Institutions do
   Functions for Plaid `institutions` endpoint.
   """
 
-  import Plaid, only: [validate_cred: 1]
-
-  alias Plaid.Utils
-
   @derive Jason.Encoder
   defstruct institutions: [], request_id: nil, total: nil
 
@@ -15,8 +11,9 @@ defmodule Plaid.Institutions do
           request_id: String.t(),
           total: integer
         }
-  @type params :: %{required(atom) => integer | String.t() | list | map}
-  @type config :: %{required(atom) => String.t()}
+  @type params :: %{required(atom) => term}
+  @type config :: %{required(atom) => String.t() | keyword}
+  @type error :: {:error, Plaid.Error.t() | HTTPoison.Error.t()} | no_return
 
   @endpoint :institutions
 
@@ -256,13 +253,15 @@ defmodule Plaid.Institutions do
   %{count: 50, offset: 0}
   ```
   """
-  @spec get(params, config | nil) :: {:ok, Plaid.Institutions.t()} | {:error, Plaid.Error.t()}
+  @spec get(params, config) :: {:ok, Plaid.Institutions.t()} | error
   def get(params, config \\ %{}) do
-    config = validate_cred(config)
-    endpoint = "#{@endpoint}/get"
+    client = config[:client] || Plaid
 
-    client().make_request_with_cred(:post, endpoint, config, params, %{}, [])
-    |> Utils.handle_resp(@endpoint)
+    if client.valid_credentials?(config) do
+      :post
+      |> client.make_request("#{@endpoint}/get", params, config)
+      |> client.handle_response(@endpoint, config)
+    end
   end
 
   @doc """
@@ -277,15 +276,18 @@ defmodule Plaid.Institutions do
   %{institution_id: "ins_109512", options: %{include_optional_metadata: true, include_status: false}}
   ```
   """
-  @spec get_by_id(String.t() | params, config | nil) ::
-          {:ok, Plaid.Institutions.Institution.t()} | {:error, Plaid.Error.t()}
+  @spec get_by_id(String.t() | params, config) ::
+          {:ok, Plaid.Institutions.Institution.t()} | error
   def get_by_id(params, config \\ %{}) do
-    config = validate_cred(config)
-    params = if is_binary(params), do: %{institution_id: params}, else: params
-    endpoint = "#{@endpoint}/get_by_id"
+    client = config[:client] || Plaid
 
-    client().make_request_with_cred(:post, endpoint, config, params, %{}, [])
-    |> Utils.handle_resp(:institution)
+    params = if is_binary(params), do: %{institution_id: params}, else: params
+
+    if client.valid_credentials?(config) do
+      :post
+      |> client.make_request("#{@endpoint}/get_by_id", params, config)
+      |> client.handle_response(:institution, config)
+    end
   end
 
   @doc """
@@ -296,16 +298,14 @@ defmodule Plaid.Institutions do
   %{query: "Wells", products: ["transactions"], options: %{limit: 40, include_display_data: true}}
   ```
   """
-  @spec search(params, config | nil) :: {:ok, Plaid.Institutions.t()} | {:error, Plaid.Error.t()}
+  @spec search(params, config) :: {:ok, Plaid.Institutions.t()} | error
   def search(params, config \\ %{}) do
-    config = validate_cred(config)
-    endpoint = "#{@endpoint}/search"
+    client = config[:client] || Plaid
 
-    client().make_request_with_cred(:post, endpoint, config, params, %{}, [])
-    |> Utils.handle_resp(@endpoint)
-  end
-
-  defp client do
-    Application.get_env(:plaid, :client, Plaid)
+    if client.valid_credentials?(config) do
+      :post
+      |> client.make_request("#{@endpoint}/search", params, config)
+      |> client.handle_response(@endpoint, config)
+    end
   end
 end

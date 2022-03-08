@@ -3,10 +3,6 @@ defmodule Plaid.Income do
   Functions for Plaid `income` endpoint.
   """
 
-  import Plaid, only: [validate_cred: 1]
-
-  alias Plaid.Utils
-
   @derive Jason.Encoder
   defstruct item: nil, income: nil, request_id: nil
 
@@ -15,10 +11,9 @@ defmodule Plaid.Income do
           income: Plaid.Income.Income.t(),
           request_id: String.t()
         }
-  @type params :: %{
-          required(:access_token) => String.t()
-        }
-  @type config :: %{required(atom) => String.t()}
+  @type params :: %{required(atom) => term}
+  @type config :: %{required(atom) => String.t() | keyword}
+  @type error :: {:error, Plaid.Error.t() | HTTPoison.Error.t()} | no_return
 
   @endpoint :income
 
@@ -73,16 +68,14 @@ defmodule Plaid.Income do
   }
   ```
   """
-  @spec get(params, config | nil) :: {:ok, Plaid.Income.t()} | {:error, Plaid.Error.t()}
+  @spec get(params, config) :: {:ok, Plaid.Income.t()} | error
   def get(params, config \\ %{}) do
-    config = validate_cred(config)
-    endpoint = "#{@endpoint}/get"
+    client = config[:client] || Plaid
 
-    client().make_request_with_cred(:post, endpoint, config, params, %{}, [])
-    |> Utils.handle_resp(@endpoint)
-  end
-
-  defp client do
-    Application.get_env(:plaid, :client, Plaid)
+    if client.valid_credentials?(config) do
+      :post
+      |> client.make_request("#{@endpoint}/get", params, config)
+      |> client.handle_response(@endpoint, config)
+    end
   end
 end

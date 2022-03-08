@@ -3,10 +3,6 @@ defmodule Plaid.Link do
   Functions for Plaid `link` endpoint.
   """
 
-  import Plaid, only: [make_request_with_cred: 4, validate_cred: 1]
-
-  alias Plaid.Utils
-
   @derive Jason.Encoder
   defstruct link_token: nil,
             expiration: nil,
@@ -22,8 +18,9 @@ defmodule Plaid.Link do
           created_at: String.t(),
           metadata: Plaid.Link.Metadata.t()
         }
-  @type params :: %{required(atom) => String.t() | [String.t()] | map}
-  @type config :: %{required(atom) => String.t()}
+  @type params :: %{required(atom) => term}
+  @type config :: %{required(atom) => String.t() | keyword}
+  @type error :: {:error, Plaid.Error.t() | HTTPoison.Error.t()} | no_return
 
   @endpoint :link
 
@@ -71,14 +68,15 @@ defmodule Plaid.Link do
   }
   ```
   """
-  @spec create_link_token(params, config | nil) ::
-          {:ok, Plaid.Link.t()} | {:error, Plaid.Error.t()}
+  @spec create_link_token(params, config) :: {:ok, Plaid.Link.t()} | error
   def create_link_token(params, config \\ %{}) do
-    config = validate_cred(config)
-    endpoint = "#{@endpoint}/token/create"
+    client = config[:client] || Plaid
 
-    make_request_with_cred(:post, endpoint, config, params)
-    |> Utils.handle_resp(@endpoint)
+    if client.valid_credentials?(config) do
+      :post
+      |> client.make_request("#{@endpoint}/token/create", params, config)
+      |> client.handle_response(@endpoint, config)
+    end
   end
 
   @doc """
@@ -91,13 +89,14 @@ defmodule Plaid.Link do
   }
   ```
   """
-  @spec get_link_token(params, config | nil) ::
-          {:ok, Plaid.Link.t()} | {:error, Plaid.Error.t()}
+  @spec get_link_token(params, config) :: {:ok, Plaid.Link.t()} | error
   def get_link_token(params, config \\ %{}) do
-    config = validate_cred(config)
-    endpoint = "#{@endpoint}/token/get"
+    client = config[:client] || Plaid
 
-    make_request_with_cred(:post, endpoint, config, params)
-    |> Utils.handle_resp(@endpoint)
+    if client.valid_credentials?(config) do
+      :post
+      |> client.make_request("#{@endpoint}/token/get", params, config)
+      |> client.handle_response(@endpoint, config)
+    end
   end
 end
