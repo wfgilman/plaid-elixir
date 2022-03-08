@@ -19,7 +19,7 @@ defmodule Plaid.IdentityTest do
              })
   end
 
-  describe "get/2" do
+  describe "identity get/2" do
     @tag :unit
     test "makes post request to identity/get endpoint", %{params: params, config: config} do
       PlaidMock

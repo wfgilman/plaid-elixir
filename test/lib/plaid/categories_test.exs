@@ -18,7 +18,7 @@ defmodule Plaid.CategoriesTest do
              })
   end
 
-  describe "get/1" do
+  describe "categories get/1" do
     @tag :unit
     test "makes post call to categories/get endpoint", %{config: config} do
       PlaidMock
