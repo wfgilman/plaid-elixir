@@ -3,10 +3,6 @@ defmodule Plaid.Investments.Transactions do
   Functions for Plaid `investments/transactions` endpoints.
   """
 
-  import Plaid, only: [make_request_with_cred: 4, validate_cred: 1]
-
-  alias Plaid.Utils
-
   @derive Jason.Encoder
   defstruct accounts: [],
             item: nil,
@@ -23,8 +19,9 @@ defmodule Plaid.Investments.Transactions do
           total_investment_transactions: integer,
           request_id: String.t()
         }
-  @type params :: %{required(atom) => String.t() | map}
-  @type config :: %{required(atom) => String.t()}
+  @type params :: %{required(atom) => term}
+  @type config :: %{required(atom) => String.t() | keyword}
+  @type error :: {:error, Plaid.Error.t() | HTTPoison.Error.t()} | no_return
 
   @endpoint :"investments/transactions"
 
@@ -82,13 +79,14 @@ defmodule Plaid.Investments.Transactions do
   }
   ```
   """
-  @spec get(params, config | nil) ::
-          {:ok, Plaid.Investments.Transactions.t()} | {:error, Plaid.Error.t()}
+  @spec get(params, config) :: {:ok, Plaid.Investments.Transactions.t()} | error
   def get(params, config \\ %{}) do
-    config = validate_cred(config)
-    endpoint = "#{@endpoint}/get"
+    client = config[:client] || Plaid
 
-    make_request_with_cred(:post, endpoint, config, params)
-    |> Utils.handle_resp(@endpoint)
+    if client.valid_credentials?(config) do
+      :post
+      |> client.make_request("#{@endpoint}/get", params, config)
+      |> client.handle_response(@endpoint, config)
+    end
   end
 end

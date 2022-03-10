@@ -112,7 +112,10 @@ defmodule Plaid.InstitutionsTest do
 
   describe "institutions get_by_id/2" do
     @tag :unit
-    test "makes post request to institutions/get_by_id endpoint", %{params: params, config: config} do
+    test "makes post request to institutions/get_by_id endpoint", %{
+      params: params,
+      config: config
+    } do
       PlaidMock
       |> expect(:valid_credentials?, fn _config -> true end)
       |> expect(:make_request, fn method, endpoint, _params, _config ->
@@ -125,7 +128,8 @@ defmodule Plaid.InstitutionsTest do
         {:ok, %Plaid.Institutions.Institution{}}
       end)
 
-      assert {:ok, %Plaid.Institutions.Institution{}} = Plaid.Institutions.get_by_id(params, config)
+      assert {:ok, %Plaid.Institutions.Institution{}} =
+               Plaid.Institutions.get_by_id(params, config)
     end
 
     @tag :unit
@@ -143,7 +147,8 @@ defmodule Plaid.InstitutionsTest do
         {:ok, %Plaid.Institutions.Institution{}}
       end)
 
-      assert {:ok, %Plaid.Institutions.Institution{}} = Plaid.Institutions.get_by_id("ins_1", config)
+      assert {:ok, %Plaid.Institutions.Institution{}} =
+               Plaid.Institutions.get_by_id("ins_1", config)
     end
 
     @tag :unit
@@ -174,7 +179,8 @@ defmodule Plaid.InstitutionsTest do
         Plug.Conn.resp(conn, 200, Poison.encode!(body))
       end)
 
-      assert {:ok, %Plaid.Institutions.Institution{}} = Plaid.Institutions.get_by_id("ins_1", config)
+      assert {:ok, %Plaid.Institutions.Institution{}} =
+               Plaid.Institutions.get_by_id("ins_1", config)
     end
 
     @tag :integration

@@ -1,4 +1,4 @@
-defmodule Plaid.TransactionsTest do
+defmodule Plaid.Investments.HoldingsTest do
   use ExUnit.Case, async: true
 
   import Mox
@@ -8,39 +8,38 @@ defmodule Plaid.TransactionsTest do
     {:ok, params: %{access_token: "my-token"}, config: %{client: PlaidMock}}
   end
 
-  @moduletag :transactions
+  @moduletag :"investments/holdings"
 
   @tag :unit
-  test "transactions data structure encodes with Jason" do
+  test "investments/holdings data structure encodes with Jason" do
     assert {:ok, _} =
-             Jason.encode(%Plaid.Transactions{
+             Jason.encode(%Plaid.Investments.Holdings{
                accounts: [%Plaid.Accounts.Account{}],
                item: %Plaid.Item{},
-               transactions: [
-                 %Plaid.Transactions.Transaction{
-                   location: %Plaid.Transactions.Transaction.Location{},
-                   payment_meta: %Plaid.Transactions.Transaction.PaymentMeta{}
-                 }
-               ]
+               securities: [%Plaid.Investments.Security{}],
+               holdings: [%Plaid.Investments.Holdings{}]
              })
   end
 
-  describe "transactions get/2" do
+  describe "investments/holdings get/2" do
     @tag :unit
-    test "makes post request to transactions/get endpoint", %{params: params, config: config} do
+    test "makes post request to investments/holdings/get endpoint", %{
+      params: params,
+      config: config
+    } do
       PlaidMock
       |> expect(:valid_credentials?, fn _config -> true end)
       |> expect(:make_request, fn method, endpoint, _params, _config ->
         assert method == :post
-        assert endpoint == "transactions/get"
+        assert endpoint == "investments/holdings/get"
         {:ok, %HTTPoison.Response{}}
       end)
       |> expect(:handle_response, fn _response, endpoint, _config ->
-        assert endpoint == :transactions
-        {:ok, %Plaid.Transactions{}}
+        assert endpoint == :"investments/holdings"
+        {:ok, %Plaid.Investments.Holdings{}}
       end)
 
-      assert {:ok, %Plaid.Transactions{}} = Plaid.Transactions.get(params, config)
+      assert {:ok, %Plaid.Investments.Holdings{}} = Plaid.Investments.Holdings.get(params, config)
     end
 
     @tag :unit
@@ -51,12 +50,12 @@ defmodule Plaid.TransactionsTest do
       end)
 
       assert_raise Plaid.MissingClientIdError, fn ->
-        Plaid.Transactions.get(params, config)
+        Plaid.Investments.Holdings.get(params, config)
       end
     end
 
     @tag :integration
-    test "returns Plaid.Transactions data structure", %{params: params} do
+    test "returns Plaid.Investments.Holdings data structure", %{params: params} do
       bypass = Bypass.open()
 
       config = %{
@@ -65,13 +64,13 @@ defmodule Plaid.TransactionsTest do
         root_uri: "http://localhost:#{bypass.port}/"
       }
 
-      body = Plaid.Factory.http_response_body(:transactions)
+      body = Plaid.Factory.http_response_body(:"investments/holdings")
 
       Bypass.expect(bypass, fn conn ->
         Plug.Conn.resp(conn, 200, Poison.encode!(body))
       end)
 
-      assert {:ok, %Plaid.Transactions{}} = Plaid.Transactions.get(params, config)
+      assert {:ok, %Plaid.Investments.Holdings{}} = Plaid.Investments.Holdings.get(params, config)
     end
 
     @tag :integration
@@ -90,7 +89,7 @@ defmodule Plaid.TransactionsTest do
         Plug.Conn.resp(conn, 400, Poison.encode!(body))
       end)
 
-      assert {:error, %Plaid.Error{}} = Plaid.Transactions.get(params, config)
+      assert {:error, %Plaid.Error{}} = Plaid.Investments.Holdings.get(params, config)
     end
   end
 end

@@ -17,8 +17,9 @@ defmodule Plaid.Transactions do
           transactions: [Plaid.Transactions.Transaction.t()],
           request_id: String.t()
         }
-  @type params :: %{required(atom) => String.t() | map}
-  @type config :: %{required(atom) => String.t()}
+  @type params :: %{required(atom) => term}
+  @type config :: %{required(atom) => String.t() | keyword}
+  @type error :: {:error, Plaid.Error.t() | HTTPoison.Error.t()} | no_return
 
   @endpoint :transactions
 
@@ -147,12 +148,14 @@ defmodule Plaid.Transactions do
   }
   ```
   """
-  @spec get(params, config | nil) :: {:ok, Plaid.Transactions.t()} | {:error, Plaid.Error.t()}
+  @spec get(params, config) :: {:ok, Plaid.Transactions.t()} | error
   def get(params, config \\ %{}) do
-    config = validate_cred(config)
-    endpoint = "#{@endpoint}/get"
+    client = config[:client] || Plaid
 
-    make_request_with_cred(:post, endpoint, config, params)
-    |> Utils.handle_resp(@endpoint)
+    if client.valid_credentials?(config) do
+      :post
+      |> client.make_request("#{@endpoint}/get", params, config)
+      |> client.handle_response(@endpoint, config)
+    end
   end
 end
