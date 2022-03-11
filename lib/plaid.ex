@@ -78,7 +78,7 @@ defmodule Plaid do
   @doc """
   Make HTTP request to Plaid.
   """
-  @callback make_request(atom, String.t(), map, map | nil) ::
+  @callback make_request(atom, String.t(), map, map) ::
               {:ok, HTTPoison.Response.t()} | {:error, HTTPoison.Error.t()}
   def make_request(method, endpoint, parameters, config \\ %{}) do
     request_body = build_request_body(parameters, config)
