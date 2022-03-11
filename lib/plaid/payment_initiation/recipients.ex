@@ -3,10 +3,6 @@ defmodule Plaid.PaymentInitiation.Recipients do
   Functions for Plaid `payment_initiation/recipient` endpoints.
   """
 
-  import Plaid, only: [make_request_with_cred: 4, validate_cred: 1]
-
-  alias Plaid.Utils
-
   @derive Jason.Encoder
   defstruct recipients: [], request_id: nil
 
@@ -14,8 +10,9 @@ defmodule Plaid.PaymentInitiation.Recipients do
           recipients: [Plaid.PaymentInitiation.Recipients.Recipient.t()],
           request_id: String.t()
         }
-  @type params :: %{required(atom) => String.t() | map}
-  @type config :: %{required(atom) => String.t()}
+  @type params :: %{required(atom) => term}
+  @type config :: %{required(atom) => String.t() | keyword}
+  @type error :: {:error, Plaid.Error.t() | HTTPoison.Error.t()} | no_return
 
   @endpoint :"payment_initiation/recipient"
 
@@ -69,14 +66,15 @@ defmodule Plaid.PaymentInitiation.Recipients do
   }
   ```
   """
-  @spec create(params, config | nil) ::
-          {:ok, Plaid.PaymentInitiation.Recipients.t()} | {:error, Plaid.Error.t()}
+  @spec create(params, config) :: {:ok, Plaid.PaymentInitiation.Recipients.Recipient.t()} | error
   def create(params, config \\ %{}) do
-    config = validate_cred(config)
-    endpoint = "#{@endpoint}/create"
+    client = config[:client] || Plaid
 
-    make_request_with_cred(:post, endpoint, config, params)
-    |> Utils.handle_resp(@endpoint)
+    if client.valid_credentials?(config) do
+      :post
+      |> client.make_request("#{@endpoint}/create", params, config)
+      |> client.handle_response(@endpoint, config)
+    end
   end
 
   @doc """
@@ -89,26 +87,28 @@ defmodule Plaid.PaymentInitiation.Recipients do
   }
   ```
   """
-  @spec get(params, config | nil) ::
-          {:ok, Plaid.PaymentInitiation.Recipients.Recipient.t()} | {:error, Plaid.Error.t()}
+  @spec get(params, config) :: {:ok, Plaid.PaymentInitiation.Recipients.Recipient.t()} | error
   def get(params, config \\ %{}) do
-    config = validate_cred(config)
-    endpoint = "#{@endpoint}/get"
+    client = config[:client] || Plaid
 
-    make_request_with_cred(:post, endpoint, config, params)
-    |> Utils.handle_resp(@endpoint)
+    if client.valid_credentials?(config) do
+      :post
+      |> client.make_request("#{@endpoint}/get", params, config)
+      |> client.handle_response(@endpoint, config)
+    end
   end
 
   @doc """
   Lists all recipients.
   """
-  @spec list(config | nil) ::
-          {:ok, [Plaid.PaymentInitiation.Recipients.Recipient.t()]} | {:error, Plaid.Error.t()}
+  @spec list(config) :: {:ok, Plaid.PaymentInitiation.Recipients.t()} | error
   def list(config \\ %{}) do
-    config = validate_cred(config)
-    endpoint = "#{@endpoint}/list"
+    client = config[:client] || Plaid
 
-    make_request_with_cred(:post, endpoint, config, %{})
-    |> Utils.handle_resp(@endpoint)
+    if client.valid_credentials?(config) do
+      :post
+      |> client.make_request("#{@endpoint}/list", %{}, config)
+      |> client.handle_response(@endpoint, config)
+    end
   end
 end
