@@ -6,7 +6,7 @@ defmodule PlaidHandlerTest do
   @moduletag :plaid_handler
 
   # These tests could be expanded to verify that individual fields are set correcty.
-  describe "handle_response/2" do
+  describe "plaid_handler handle_response/2" do
     @describetag :unit
 
     test "return Plaid error" do

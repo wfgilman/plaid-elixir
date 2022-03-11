@@ -1,11 +1,11 @@
 defmodule PlaidTelemetryTest do
-  use ExUnit.Case, async: true
+  use ExUnit.Case, async: false
 
   @moduletag :plaid_telemetry
 
   # Asserting results in the event handler isn't ideal because failures don't print nicely,
   # but the test pattern is more readable than sending messages.
-  describe "instrument/2" do
+  describe "plaid_telemetry instrument/2" do
     setup do
       Logger.configure(level: :warn)
     end

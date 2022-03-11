@@ -3,10 +3,6 @@ defmodule Plaid.Transactions do
   Functions for Plaid `transactions` endpoint.
   """
 
-  import Plaid, only: [make_request_with_cred: 4, validate_cred: 1]
-
-  alias Plaid.Utils
-
   @derive Jason.Encoder
   defstruct accounts: [], item: nil, total_transactions: nil, transactions: [], request_id: nil
 
