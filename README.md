@@ -22,6 +22,14 @@ Supported Plaid products:
 
 [Plaid Documentation](https://plaid.com/docs/api)
 
+## Changes in 3.0
+
+While the library public functions remains largely unchanged in version 3.0, refactoring the testing suite,
+hard deprecation of several functions, and some small bug fixes to decoding Plaid JSON responses into 
+internal data structures necessitated the need for a major version increment.
+
+If you are considering upgrading to version `3.0`, review the full list of breaking changes in the changelog.
+
 ## Usage
 
 Add to your dependencies in `mix.exs`. The hex specification is required.
@@ -29,24 +37,23 @@ Add to your dependencies in `mix.exs`. The hex specification is required.
 ```elixir
 def deps do
   [
-    {:plaid, "~> 2.0", hex: :plaid_elixir}
+    {:plaid, "~> 3.0", hex: :plaid_elixir}
   ]
 end
 ```
 
 ## Configuration
 
-All calls to Plaid require your client id and secret. Public keys are deprecated as of version `2.4`.
-Add the following configuration to your project to set the values. This configuration is optional
-as of version `1.6`, see below for a runtime configuration. The library will raise an
-error if the relevant credentials are not provided either via `config.exs` or at runtime.
+All calls to Plaid require your client id and secret. Add the following configuration
+to your project to set the values. This configuration is optional, see below for a
+runtime configuration. The library will raise an error if the relevant credentials
+are not provided either via `config.exs` or at runtime.
 
 ```elixir
 config :plaid,
   root_uri: "https://development.plaid.com/",
   client_id: "your_client_id",
   secret: "your_secret",
-  public_key: "your_public_key",
   httpoison_options: [timeout: 10_000, recv_timeout: 30_000]
 ```
 
@@ -54,7 +61,7 @@ By default, `root_uri` is set by `mix` environment. You can override it in your 
 - `dev` - development.plaid.com
 - `prod`- production.plaid.com
 
-Finally, you can pass in custom configuration for [HTTPoison](https://github.com/edgurgel/httpoison). It's recommended you
+Finally, you can pass in custom configuration for [HTTPoison](https://github.com/edgurgel/httpoison), the HTTP client used by this library. It's recommended you
 extend the receive timeout for Plaid, especially for retrieving historical transactions.
 
 ## Runtime configuration
@@ -66,14 +73,20 @@ For example, if you want to hit a different URL when calling the `/accounts` end
 pass in a configuration argument to `Plaid.Accounts.get/2`.
 
 ```elixir
-Plaid.Accounts.get(%{access_token: "my-token"}, %{root_uri: "http://sandbox.plaid.com/", secret: "no-secrets"})
+Plaid.Accounts.get(
+  %{access_token: "my-token"},
+  %{root_uri: "http://sandbox.plaid.com/", secret: "no-secrets"}
+)
 ```
 
-As of version `2.5` you can pass HTTPoison options to the configuration at runtime. This can be
+HTTPoison options may also be passed to the configuration at runtime. This can be
 useful if you'd like to extend the `recv_timeout` parameter for certain calls to Plaid.
 
 ```elixir
-Plaid.Transactions.get(%{access_token: "my-token"}, %{httpoison_options: [recv_timeout: 10_000]})
+Plaid.Transactions.get(
+  %{access_token: "my-token"},
+  %{httpoison_options: [recv_timeout: 10_000]}
+)
 ```
 
 ## Obtaining Access Tokens
@@ -90,6 +103,7 @@ for an access token and item id (both of which should be stored) using
 Consult Plaid's documentation for additional detail on this process.
 
 ## Metrics
+
 This library emits [telemetry](https://github.com/beam-telemetry/telemetry) that you can use to get insight into communication
 between your system and Plaid service. Emitted events are designed to be similar to the ones Phoenix emits. Those are the following:
 * `[:plaid, :request, :start]` with `:system_time` measurement - signifies the moment request is being initiated
@@ -109,13 +123,30 @@ All times are in :native unit.
 
 ## Compatibility
 
-As of version `1.2`, this library natively supports serialization of its structs using `Jason` for compatibility with Phoenix.
+This library natively supports serialization of its structs using `Jason` for compatibility with Phoenix.
 
 ## Tests and Style
 
-This library uses [bypass](https://github.com/PSPDFKit-labs/bypass) to simulate HTTP responses from Plaid.
+This library tries to implement best practices for unit and integration testing and
+version `3.0` implements major improvements.
 
-It uses Elixir's native formatter as of `1.3.2` and Credo.
+Unit testing is done using [mox](https://github.com/dashbitco/mox) and follows the principals
+outlined in the well-known article by José Valim linked in that repo.  Unit tests can
+be run standalone using `ExUnit` tags.
+```
+mix test --only unit
+```
+
+Integration testing uses [bypass](https://github.com/PSPDFKit-labs/bypass) to simulate HTTP responses from Plaid.
+Integration tests can also be run in isolation using tags.
+```
+mix test --only integration
+```
+
+Static analysis is performed using [dialyzer](https://github.com/jeremyjh/dialyxir).
+
+Elixir's native formatter is used along with [credo](https://github.com/rrrene/credo)
+for code analysis.
 
 ## Copyright and License
 
