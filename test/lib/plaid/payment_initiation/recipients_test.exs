@@ -12,11 +12,14 @@ defmodule Plaid.PaymentInitiation.RecipientsTest do
 
   @tag :unit
   test "payment_initiation/recipients data structure encodes with Jason" do
-    assert {:ok, _} = Jason.encode(%Plaid.PaymentInitiation.Recipients{
-      recipients: [%Plaid.PaymentInitiation.Recipients.Recipient{
-        address: %Plaid.PaymentInitiation.Recipients.Recipient.Address{}
-        }]
-      })
+    assert {:ok, _} =
+             Jason.encode(%Plaid.PaymentInitiation.Recipients{
+               recipients: [
+                 %Plaid.PaymentInitiation.Recipients.Recipient{
+                   address: %Plaid.PaymentInitiation.Recipients.Recipient.Address{}
+                 }
+               ]
+             })
   end
 
   describe "payments_initiation/recipients create/2" do
@@ -37,7 +40,8 @@ defmodule Plaid.PaymentInitiation.RecipientsTest do
         {:ok, %Plaid.PaymentInitiation.Recipients.Recipient{}}
       end)
 
-      assert {:ok, %Plaid.PaymentInitiation.Recipients.Recipient{}} = Plaid.PaymentInitiation.Recipients.create(params, config)
+      assert {:ok, %Plaid.PaymentInitiation.Recipients.Recipient{}} =
+               Plaid.PaymentInitiation.Recipients.create(params, config)
     end
 
     @tag :unit
@@ -110,7 +114,8 @@ defmodule Plaid.PaymentInitiation.RecipientsTest do
         {:ok, %Plaid.PaymentInitiation.Recipients.Recipient{}}
       end)
 
-      assert {:ok, %Plaid.PaymentInitiation.Recipients.Recipient{}} = Plaid.PaymentInitiation.Recipients.get(params, config)
+      assert {:ok, %Plaid.PaymentInitiation.Recipients.Recipient{}} =
+               Plaid.PaymentInitiation.Recipients.get(params, config)
     end
 
     @tag :unit
@@ -180,7 +185,8 @@ defmodule Plaid.PaymentInitiation.RecipientsTest do
         {:ok, %Plaid.PaymentInitiation.Recipients{}}
       end)
 
-      assert {:ok, %Plaid.PaymentInitiation.Recipients{}} = Plaid.PaymentInitiation.Recipients.list(config)
+      assert {:ok, %Plaid.PaymentInitiation.Recipients{}} =
+               Plaid.PaymentInitiation.Recipients.list(config)
     end
 
     @tag :unit

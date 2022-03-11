@@ -12,12 +12,15 @@ defmodule Plaid.PaymentInitiation.PaymentsTest do
 
   @tag :unit
   test "payment_initiation/payments data structure encodes with Jason" do
-    assert {:ok, _} = Jason.encode(%Plaid.PaymentInitiation.Payments{
-      payments: [%Plaid.PaymentInitiation.Payments.Payment{
-        amount: %Plaid.PaymentInitiation.Payments.Payment.Amount{},
-        schedule: %Plaid.PaymentInitiation.Payments.Payment.Schedule{}
-        }]
-      })
+    assert {:ok, _} =
+             Jason.encode(%Plaid.PaymentInitiation.Payments{
+               payments: [
+                 %Plaid.PaymentInitiation.Payments.Payment{
+                   amount: %Plaid.PaymentInitiation.Payments.Payment.Amount{},
+                   schedule: %Plaid.PaymentInitiation.Payments.Payment.Schedule{}
+                 }
+               ]
+             })
   end
 
   describe "payment_initiation/payments create/2" do
@@ -38,7 +41,8 @@ defmodule Plaid.PaymentInitiation.PaymentsTest do
         {:ok, %Plaid.PaymentInitiation.Payments.Payment{}}
       end)
 
-      assert {:ok, %Plaid.PaymentInitiation.Payments.Payment{}} = Plaid.PaymentInitiation.Payments.create(params, config)
+      assert {:ok, %Plaid.PaymentInitiation.Payments.Payment{}} =
+               Plaid.PaymentInitiation.Payments.create(params, config)
     end
 
     @tag :unit
@@ -111,7 +115,8 @@ defmodule Plaid.PaymentInitiation.PaymentsTest do
         {:ok, %Plaid.PaymentInitiation.Payments.Payment{}}
       end)
 
-      assert {:ok, %Plaid.PaymentInitiation.Payments.Payment{}} = Plaid.PaymentInitiation.Payments.get(params, config)
+      assert {:ok, %Plaid.PaymentInitiation.Payments.Payment{}} =
+               Plaid.PaymentInitiation.Payments.get(params, config)
     end
 
     @tag :unit
@@ -184,7 +189,8 @@ defmodule Plaid.PaymentInitiation.PaymentsTest do
         {:ok, %Plaid.PaymentInitiation.Payments{}}
       end)
 
-      assert {:ok, %Plaid.PaymentInitiation.Payments{}} = Plaid.PaymentInitiation.Payments.list(params, config)
+      assert {:ok, %Plaid.PaymentInitiation.Payments{}} =
+               Plaid.PaymentInitiation.Payments.list(params, config)
     end
 
     @tag :unit
