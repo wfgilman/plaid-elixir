@@ -24,11 +24,13 @@ Supported Plaid products:
 
 ## Changes in 3.0
 
-While the library public functions remains largely unchanged in version 3.0, refactoring the testing suite,
-hard deprecation of several functions, and some small bug fixes to decoding Plaid JSON responses into 
-internal data structures necessitated the need for a major version increment.
+`3.0` replaces [HTTPoison](https://github.com/edgurgel/httpoison) with [Tesla](https://github.com/teamon/tesla)
+behind the scenes to provide more flexibility around HTTP calls. Additionally, `3.0` refactors
+the test suite, hard deprecates several functions, and fixes small bugs when decoding Plaid JSON
+responses into internal data structures.
 
-If you are considering upgrading to version `3.0`, review the full list of breaking changes in the changelog.
+While these changes are primarily transparent, if you are considering upgrading to version `3.0`
+it's recommended you review the full list of breaking changes in the changelog.
 
 ## Usage
 
@@ -54,15 +56,23 @@ config :plaid,
   root_uri: "https://development.plaid.com/",
   client_id: "your_client_id",
   secret: "your_secret",
-  httpoison_options: [timeout: 10_000, recv_timeout: 30_000]
+  http_client: PlaidHTTP, # optional
+  http_options: [timeout: 10_000, recv_timeout: 30_000] # optional
 ```
 
 By default, `root_uri` is set by `mix` environment. You can override it in your config.
 - `dev` - development.plaid.com
-- `prod`- production.plaid.com
+- `prod` - production.plaid.com
 
-Finally, you can pass in custom configuration for [HTTPoison](https://github.com/edgurgel/httpoison), the HTTP client used by this library. It's recommended you
-extend the receive timeout for Plaid, especially for retrieving historical transactions.
+Finally, you can specify your HTTP client of choice with `http_client` in a module that implements the
+`PlaidHTTP.call/6` behaviour. Under the hood, the HTTP client implementation uses [Tesla](https://github.com/teamon/tesla)
+for middleware and [hackney](https://github.com/benoitc/hackney) as the actual HTTP client adapter, which
+is the HTTP client used by prior versions of this library. If this no value is provided, the library
+will use the default implementation, `PlaidHTTP`.
+
+The `http_options` key specifies the custom configuration for HTTP client adapter. It's recommended you
+extend the receive timeout for Plaid, especially for retrieving historical transactions. In the code
+snippet above, `[timeout: 10_000, recv_timeout: 30_000]` are timeout options understood by hackney.
 
 ## Runtime configuration
 
@@ -79,13 +89,13 @@ Plaid.Accounts.get(
 )
 ```
 
-HTTPoison options may also be passed to the configuration at runtime. This can be
+HTTP client options may also be passed to the configuration at runtime. This can be
 useful if you'd like to extend the `recv_timeout` parameter for certain calls to Plaid.
 
 ```elixir
 Plaid.Transactions.get(
   %{access_token: "my-token"},
-  %{httpoison_options: [recv_timeout: 10_000]}
+  %{http_options: [recv_timeout: 10_000]}
 )
 ```
 
@@ -114,12 +124,112 @@ Metadata attached (if applicable to event type) are as follows:
 * `:method`, `:path`, `:status` - HTTP information on the request.
 * `:u` - unit in which time is reported. Only value is `:native`.
 * `:exception` - The exception that was thrown during making the request.
-* `:result` - If no exception, contains either `{:ok, %HTTPoison.Response{}}` or `{:error, reason}`
+* `:result` - If no exception, contains either `{:ok, %Tesla.Env{}}` or `{:error, reason}`
 
 Additionally, you can pass your custom metadata through the `config` parameter when calling a product endpoint.
 Put it under `telemetry_metadata` and it will be merged to the standard metadata map.
 
-All times are in :native unit.
+All times are in `:native` unit. Telemetry instrumentation is implemented using [Tesla.Middleware](https://github.com/teamon/tesla#middleware).
+
+## Custom Middleware
+
+Using [Tesla](https://github.com/teamon/tesla) under the hood provides additional capabilities that can
+be useful for communicating with Plaid, such as retry logic and logging, or emitting refined telemetry events.
+To use customized middleware, perform the following steps.
+
+### 1. Implement the PlaidHTTP.call/6 behaviour
+Add a new module to your project that conforms to the PlaidHTTP behaviour, then specify it in `config.exs`.
+
+```elixir
+defmodule MyPlaidHTTPClient do
+
+  @behaviour PlaidHTTP
+
+  @impl PlaidHTTP
+  def call(method, url, body, headers, http_options, metadata) do
+    client = new(http_options)
+
+    options = [
+      method: method,
+      url: url,
+      headers: headers,
+      body: body,
+      opts: [metadata: metadata]
+    ]
+
+    case Tesla.request(client, options) do
+      {:ok, %Tesla.Env{status: status, body: body}} ->
+        {:ok, %PlaidHTTP.Response{status_code: status, body: Poison.Parser.parse!(body, %{})}}
+
+      {:error, reason} ->
+        {:error, %PlaidHTTP.Error{reason: reason}}
+    end
+  end
+
+  defp new(http_options) do
+    ...
+  end
+end
+```
+
+```elixir
+config :plaid,
+  http_client: MyPlaidHTTPClient
+```
+
+### 2. Create your custom Tesla client
+Build a Tesla client with your desired HTTP adapter and Middlewares. Consult the Tesla [documentation](https://hexdocs.pm/tesla/readme.html) to see which middlewares require mix dependencies and inclusion in `application/0`.
+```elixir
+defmodule MyPlaidHTTPClient do
+
+  @behaviour PlaidHTTP
+
+  @impl PlaidHTTP
+  def call(method, url, body, headers, http_options, metadata) do
+    client = new(http_options)
+    ...
+  end
+
+  defp new(http_options) do
+    middleware = [
+      Tesla.Middleware.JSON,
+      Tesla.Middleware.Logger, # Custom logging
+      Tesla.Middleware.Fuse,   # Custom retry
+      MyMiddleware             # Custom middleware
+    ]
+
+    adapter = {Tesla.Adapter.Hackney, http_options}
+    Tesla.client(middleware, adapter)
+  end
+end
+```
+```elixir
+# mix.exs
+
+def application do
+  [extra_applications: [:logger, :fuse]]
+end
+
+defp deps do
+  ...
+  {:fuse, "~> 2.4"}
+end
+```
+
+### 3. Write your custom Middlewares
+If the standard middlewares available in the Tesla library do not meet your needs you can write your own. Just create a new module in your project which conforms to the [`Tesla.Middleware.call/3`](https://hexdocs.pm/tesla/Tesla.Middleware.html#c:call/3) behaviour and add it to the list of middlewares defined in your custom HTTP client.
+
+```elixir
+defmodule MyMiddleware do
+
+  @behaviour Tesla.Middleware
+
+  @impl Tesla.Middleware
+  def call(env, next, opts) do
+    ...
+  end
+end
+```
 
 ## Compatibility
 

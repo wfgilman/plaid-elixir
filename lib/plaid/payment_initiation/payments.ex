@@ -15,7 +15,7 @@ defmodule Plaid.PaymentInitiation.Payments do
         }
   @type params :: %{required(atom) => term}
   @type config :: %{required(atom) => String.t() | keyword}
-  @type error :: {:error, Plaid.Error.t() | HTTPoison.Error.t()} | no_return
+  @type error :: {:error, Plaid.Error.t() | PlaidHTTP.Error.t()} | no_return
 
   @endpoint :"payment_initiation/payment"
 

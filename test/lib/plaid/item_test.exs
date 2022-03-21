@@ -30,7 +30,7 @@ defmodule Plaid.ItemTest do
       |> expect(:make_request, fn method, endpoint, _params, _config ->
         assert method == :post
         assert endpoint == "item/get"
-        {:ok, %HTTPoison.Response{}}
+        {:ok, %PlaidHTTP.Response{}}
       end)
       |> expect(:handle_response, fn _response, endpoint, _config ->
         assert endpoint == :item
@@ -102,7 +102,7 @@ defmodule Plaid.ItemTest do
       |> expect(:make_request, fn method, endpoint, _params, _config ->
         assert method == :post
         assert endpoint == "item/public_token/exchange"
-        {:ok, %HTTPoison.Response{}}
+        {:ok, %PlaidHTTP.Response{}}
       end)
       |> expect(:handle_response, fn _response, endpoint, _config ->
         assert endpoint == :item
@@ -155,7 +155,7 @@ defmodule Plaid.ItemTest do
       |> expect(:make_request, fn method, endpoint, _params, _config ->
         assert method == :post
         assert endpoint == "item/public_token/create"
-        {:ok, %HTTPoison.Response{}}
+        {:ok, %PlaidHTTP.Response{}}
       end)
       |> expect(:handle_response, fn _response, endpoint, _config ->
         assert endpoint == :item
@@ -205,7 +205,7 @@ defmodule Plaid.ItemTest do
       |> expect(:make_request, fn method, endpoint, _params, _config ->
         assert method == :post
         assert endpoint == "item/webhook/update"
-        {:ok, %HTTPoison.Response{}}
+        {:ok, %PlaidHTTP.Response{}}
       end)
       |> expect(:handle_response, fn _response, endpoint, _config ->
         assert endpoint == :item
@@ -258,7 +258,7 @@ defmodule Plaid.ItemTest do
       |> expect(:make_request, fn method, endpoint, _params, _config ->
         assert method == :post
         assert endpoint == "item/access_token/invalidate"
-        {:ok, %HTTPoison.Response{}}
+        {:ok, %PlaidHTTP.Response{}}
       end)
       |> expect(:handle_response, fn _response, endpoint, _config ->
         assert endpoint == :item
@@ -311,7 +311,7 @@ defmodule Plaid.ItemTest do
       |> expect(:make_request, fn method, endpoint, _params, _config ->
         assert method == :post
         assert endpoint == "item/access_token/update_version"
-        {:ok, %HTTPoison.Response{}}
+        {:ok, %PlaidHTTP.Response{}}
       end)
       |> expect(:handle_response, fn _response, endpoint, _config ->
         assert endpoint == :item
@@ -361,7 +361,7 @@ defmodule Plaid.ItemTest do
       |> expect(:make_request, fn method, endpoint, _params, _config ->
         assert method == :post
         assert endpoint == "item/remove"
-        {:ok, %HTTPoison.Response{}}
+        {:ok, %PlaidHTTP.Response{}}
       end)
       |> expect(:handle_response, fn _response, endpoint, _config ->
         assert endpoint == :item
@@ -414,7 +414,7 @@ defmodule Plaid.ItemTest do
       |> expect(:make_request, fn method, endpoint, _params, _config ->
         assert method == :post
         assert endpoint == "processor/token/create"
-        {:ok, %HTTPoison.Response{}}
+        {:ok, %PlaidHTTP.Response{}}
       end)
       |> expect(:handle_response, fn _response, endpoint, _config ->
         assert endpoint == :item
@@ -467,7 +467,7 @@ defmodule Plaid.ItemTest do
       |> expect(:make_request, fn method, endpoint, _params, _config ->
         assert method == :post
         assert endpoint == "processor/stripe/bank_account_token/create"
-        {:ok, %HTTPoison.Response{}}
+        {:ok, %PlaidHTTP.Response{}}
       end)
       |> expect(:handle_response, fn _response, endpoint, _config ->
         assert endpoint == :item

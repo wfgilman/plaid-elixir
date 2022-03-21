@@ -8,7 +8,7 @@ defmodule Plaid.Categories do
 
   @type t :: %__MODULE__{categories: [Plaid.Categories.Category.t()], request_id: String.t()}
   @type config :: %{required(atom) => String.t() | keyword}
-  @type error :: {:error, Plaid.Error.t() | HTTPoison.Error.t()}
+  @type error :: {:error, Plaid.Error.t() | PlaidHTTP.Error.t()}
 
   @endpoint :categories
 

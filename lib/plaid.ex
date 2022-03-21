@@ -23,16 +23,6 @@ defmodule Plaid do
                  """
   end
 
-  defmodule MissingPublicKeyError do
-    defexception message: """
-                 The `public_key` is required for some unauthenticated endpoints. Please either
-                 configure `public_key` in your config.exs or pass it into the function
-                 via the `config` argument.
-
-                 config :plaid, public_key: "your_public_key"
-                 """
-  end
-
   defmodule MissingRootUriError do
     defexception message: """
                  The root_uri is required to specify the Plaid environment to which you are
@@ -79,20 +69,16 @@ defmodule Plaid do
   Make HTTP request to Plaid.
   """
   @callback make_request(atom, String.t(), map, map) ::
-              {:ok, HTTPoison.Response.t()} | {:error, HTTPoison.Error.t()}
+              {:ok, PlaidHTTP.Response.t()} | {:error, PlaidHTTP.Error.t()}
   def make_request(method, endpoint, parameters, config \\ %{}) do
     request_body = build_request_body(parameters, config)
     url = "#{get_root_uri(config)}#{endpoint}"
     headers = [{"Content-Type", "application/json"}]
-    options = build_http_client_options(config)
+    http_options = build_http_client_options(config)
     metadata = build_instrumentation_metadata(method, endpoint, config)
     http_client = config[:http_client] || PlaidHTTP
-    telemetry = config[:telemetry] || PlaidTelemetry
 
-    telemetry.instrument(
-      fn -> http_client.call(method, url, request_body, headers, options) end,
-      metadata
-    )
+    http_client.call(method, url, request_body, headers, http_options, metadata)
   end
 
   defp get_root_uri(config) do
@@ -113,8 +99,8 @@ defmodule Plaid do
 
   defp build_http_client_options(config) do
     Keyword.merge(
-      Application.get_env(:plaid, :httpoison_options, []),
-      config[:httpoison_options] || []
+      Application.get_env(:plaid, :http_options, []),
+      config[:http_options] || []
     )
   end
 
@@ -130,10 +116,10 @@ defmodule Plaid do
   Handles HTTP client response from Plaid.
   """
   @callback handle_response(
-              {:ok, HTTPoison.Response.t()} | {:error, HTTPoison.Error.t()},
+              {:ok, PlaidHTTP.Response.t()} | {:error, PlaidHTTP.Error.t()},
               atom,
               map
-            ) :: {:ok, term} | {:error, Plaid.Error.t() | HTTPoison.Error.t()}
+            ) :: {:ok, term} | {:error, Plaid.Error.t() | PlaidHTTP.Error.t()}
   def handle_response(response, endpoint, config \\ %{}) do
     handler = config[:handler] || PlaidHandler
     handler.handle_resp(response, endpoint)

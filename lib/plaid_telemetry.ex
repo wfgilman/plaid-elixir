@@ -1,14 +1,20 @@
 defmodule PlaidTelemetry do
+  @moduledoc """
+  Custom implementation of `telemetry` using Tesla Middleware.
+  """
   @events_prefix [:plaid, :request]
 
-  @callback instrument(function, map) :: term
-  def instrument(fun, metadata) when is_function(fun) do
+  @behaviour Tesla.Middleware
+
+  @impl Tesla.Middleware
+  def call(env, next, _opts) do
+    metadata = env.opts[:metadata]
     start_time = System.monotonic_time()
 
     :telemetry.execute(@events_prefix ++ [:start], %{system_time: start_time}, metadata)
 
     try do
-      fun.()
+      Tesla.run(env, next)
     rescue
       exception ->
         :telemetry.execute(
@@ -19,21 +25,20 @@ defmodule PlaidTelemetry do
 
         reraise exception, __STACKTRACE__
     else
-      # This handler is tightly coupled with the PlaidHTTP behaviour.
-      {:ok, response} = result ->
+      {:ok, env} = result ->
         :telemetry.execute(
           @events_prefix ++ [:stop],
           %{duration: System.monotonic_time() - start_time},
-          Map.merge(metadata, %{result: result, status: response.status_code})
+          Map.merge(metadata, %{result: result, status: env.status})
         )
 
         result
 
-      {:error, _reason} = result ->
+      {:error, reason} = result ->
         :telemetry.execute(
           @events_prefix ++ [:stop],
           %{duration: System.monotonic_time() - start_time},
-          Map.put(metadata, :result, result)
+          Map.merge(metadata, %{result: result, reason: reason})
         )
 
         result

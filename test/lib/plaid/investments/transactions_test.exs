@@ -32,7 +32,7 @@ defmodule Plaid.Investments.TransactionsTest do
       |> expect(:make_request, fn method, endpoint, _params, _config ->
         assert method == :post
         assert endpoint == "investments/transactions/get"
-        {:ok, %HTTPoison.Response{}}
+        {:ok, %PlaidHTTP.Response{}}
       end)
       |> expect(:handle_response, fn _response, endpoint, _config ->
         assert endpoint == :"investments/transactions"

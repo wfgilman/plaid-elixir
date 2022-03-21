@@ -1,106 +1,117 @@
 defmodule PlaidTelemetryTest do
-  use ExUnit.Case, async: false
+  use ExUnit.Case, async: true
 
   @moduletag :plaid_telemetry
 
-  # Asserting results in the event handler isn't ideal because failures don't print nicely,
-  # but the test pattern is more readable than sending messages.
-  describe "plaid_telemetry instrument/2" do
+  describe "plaid_telemetry call/3" do
     setup do
-      Logger.configure(level: :warn)
+      client =
+        Tesla.client([PlaidTelemetry], fn env ->
+          case env.url do
+            "/telemetry-success" ->
+              {:ok, Map.put(env, :status, 200)}
+
+            "/telemetry-error" ->
+              {:error, :econnrefused}
+
+            "/telemetry-exception" ->
+              raise RuntimeError, "something went bad wrong"
+          end
+        end)
+
+      options = [
+        opts: [metadata: %{type: :cowabunga}]
+      ]
+
+      {:ok, %{client: client, options: options}}
     end
 
-    @describetag :unit
-
-    test "sends start event" do
+    test "emits start event", %{client: client, options: options} do
       :ok =
         :telemetry.attach(
-          "send-start-event",
+          "emit-start-event",
           [:plaid, :request, :start],
-          fn name, measurements, metadata, _config ->
-            assert name == [:plaid, :request, :start]
-            assert measurements[:system_time]
-            assert %{type: :cowabunga} == metadata
-          end,
-          nil
+          &__MODULE__.echo_event/4,
+          %{caller: self()}
         )
 
-      PlaidTelemetry.instrument(fn -> fun(:success) end, %{type: :cowabunga})
+      options = options ++ [url: "/telemetry-success"]
 
-      :telemetry.detach("send-start-event")
+      Tesla.request(client, options)
+
+      assert_receive {:event, [:plaid, :request, :start], %{system_time: _}, metadata}
+      assert %{type: :cowabunga} == metadata
+
+      :ok = :telemetry.detach("emit-start-event")
     end
 
-    test "sends stop event for success response" do
+    test "emits stop event for success response", %{client: client, options: options} do
       :ok =
         :telemetry.attach(
-          "send-stop-event",
+          "emit-stop-event",
           [:plaid, :request, :stop],
-          fn name, measurements, metadata, _config ->
-            assert name == [:plaid, :request, :stop]
-            assert measurements[:duration]
-            assert {:ok, %HTTPoison.Response{}} = metadata[:result]
-            assert metadata[:status] == 200
-            assert metadata[:type] == :cowabunga
-          end,
-          nil
+          &__MODULE__.echo_event/4,
+          %{caller: self()}
         )
 
-      PlaidTelemetry.instrument(fn -> fun(:success) end, %{type: :cowabunga})
+      options = options ++ [url: "/telemetry-success"]
 
-      :telemetry.detach("send-stop-event")
+      Tesla.request(client, options)
+
+      assert_receive {:event, [:plaid, :request, :stop], %{duration: _}, metadata}
+      assert %{status: 200, result: {:ok, %Tesla.Env{}}, type: :cowabunga} = metadata
+
+      :ok = :telemetry.detach("emit-stop-event")
     end
 
-    test "sends stop event for error response" do
+    test "emits stop event for error response", %{client: client, options: options} do
       :ok =
         :telemetry.attach(
-          "send-stop-event",
+          "emit-stop-event",
           [:plaid, :request, :stop],
-          fn name, measurements, metadata, _config ->
-            assert name == [:plaid, :request, :stop]
-            assert measurements[:duration]
-            assert {:error, %HTTPoison.Error{}} = metadata[:result]
-            assert metadata[:type] == :cowabunga
-          end,
-          nil
+          &__MODULE__.echo_event/4,
+          %{caller: self()}
         )
 
-      PlaidTelemetry.instrument(fn -> fun(:error) end, %{type: :cowabunga})
+      options = options ++ [url: "/telemetry-error"]
 
-      :telemetry.detach("send-stop-event")
+      Tesla.request(client, options)
+
+      assert_receive {:event, [:plaid, :request, :stop], %{duration: _}, metadata}
+
+      assert %{result: {:error, :econnrefused}, reason: :econnrefused, type: :cowabunga} ==
+               metadata
+
+      :ok = :telemetry.detach("emit-stop-event")
     end
 
-    test "send event when exception is raised" do
+    test "emits stop event when exception is raised", %{client: client, options: options} do
       :ok =
         :telemetry.attach(
-          "send-exception-event",
+          "emit-exception-event",
           [:plaid, :request, :exception],
-          fn name, measurements, metadata, _config ->
-            assert name == [:plaid, :request, :exception]
-            assert measurements[:duration]
-            assert metadata[:exception]
-            assert metadata[:type] == :cowabunga
-          end,
-          nil
+          &__MODULE__.echo_event/4,
+          %{caller: self()}
         )
+
+      options = options ++ [url: "/telemetry-exception"]
 
       assert_raise RuntimeError, fn ->
-        PlaidTelemetry.instrument(fn -> fun(:exception) end, %{type: :cowabunga})
+        Tesla.request(client, options)
       end
 
-      :telemetry.detach("send-exception-event")
+      assert_receive {:event, [:plaid, :request, :exception], %{duration: _}, metadata}
+
+      assert %{
+               exception: %RuntimeError{message: "something went bad wrong"},
+               type: :cowabunga
+             } == metadata
+
+      :ok = :telemetry.detach("emit-exception-event")
     end
   end
 
-  defp fun(result) do
-    case result do
-      :success ->
-        {:ok, %HTTPoison.Response{status_code: 200}}
-
-      :error ->
-        {:error, %HTTPoison.Error{}}
-
-      :exception ->
-        raise RuntimeError
-    end
+  def echo_event(event, measurements, metadata, config) do
+    send(config.caller, {:event, event, measurements, metadata})
   end
 end

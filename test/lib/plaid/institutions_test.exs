@@ -49,7 +49,7 @@ defmodule Plaid.InstitutionsTest do
       |> expect(:make_request, fn method, endpoint, _params, _config ->
         assert method == :post
         assert endpoint == "institutions/get"
-        {:ok, %HTTPoison.Response{}}
+        {:ok, %PlaidHTTP.Response{}}
       end)
       |> expect(:handle_response, fn _response, endpoint, _config ->
         assert endpoint == :institutions
@@ -121,7 +121,7 @@ defmodule Plaid.InstitutionsTest do
       |> expect(:make_request, fn method, endpoint, _params, _config ->
         assert method == :post
         assert endpoint == "institutions/get_by_id"
-        {:ok, %HTTPoison.Response{}}
+        {:ok, %PlaidHTTP.Response{}}
       end)
       |> expect(:handle_response, fn _response, endpoint, _config ->
         assert endpoint == :institution
@@ -140,7 +140,7 @@ defmodule Plaid.InstitutionsTest do
         assert method == :post
         assert endpoint == "institutions/get_by_id"
         assert params == %{institution_id: "ins_1"}
-        {:ok, %HTTPoison.Response{}}
+        {:ok, %PlaidHTTP.Response{}}
       end)
       |> expect(:handle_response, fn _response, endpoint, _config ->
         assert endpoint == :institution
@@ -211,7 +211,7 @@ defmodule Plaid.InstitutionsTest do
       |> expect(:make_request, fn method, endpoint, _params, _config ->
         assert method == :post
         assert endpoint == "institutions/search"
-        {:ok, %HTTPoison.Response{}}
+        {:ok, %PlaidHTTP.Response{}}
       end)
       |> expect(:handle_response, fn _response, endpoint, _config ->
         assert endpoint == :institutions

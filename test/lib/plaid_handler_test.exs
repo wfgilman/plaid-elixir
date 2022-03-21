@@ -9,23 +9,31 @@ defmodule PlaidHandlerTest do
   describe "plaid_handler handle_response/2" do
     @describetag :unit
 
+    test "raises when the data type for PlaidHTTP.Response.body is not a map" do
+      resp = {:ok, %PlaidHTTP.Response{body: "{\"secret\":\"shhhh\"}"}}
+
+      assert_raise PlaidHTTP.Error, fn ->
+        PlaidHandler.handle_resp(resp, :any)
+      end
+    end
+
     test "return Plaid error" do
-      resp = {:ok, %HTTPoison.Response{status_code: 400, body: http_response_body(:error)}}
+      resp = {:ok, %PlaidHTTP.Response{status_code: 400, body: http_response_body(:error)}}
       assert {:error, %Plaid.Error{}} = PlaidHandler.handle_resp(resp, :any)
     end
 
-    test "return HTTPoison error" do
-      resp = {:error, %HTTPoison.Error{}}
-      assert {:error, %HTTPoison.Error{}} = PlaidHandler.handle_resp(resp, :any)
+    test "return PlaidHTTP error" do
+      resp = {:error, %PlaidHTTP.Error{}}
+      assert {:error, %PlaidHTTP.Error{}} = PlaidHandler.handle_resp(resp, :any)
     end
 
     test "return Plaid Error when status code > 201" do
-      resp = {:ok, %HTTPoison.Response{status_code: 400, body: http_response_body(:accounts)}}
+      resp = {:ok, %PlaidHTTP.Response{status_code: 400, body: http_response_body(:accounts)}}
       assert {:error, %Plaid.Error{}} = PlaidHandler.handle_resp(resp, :any)
     end
 
     test "map categories response to data structure" do
-      resp = {:ok, %HTTPoison.Response{status_code: 200, body: http_response_body(:categories)}}
+      resp = {:ok, %PlaidHTTP.Response{status_code: 200, body: http_response_body(:categories)}}
 
       assert {:ok, ds} = PlaidHandler.handle_resp(resp, :categories)
       assert Plaid.Categories == ds.__struct__
@@ -33,7 +41,7 @@ defmodule PlaidHandlerTest do
     end
 
     test "map income response to data structure" do
-      resp = {:ok, %HTTPoison.Response{status_code: 200, body: http_response_body(:income)}}
+      resp = {:ok, %PlaidHTTP.Response{status_code: 200, body: http_response_body(:income)}}
 
       assert {:ok, ds} = PlaidHandler.handle_resp(resp, :income)
       assert Plaid.Income == ds.__struct__
@@ -43,7 +51,7 @@ defmodule PlaidHandlerTest do
     end
 
     test "map institutions response to data structure" do
-      resp = {:ok, %HTTPoison.Response{status_code: 200, body: http_response_body(:institutions)}}
+      resp = {:ok, %PlaidHTTP.Response{status_code: 200, body: http_response_body(:institutions)}}
 
       assert {:ok, ds} = PlaidHandler.handle_resp(resp, :institutions)
       assert Plaid.Institutions == ds.__struct__
@@ -51,14 +59,14 @@ defmodule PlaidHandlerTest do
     end
 
     test "map institution response to data structure" do
-      resp = {:ok, %HTTPoison.Response{status_code: 200, body: http_response_body(:institution)}}
+      resp = {:ok, %PlaidHTTP.Response{status_code: 200, body: http_response_body(:institution)}}
 
       assert {:ok, ds} = PlaidHandler.handle_resp(resp, :institution)
       assert Plaid.Institutions.Institution == ds.__struct__
     end
 
     test "map transactions response to data structure" do
-      resp = {:ok, %HTTPoison.Response{status_code: 200, body: http_response_body(:transactions)}}
+      resp = {:ok, %PlaidHTTP.Response{status_code: 200, body: http_response_body(:transactions)}}
 
       assert {:ok, ds} = PlaidHandler.handle_resp(resp, :transactions)
       assert Plaid.Transactions == ds.__struct__
@@ -68,7 +76,7 @@ defmodule PlaidHandlerTest do
     end
 
     test "map accounts response to data structure" do
-      resp = {:ok, %HTTPoison.Response{status_code: 200, body: http_response_body(:accounts)}}
+      resp = {:ok, %PlaidHTTP.Response{status_code: 200, body: http_response_body(:accounts)}}
 
       assert {:ok, ds} = PlaidHandler.handle_resp(resp, :accounts)
       assert Plaid.Accounts == ds.__struct__
@@ -77,7 +85,7 @@ defmodule PlaidHandlerTest do
     end
 
     test "map auth response to data structure" do
-      resp = {:ok, %HTTPoison.Response{status_code: 200, body: http_response_body(:auth)}}
+      resp = {:ok, %PlaidHTTP.Response{status_code: 200, body: http_response_body(:auth)}}
 
       assert {:ok, ds} = PlaidHandler.handle_resp(resp, :auth)
       assert Plaid.Auth == ds.__struct__
@@ -86,7 +94,7 @@ defmodule PlaidHandlerTest do
     end
 
     test "map identity response to data structure" do
-      resp = {:ok, %HTTPoison.Response{status_code: 200, body: http_response_body(:identity)}}
+      resp = {:ok, %PlaidHTTP.Response{status_code: 200, body: http_response_body(:identity)}}
 
       assert {:ok, ds} = PlaidHandler.handle_resp(resp, :identity)
       assert Plaid.Identity == ds.__struct__
@@ -96,7 +104,7 @@ defmodule PlaidHandlerTest do
     end
 
     test "map item response to data structure" do
-      resp = {:ok, %HTTPoison.Response{status_code: 200, body: http_response_body(:item)}}
+      resp = {:ok, %PlaidHTTP.Response{status_code: 200, body: http_response_body(:item)}}
 
       assert {:ok, ds} = PlaidHandler.handle_resp(resp, :item)
       assert Plaid.Item == ds.__struct__
@@ -106,7 +114,7 @@ defmodule PlaidHandlerTest do
     test "parse new_access_token from item response" do
       resp =
         {:ok,
-         %HTTPoison.Response{status_code: 200, body: http_response_body(:rotate_access_token)}}
+         %PlaidHTTP.Response{status_code: 200, body: http_response_body(:rotate_access_token)}}
 
       assert {:ok, %{new_access_token: "access-sandbox-7c69d345-fd46"}} =
                PlaidHandler.handle_resp(resp, :item)
@@ -115,7 +123,7 @@ defmodule PlaidHandlerTest do
     test "parse access_token from item response" do
       resp =
         {:ok,
-         %HTTPoison.Response{
+         %PlaidHTTP.Response{
            status_code: 200,
            body: http_response_body(:exchange_public_token)
          }}
@@ -127,7 +135,7 @@ defmodule PlaidHandlerTest do
     test "parse public_token from item response" do
       resp =
         {:ok,
-         %HTTPoison.Response{
+         %PlaidHTTP.Response{
            status_code: 200,
            body: http_response_body(:create_public_token)
          }}
@@ -143,7 +151,7 @@ defmodule PlaidHandlerTest do
     test "parse processor_token from item response" do
       resp =
         {:ok,
-         %HTTPoison.Response{
+         %PlaidHTTP.Response{
            status_code: 200,
            body: http_response_body(:processor_token)
          }}
@@ -158,7 +166,7 @@ defmodule PlaidHandlerTest do
     test "parse stripe_bank_account_token from item response" do
       resp =
         {:ok,
-         %HTTPoison.Response{
+         %PlaidHTTP.Response{
            status_code: 200,
            body: http_response_body(:stripe_bank_account_token)
          }}
@@ -173,7 +181,7 @@ defmodule PlaidHandlerTest do
     test "parse request_id from item response" do
       resp =
         {:ok,
-         %HTTPoison.Response{
+         %PlaidHTTP.Response{
            status_code: 200,
            body: %{"request_id" => "45QSn"}
          }}
@@ -184,7 +192,7 @@ defmodule PlaidHandlerTest do
     test "map holdings from investment response to data structure" do
       resp =
         {:ok,
-         %HTTPoison.Response{status_code: 200, body: http_response_body(:"investments/holdings")}}
+         %PlaidHTTP.Response{status_code: 200, body: http_response_body(:"investments/holdings")}}
 
       assert {:ok, ds} = PlaidHandler.handle_resp(resp, :"investments/holdings")
       assert Plaid.Investments.Holdings == ds.__struct__
@@ -197,7 +205,7 @@ defmodule PlaidHandlerTest do
     test "map transactions from investment response to data structure" do
       resp =
         {:ok,
-         %HTTPoison.Response{
+         %PlaidHTTP.Response{
            status_code: 200,
            body: http_response_body(:"investments/transactions")
          }}
@@ -215,7 +223,7 @@ defmodule PlaidHandlerTest do
 
     test "map link response to data structure" do
       resp =
-        {:ok, %HTTPoison.Response{status_code: 200, body: http_response_body(:create_link_token)}}
+        {:ok, %PlaidHTTP.Response{status_code: 200, body: http_response_body(:create_link_token)}}
 
       assert {:ok, ds} = PlaidHandler.handle_resp(resp, :link)
       assert Plaid.Link == ds.__struct__
@@ -225,7 +233,7 @@ defmodule PlaidHandlerTest do
     test "map webhook_verification_key response to data structure" do
       resp =
         {:ok,
-         %HTTPoison.Response{
+         %PlaidHTTP.Response{
            status_code: 200,
            body: http_response_body(:webhook_verification_key)
          }}
@@ -239,7 +247,7 @@ defmodule PlaidHandlerTest do
     test "map single payment response to data structure" do
       resp =
         {:ok,
-         %HTTPoison.Response{
+         %PlaidHTTP.Response{
            status_code: 200,
            body: http_response_body(:"payment_initiation/payment/get")
          }}
@@ -252,7 +260,7 @@ defmodule PlaidHandlerTest do
     test "map multiple payments response to data structure" do
       resp =
         {:ok,
-         %HTTPoison.Response{
+         %PlaidHTTP.Response{
            status_code: 200,
            body: http_response_body(:"payment_initiation/payment/list")
          }}
@@ -268,7 +276,7 @@ defmodule PlaidHandlerTest do
     test "map payment/create response to data structure" do
       resp =
         {:ok,
-         %HTTPoison.Response{
+         %PlaidHTTP.Response{
            status_code: 200,
            body: http_response_body(:"payment_initiation/payment/create")
          }}
@@ -283,7 +291,7 @@ defmodule PlaidHandlerTest do
     test "map single recipient response to data structure" do
       resp =
         {:ok,
-         %HTTPoison.Response{
+         %PlaidHTTP.Response{
            status_code: 200,
            body: http_response_body(:"payment_initiation/recipient/get")
          }}
@@ -296,7 +304,7 @@ defmodule PlaidHandlerTest do
     test "map multiple recipients to data structure" do
       resp =
         {:ok,
-         %HTTPoison.Response{
+         %PlaidHTTP.Response{
            status_code: 200,
            body: http_response_body(:"payment_initiation/recipient/list")
          }}
@@ -309,7 +317,7 @@ defmodule PlaidHandlerTest do
     test "map recipient/create to data structure" do
       resp =
         {:ok,
-         %HTTPoison.Response{
+         %PlaidHTTP.Response{
            status_code: 200,
            body: http_response_body(:"payment_initiation/recipient/create")
          }}

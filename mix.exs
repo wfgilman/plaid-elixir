@@ -15,7 +15,7 @@ defmodule Plaid.Mixfile do
       test_coverage: [tool: ExCoveralls],
       preferred_cli_env: [coveralls: :test, "coveralls.detail": :test],
       dialyzer: [
-        plt_add_deps: [:hackney, :jason, :httpoison, :telemetry]
+        plt_add_deps: :apps_direct
       ]
     ]
   end
@@ -29,7 +29,8 @@ defmodule Plaid.Mixfile do
 
   defp deps do
     [
-      {:httpoison, "~> 1.4"},
+      {:tesla, "~> 1.4"},
+      {:hackney, "~> 1.14"},
       {:poison, "~> 4.0"},
       {:jason, "~> 1.1"},
       {:bypass, "~> 2.1", only: [:test]},
@@ -58,7 +59,8 @@ defmodule Plaid.Mixfile do
       extras: [
         "LICENSE.md": [title: "License"],
         "README.md": [title: "Overview"],
-        "parameters.md": []
+        "parameters.md": [],
+        "CHANGELOG.md": []
       ],
       main: "readme",
       logo: "assets/plaid-logo.png",

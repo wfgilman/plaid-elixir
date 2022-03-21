@@ -34,7 +34,7 @@ defmodule Plaid.PaymentInitiation.PaymentsTest do
       |> expect(:make_request, fn method, endpoint, _params, _config ->
         assert method == :post
         assert endpoint == "payment_initiation/payment/create"
-        {:ok, %HTTPoison.Response{}}
+        {:ok, %PlaidHTTP.Response{}}
       end)
       |> expect(:handle_response, fn _response, endpoint, _config ->
         assert endpoint == :"payment_initiation/payment"
@@ -108,7 +108,7 @@ defmodule Plaid.PaymentInitiation.PaymentsTest do
       |> expect(:make_request, fn method, endpoint, _params, _config ->
         assert method == :post
         assert endpoint == "payment_initiation/payment/get"
-        {:ok, %HTTPoison.Response{}}
+        {:ok, %PlaidHTTP.Response{}}
       end)
       |> expect(:handle_response, fn _response, endpoint, _config ->
         assert endpoint == :"payment_initiation/payment"
@@ -182,7 +182,7 @@ defmodule Plaid.PaymentInitiation.PaymentsTest do
       |> expect(:make_request, fn method, endpoint, _params, _config ->
         assert method == :post
         assert endpoint == "payment_initiation/payment/list"
-        {:ok, %HTTPoison.Response{}}
+        {:ok, %PlaidHTTP.Response{}}
       end)
       |> expect(:handle_response, fn _response, endpoint, _config ->
         assert endpoint == :"payment_initiation/payment"
