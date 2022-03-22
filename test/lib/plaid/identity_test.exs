@@ -27,7 +27,7 @@ defmodule Plaid.IdentityTest do
       |> expect(:make_request, fn method, endpoint, _params, _config ->
         assert method == :post
         assert endpoint == "identity/get"
-        {:ok, %PlaidHTTP.Response{}}
+        {:ok, %Plaid.HTTPClient.Response{}}
       end)
       |> expect(:handle_response, fn _response, endpoint, _config ->
         assert endpoint == :identity

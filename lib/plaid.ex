@@ -69,14 +69,15 @@ defmodule Plaid do
   Make HTTP request to Plaid.
   """
   @callback make_request(atom, String.t(), map, map) ::
-              {:ok, PlaidHTTP.Response.t()} | {:error, PlaidHTTP.Error.t()}
+              {:ok, Plaid.HTTPClient.Response.t()} | {:error, Plaid.HTTPClient.Error.t()}
   def make_request(method, endpoint, parameters, config \\ %{}) do
-    request_body = build_request_body(parameters, config)
     url = "#{get_root_uri(config)}#{endpoint}"
+    request_body = build_request_body(parameters, config)
     headers = [{"Content-Type", "application/json"}]
     http_options = build_http_client_options(config)
     metadata = build_instrumentation_metadata(method, endpoint, config)
-    http_client = config[:http_client] || PlaidHTTP
+
+    http_client = config[:http_client] || Plaid.HTTPClient
 
     http_client.call(method, url, request_body, headers, http_options, metadata)
   end
@@ -116,10 +117,10 @@ defmodule Plaid do
   Handles HTTP client response from Plaid.
   """
   @callback handle_response(
-              {:ok, PlaidHTTP.Response.t()} | {:error, PlaidHTTP.Error.t()},
+              {:ok, Plaid.HTTPClient.Response.t()} | {:error, Plaid.HTTPClient.Error.t()},
               atom,
               map
-            ) :: {:ok, term} | {:error, Plaid.Error.t() | PlaidHTTP.Error.t()}
+            ) :: {:ok, term} | {:error, Plaid.Error.t() | Plaid.HTTPClient.Error.t()}
   def handle_response(response, endpoint, config \\ %{}) do
     handler = config[:handler] || Plaid.Handler
     handler.handle_resp(response, endpoint)

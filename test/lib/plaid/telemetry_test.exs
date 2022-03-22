@@ -1,7 +1,7 @@
 defmodule Plaid.TelemetryTest do
   use ExUnit.Case, async: true
 
-  @moduletag :plaid_telemetry
+  @moduletag :telemetry
 
   describe "plaid telemetry call/3" do
     setup do

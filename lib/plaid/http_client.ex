@@ -1,4 +1,4 @@
-defmodule PlaidHTTP do
+defmodule Plaid.HTTPClient do
   @moduledoc """
   HTTP Client behaviour default implementation.
   """
@@ -21,7 +21,7 @@ defmodule PlaidHTTP do
   end
 
   @callback call(atom, binary, map, keyword, keyword, map) ::
-              {:ok, PlaidHTTP.Response.t()} | {:error, PlaidHTTP.Error.t()}
+              {:ok, Plaid.HTTPClient.Response.t()} | {:error, Plaid.HTTPClient.Error.t()}
   def call(method, url, body, headers, http_options \\ [], metadata \\ %{}) do
     client = build_client(http_options)
 
@@ -35,10 +35,10 @@ defmodule PlaidHTTP do
 
     case Tesla.request(client, options) do
       {:ok, %Tesla.Env{status: status, body: body}} ->
-        {:ok, %PlaidHTTP.Response{status_code: status, body: Poison.Parser.parse!(body, %{})}}
+        {:ok, %Plaid.HTTPClient.Response{status_code: status, body: Jason.decode!(body)}}
 
       {:error, reason} ->
-        {:error, %PlaidHTTP.Error{reason: reason}}
+        {:error, %Plaid.HTTPClient.Error{reason: reason}}
     end
   end
 

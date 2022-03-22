@@ -1,2 +1,2 @@
 Mox.defmock(PlaidMock, for: Plaid)
-Mox.defmock(PlaidHTTPMock, for: PlaidHTTP)
+Mox.defmock(Plaid.HTTPClientMock, for: Plaid.HTTPClient)

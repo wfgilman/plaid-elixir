@@ -12,13 +12,13 @@
 - `Plaid.Item.create_processor_token/3` - Replaced by `Plaid.Item.create_processor_token/2`
 
 ### Return Type Changes
-- `HTTPoison.Error` has been replaced with `PlaidHTTP.Error` throughout the library
+- `HTTPoison.Error` has been replaced with `Plaid.HTTPClient.Error` throughout the library
 - `Plaid.PaymentInitiation.Payments.create/2` - Returns `Plaid.PaymentInitiation.Payments.Payment.t` instead of `Plaid.PaymentInitiation.Payments.t`
 - `Plaid.PaymentInitiation.Payments.list/2` - Returns `Plaid.PaymentInitiation.Payments.t` instead of `[Plaid.PaymentInitiation.Payments.Payment.t]`. Access the former's `payments` key instead
 - `Plaid.PaymentInitiation.Recipients.create/2` - Returns `Plaid.PaymentInitiation.Recipients.Recipient.t` instead of `Plaid.PaymentInitiation.Recipients.t`
 - `Plaid.PaymentInitiation.Recipients.list/1` - Returns `Plaid.PaymentInitiation.Recipients.t` instead of `[Plaid.PaymentInitiation.Recipients.Recipient.t]` Access the former's `recipients` key instead
-- `Plaid.make_request/4` - Returns `{:ok, PlaidHTTP.Response.t}` instead of `{:ok, HTTPoison.Response.t`, and `{:error, PlaidHTTP.Error.t` instead of `{:error, HTTPoison.Error.t`
-- `Plaid.Handler.handle_resp/2` - Now also returns `no_return` when raising `PlaidHTTP.Error`
+- `Plaid.make_request/4` - Returns `{:ok, Plaid.HTTPClient.Response.t}` instead of `{:ok, HTTPoison.Response.t`, and `{:error, Plaid.HTTPClient.Error.t` instead of `{:error, HTTPoison.Error.t`
+- `Plaid.Handler.handle_resp/2` - Now also returns `no_return` when raising `Plaid.HTTPClient.Error`
 
 ### Struct Changes
 - `Plaid.Auth` - Fixed bug causing the `numbers` key not to be set to type `Plaid.Auth.Numbers`
@@ -36,6 +36,6 @@
 - `httpoison_options` changed to `http_options`
 
 ### Project Structure
-- Moved HTTP request functionality to `PlaidHTTP` for better testing and customization
+- Moved HTTP request functionality to `Plaid.HTTPClient` for better testing and customization
 - Moved all telemetry functionality to `Plaid.Telemetry` which is invoked by `Tesla.Middleware` behaviour
 - Renamed `Plaid.Utils` to `Plaid.Handler`

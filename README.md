@@ -56,7 +56,7 @@ config :plaid,
   root_uri: "https://development.plaid.com/",
   client_id: "your_client_id",
   secret: "your_secret",
-  http_client: PlaidHTTP, # optional
+  http_client: Plaid.HTTPClient, # optional
   http_options: [timeout: 10_000, recv_timeout: 30_000] # optional
 ```
 
@@ -65,10 +65,10 @@ By default, `root_uri` is set by `mix` environment. You can override it in your 
 - `prod` - production.plaid.com
 
 Finally, you can specify your HTTP client of choice with `http_client` in a module that implements the
-`PlaidHTTP.call/6` behaviour. Under the hood, the HTTP client implementation uses [Tesla](https://github.com/teamon/tesla)
+`Plaid.HTTPClient.call/6` behaviour. Under the hood, the HTTP client implementation uses [Tesla](https://github.com/teamon/tesla)
 for middleware and [hackney](https://github.com/benoitc/hackney) as the actual HTTP client adapter, which
 is the HTTP client used by prior versions of this library. If this no value is provided, the library
-will use the default implementation, `PlaidHTTP`.
+will use the default implementation, `Plaid.HTTPClient`.
 
 The `http_options` key specifies the custom configuration for HTTP client adapter. It's recommended you
 extend the receive timeout for Plaid, especially for retrieving historical transactions. In the code
@@ -137,15 +137,15 @@ Using [Tesla](https://github.com/teamon/tesla) under the hood provides additiona
 be useful for communicating with Plaid, such as retry logic and logging, or emitting refined telemetry events.
 To use customized middleware, perform the following steps.
 
-### 1. Implement the PlaidHTTP.call/6 behaviour
-Add a new module to your project that conforms to the PlaidHTTP behaviour, then specify it in `config.exs`.
+### 1. Implement the Plaid.HTTPClient.call/6 behaviour
+Add a new module to your project that conforms to the Plaid.HTTPClient behaviour, then specify it in `config.exs`.
 
 ```elixir
-defmodule MyPlaidHTTPClient do
+defmodule MyHTTPClient do
 
-  @behaviour PlaidHTTP
+  @behaviour Plaid.HTTPClient
 
-  @impl PlaidHTTP
+  @impl Plaid.HTTPClient
   def call(method, url, body, headers, http_options, metadata) do
     client = new(http_options)
 
@@ -159,10 +159,10 @@ defmodule MyPlaidHTTPClient do
 
     case Tesla.request(client, options) do
       {:ok, %Tesla.Env{status: status, body: body}} ->
-        {:ok, %PlaidHTTP.Response{status_code: status, body: Poison.Parser.parse!(body, %{})}}
+        {:ok, %Plaid.HTTPClient.Response{status_code: status, body: Poison.Parser.parse!(body, %{})}}
 
       {:error, reason} ->
-        {:error, %PlaidHTTP.Error{reason: reason}}
+        {:error, %Plaid.HTTPClient.Error{reason: reason}}
     end
   end
 
@@ -174,17 +174,17 @@ end
 
 ```elixir
 config :plaid,
-  http_client: MyPlaidHTTPClient
+  http_client: MyHTTPClient
 ```
 
 ### 2. Create your custom Tesla client
 Build a Tesla client with your desired HTTP adapter and Middlewares. Consult the Tesla [documentation](https://hexdocs.pm/tesla/readme.html) to see which middlewares require mix dependencies and inclusion in `application/0`.
 ```elixir
-defmodule MyPlaidHTTPClient do
+defmodule MyHTTPClient do
 
-  @behaviour PlaidHTTP
+  @behaviour Plaid.HTTPClient
 
-  @impl PlaidHTTP
+  @impl Plaid.HTTPClient
   def call(method, url, body, headers, http_options, metadata) do
     client = new(http_options)
     ...

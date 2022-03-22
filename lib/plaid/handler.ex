@@ -8,28 +8,28 @@ defmodule Plaid.Handler do
   @doc """
   Handles Plaid response and maps to the correct data structure.
   """
-  @spec handle_resp({:ok, PlaidHTTP.Response.t()} | {:error, PlaidHTTP.Error.t()}, endpoint) ::
-          {:ok, term} | {:error, Plaid.Error.t() | PlaidHTTP.Error.t()} | no_return
-  def handle_resp({:ok, %PlaidHTTP.Response{body: body}}, _endpoint) when not is_map(body) do
-    raise PlaidHTTP.Error,
+  @spec handle_resp({:ok, Plaid.HTTPClient.Response.t()} | {:error, Plaid.HTTPClient.Error.t()}, endpoint) ::
+          {:ok, term} | {:error, Plaid.Error.t() | Plaid.HTTPClient.Error.t()} | no_return
+  def handle_resp({:ok, %Plaid.HTTPClient.Response{body: body}}, _endpoint) when not is_map(body) do
+    raise Plaid.HTTPClient.Error,
       message: """
-        PlaidHTTP.call/5 must return a PlaidHTTP.Response struct with a map data type
+        Plaid.HTTPClient.call/5 must return a Plaid.HTTPClient.Response struct with a map data type
         for the key :body.
 
         Value for :body was #{inspect(body)}
       """
   end
 
-  def handle_resp({:ok, %PlaidHTTP.Response{status_code: code, body: body}}, endpoint)
+  def handle_resp({:ok, %Plaid.HTTPClient.Response{status_code: code, body: body}}, endpoint)
       when code in 200..299 do
     {:ok, map_response(body, endpoint)}
   end
 
-  def handle_resp({:ok, %PlaidHTTP.Response{body: body}}, _endpoint) do
+  def handle_resp({:ok, %Plaid.HTTPClient.Response{body: body}}, _endpoint) do
     {:error, Poison.Decode.transform(body, %{as: %Plaid.Error{}})}
   end
 
-  def handle_resp({:error, %PlaidHTTP.Error{} = error}, _endpoint) do
+  def handle_resp({:error, %Plaid.HTTPClient.Error{} = error}, _endpoint) do
     {:error, error}
   end
 
