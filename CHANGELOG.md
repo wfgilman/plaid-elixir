@@ -37,5 +37,5 @@
 
 ### Project Structure
 - Moved HTTP request functionality to `PlaidHTTP` for better testing and customization
-- Moved all telemetry functionality to `PlaidTelemetry` which is invoked by `Tesla.Middleware` behaviour
+- Moved all telemetry functionality to `Plaid.Telemetry` which is invoked by `Tesla.Middleware` behaviour
 - Renamed `Plaid.Utils` to `Plaid.Handler`

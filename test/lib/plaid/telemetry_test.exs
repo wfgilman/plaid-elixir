@@ -1,12 +1,12 @@
-defmodule PlaidTelemetryTest do
+defmodule Plaid.TelemetryTest do
   use ExUnit.Case, async: true
 
   @moduletag :plaid_telemetry
 
-  describe "plaid_telemetry call/3" do
+  describe "plaid telemetry call/3" do
     setup do
       client =
-        Tesla.client([PlaidTelemetry], fn env ->
+        Tesla.client([Plaid.Telemetry], fn env ->
           case env.url do
             "/telemetry-success" ->
               {:ok, Map.put(env, :status, 200)}

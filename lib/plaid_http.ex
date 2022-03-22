@@ -45,7 +45,7 @@ defmodule PlaidHTTP do
   defp build_client(http_options) do
     middleware = [
       Tesla.Middleware.JSON,
-      PlaidTelemetry
+      Plaid.Telemetry
     ]
 
     adapter = {Tesla.Adapter.Hackney, http_options}

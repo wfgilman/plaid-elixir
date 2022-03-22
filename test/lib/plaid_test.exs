@@ -220,7 +220,7 @@ defmodule PlaidTest do
       :ok = :telemetry.detach("success-handler")
     end
 
-    test "PlaidTelemetry measures the duration of the HTTP call" do
+    test "Plaid.Telemetry measures the duration of the HTTP call" do
       :ok =
         :telemetry.attach(
           "duration-measurement-handler",
