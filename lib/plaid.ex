@@ -121,7 +121,7 @@ defmodule Plaid do
               map
             ) :: {:ok, term} | {:error, Plaid.Error.t() | PlaidHTTP.Error.t()}
   def handle_response(response, endpoint, config \\ %{}) do
-    handler = config[:handler] || PlaidHandler
+    handler = config[:handler] || Plaid.Handler
     handler.handle_resp(response, endpoint)
   end
 end

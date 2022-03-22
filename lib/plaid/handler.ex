@@ -1,4 +1,4 @@
-defmodule PlaidHandler do
+defmodule Plaid.Handler do
   @moduledoc """
   Maps external responses from Plaid's API to internal data structures.
   """
@@ -21,7 +21,7 @@ defmodule PlaidHandler do
   end
 
   def handle_resp({:ok, %PlaidHTTP.Response{status_code: code, body: body}}, endpoint)
-      when code in 200..201 do
+      when code in 200..299 do
     {:ok, map_response(body, endpoint)}
   end
 
