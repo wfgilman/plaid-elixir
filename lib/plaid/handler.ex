@@ -8,9 +8,13 @@ defmodule Plaid.Handler do
   @doc """
   Handles Plaid response and maps to the correct data structure.
   """
-  @spec handle_resp({:ok, Plaid.HTTPClient.Response.t()} | {:error, Plaid.HTTPClient.Error.t()}, endpoint) ::
+  @spec handle_resp(
+          {:ok, Plaid.HTTPClient.Response.t()} | {:error, Plaid.HTTPClient.Error.t()},
+          endpoint
+        ) ::
           {:ok, term} | {:error, Plaid.Error.t() | Plaid.HTTPClient.Error.t()} | no_return
-  def handle_resp({:ok, %Plaid.HTTPClient.Response{body: body}}, _endpoint) when not is_map(body) do
+  def handle_resp({:ok, %Plaid.HTTPClient.Response{body: body}}, _endpoint)
+      when not is_map(body) do
     raise Plaid.HTTPClient.Error,
       message: """
         Plaid.HTTPClient.call/5 must return a Plaid.HTTPClient.Response struct with a map data type

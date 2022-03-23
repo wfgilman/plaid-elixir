@@ -47,7 +47,12 @@ defmodule PlaidTest do
     @describetag :unit
 
     test "adds only client_id and secret to request body" do
-      expect(Plaid.HTTPClientMock, :call, fn _method, _url, body, _headers, _http_options, _metadata ->
+      expect(Plaid.HTTPClientMock, :call, fn _method,
+                                             _url,
+                                             body,
+                                             _headers,
+                                             _http_options,
+                                             _metadata ->
         assert body[:client_id]
         assert body[:secret]
         refute body[:root_uri]
@@ -63,7 +68,12 @@ defmodule PlaidTest do
     end
 
     test "constructs full url from endpoint" do
-      expect(Plaid.HTTPClientMock, :call, fn _method, url, _body, _headers, _http_options, _metadata ->
+      expect(Plaid.HTTPClientMock, :call, fn _method,
+                                             url,
+                                             _body,
+                                             _headers,
+                                             _http_options,
+                                             _metadata ->
         assert url == "https://test-uri/some/endpoint"
         {:ok, %Plaid.HTTPClient.Response{}}
       end)
@@ -83,7 +93,12 @@ defmodule PlaidTest do
     end
 
     test "runtime config overrides root_uri value in application configuration" do
-      expect(Plaid.HTTPClientMock, :call, fn _method, url, _body, _headers, _http_options, _metadata ->
+      expect(Plaid.HTTPClientMock, :call, fn _method,
+                                             url,
+                                             _body,
+                                             _headers,
+                                             _http_options,
+                                             _metadata ->
         assert url == "https://test-uri/some/endpoint"
         {:ok, %Plaid.HTTPClient.Response{}}
       end)
@@ -95,7 +110,12 @@ defmodule PlaidTest do
     end
 
     test "constructs headers" do
-      expect(Plaid.HTTPClientMock, :call, fn _method, _url, _body, headers, _http_options, _metadata ->
+      expect(Plaid.HTTPClientMock, :call, fn _method,
+                                             _url,
+                                             _body,
+                                             headers,
+                                             _http_options,
+                                             _metadata ->
         assert headers == [{"Content-Type", "application/json"}]
         {:ok, %Plaid.HTTPClient.Response{}}
       end)
@@ -106,7 +126,12 @@ defmodule PlaidTest do
     test "takes Plaid.HTTPClient options from application configuration" do
       Application.put_env(:plaid, :http_options, recv_timeout: 1_234)
 
-      expect(Plaid.HTTPClientMock, :call, fn _method, _url, _body, _headers, http_options, _metadata ->
+      expect(Plaid.HTTPClientMock, :call, fn _method,
+                                             _url,
+                                             _body,
+                                             _headers,
+                                             http_options,
+                                             _metadata ->
         assert http_options[:recv_timeout] == 1_234
         {:ok, %Plaid.HTTPClient.Response{}}
       end)
@@ -117,7 +142,12 @@ defmodule PlaidTest do
     test "runtime Plaid.HTTPClient options override application configuration" do
       Application.put_env(:plaid, :http_options, recv_timeout: 1_234)
 
-      expect(Plaid.HTTPClientMock, :call, fn _method, _url, _body, _headers, http_options, _metadata ->
+      expect(Plaid.HTTPClientMock, :call, fn _method,
+                                             _url,
+                                             _body,
+                                             _headers,
+                                             http_options,
+                                             _metadata ->
         assert http_options[:recv_timeout] == 5_678
         assert http_options[:ssl] == [certfile: "certs/client.crt"]
         {:ok, %Plaid.HTTPClient.Response{}}
@@ -130,7 +160,12 @@ defmodule PlaidTest do
     end
 
     test "constructs default instrumentation metadata" do
-      expect(Plaid.HTTPClientMock, :call, fn _method, _url, _body, _headers, _http_options, metadata ->
+      expect(Plaid.HTTPClientMock, :call, fn _method,
+                                             _url,
+                                             _body,
+                                             _headers,
+                                             _http_options,
+                                             metadata ->
         assert %{
                  method: :post,
                  path: "some/endpoint",
@@ -142,7 +177,12 @@ defmodule PlaidTest do
     end
 
     test "adds instrumentation metadata passed via runtime config argument" do
-      expect(Plaid.HTTPClientMock, :call, fn _method, _url, _body, _headers, _http_options, metadata ->
+      expect(Plaid.HTTPClientMock, :call, fn _method,
+                                             _url,
+                                             _body,
+                                             _headers,
+                                             _http_options,
+                                             metadata ->
         assert %{
                  method: :post,
                  path: "some/endpoint",
@@ -294,7 +334,8 @@ defmodule PlaidTest do
 
       Bypass.down(bypass)
 
-      assert {:error, %Plaid.HTTPClient.Error{}} = Plaid.make_request(:post, "another/endpoint", %{})
+      assert {:error, %Plaid.HTTPClient.Error{}} =
+               Plaid.make_request(:post, "another/endpoint", %{})
 
       assert_receive {:event, [:plaid, :request, :start], %{system_time: _}, metadata}
 

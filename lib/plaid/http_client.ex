@@ -20,8 +20,38 @@ defmodule Plaid.HTTPClient do
     def message(%Error{reason: nil, message: message}), do: message
   end
 
-  @callback call(atom, binary, map, keyword, keyword, map) ::
-              {:ok, Plaid.HTTPClient.Response.t()} | {:error, Plaid.HTTPClient.Error.t()}
+  @type method :: atom
+  @type url :: String.t()
+  @type body :: map
+  @type headers :: keyword
+  @type http_options :: keyword
+  @type metadata :: map
+  @type response :: {:ok, Plaid.HTTPClient.Response.t()} | {:error, Plaid.HTTPClient.Error.t()}
+
+  @doc """
+  Sends HTTP request using default configuration.
+
+  Default HTTP Client implementation using Tesla. Function accepts request
+  arguments: `method`, `url`, `body`, `headers`, HTTP client configuration options,
+  and metadata for telemetry and then sends the request.
+
+  The function must return either `{:ok, %Plaid.HTTPClient.Response{}}`
+  or `{:error, %Plaid.HTTPClient.Error{}}`.
+
+  Default implementation uses a Tesla client with the following options:
+  ```
+  adapter = {Tesla.Adapter.Hackney, []}
+  middleware = [Tesla.Middleware.JSON, Plaid.Telemetry]
+  ```
+
+  Users can modify this implementation by creating their own module which
+  implements the `Plaid.HTTPClient` behaviour and setting it in their library
+  configuration under `:http_client` or passing it in the configuration
+  argument at runtime.
+  """
+  @callback call(method, url, body, headers, http_options, metadata) :: response
+
+  @doc false
   def call(method, url, body, headers, http_options \\ [], metadata \\ %{}) do
     client = build_client(http_options)
 

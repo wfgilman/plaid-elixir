@@ -28,12 +28,15 @@ defmodule Plaid.HandlerTest do
     end
 
     test "return Plaid Error when status code > 201" do
-      resp = {:ok, %Plaid.HTTPClient.Response{status_code: 400, body: http_response_body(:accounts)}}
+      resp =
+        {:ok, %Plaid.HTTPClient.Response{status_code: 400, body: http_response_body(:accounts)}}
+
       assert {:error, %Plaid.Error{}} = Plaid.Handler.handle_resp(resp, :any)
     end
 
     test "map categories response to data structure" do
-      resp = {:ok, %Plaid.HTTPClient.Response{status_code: 200, body: http_response_body(:categories)}}
+      resp =
+        {:ok, %Plaid.HTTPClient.Response{status_code: 200, body: http_response_body(:categories)}}
 
       assert {:ok, ds} = Plaid.Handler.handle_resp(resp, :categories)
       assert Plaid.Categories == ds.__struct__
@@ -41,7 +44,8 @@ defmodule Plaid.HandlerTest do
     end
 
     test "map income response to data structure" do
-      resp = {:ok, %Plaid.HTTPClient.Response{status_code: 200, body: http_response_body(:income)}}
+      resp =
+        {:ok, %Plaid.HTTPClient.Response{status_code: 200, body: http_response_body(:income)}}
 
       assert {:ok, ds} = Plaid.Handler.handle_resp(resp, :income)
       assert Plaid.Income == ds.__struct__
@@ -51,7 +55,9 @@ defmodule Plaid.HandlerTest do
     end
 
     test "map institutions response to data structure" do
-      resp = {:ok, %Plaid.HTTPClient.Response{status_code: 200, body: http_response_body(:institutions)}}
+      resp =
+        {:ok,
+         %Plaid.HTTPClient.Response{status_code: 200, body: http_response_body(:institutions)}}
 
       assert {:ok, ds} = Plaid.Handler.handle_resp(resp, :institutions)
       assert Plaid.Institutions == ds.__struct__
@@ -59,14 +65,18 @@ defmodule Plaid.HandlerTest do
     end
 
     test "map institution response to data structure" do
-      resp = {:ok, %Plaid.HTTPClient.Response{status_code: 200, body: http_response_body(:institution)}}
+      resp =
+        {:ok,
+         %Plaid.HTTPClient.Response{status_code: 200, body: http_response_body(:institution)}}
 
       assert {:ok, ds} = Plaid.Handler.handle_resp(resp, :institution)
       assert Plaid.Institutions.Institution == ds.__struct__
     end
 
     test "map transactions response to data structure" do
-      resp = {:ok, %Plaid.HTTPClient.Response{status_code: 200, body: http_response_body(:transactions)}}
+      resp =
+        {:ok,
+         %Plaid.HTTPClient.Response{status_code: 200, body: http_response_body(:transactions)}}
 
       assert {:ok, ds} = Plaid.Handler.handle_resp(resp, :transactions)
       assert Plaid.Transactions == ds.__struct__
@@ -76,7 +86,8 @@ defmodule Plaid.HandlerTest do
     end
 
     test "map accounts response to data structure" do
-      resp = {:ok, %Plaid.HTTPClient.Response{status_code: 200, body: http_response_body(:accounts)}}
+      resp =
+        {:ok, %Plaid.HTTPClient.Response{status_code: 200, body: http_response_body(:accounts)}}
 
       assert {:ok, ds} = Plaid.Handler.handle_resp(resp, :accounts)
       assert Plaid.Accounts == ds.__struct__
@@ -94,7 +105,8 @@ defmodule Plaid.HandlerTest do
     end
 
     test "map identity response to data structure" do
-      resp = {:ok, %Plaid.HTTPClient.Response{status_code: 200, body: http_response_body(:identity)}}
+      resp =
+        {:ok, %Plaid.HTTPClient.Response{status_code: 200, body: http_response_body(:identity)}}
 
       assert {:ok, ds} = Plaid.Handler.handle_resp(resp, :identity)
       assert Plaid.Identity == ds.__struct__
@@ -114,7 +126,10 @@ defmodule Plaid.HandlerTest do
     test "parse new_access_token from item response" do
       resp =
         {:ok,
-         %Plaid.HTTPClient.Response{status_code: 200, body: http_response_body(:rotate_access_token)}}
+         %Plaid.HTTPClient.Response{
+           status_code: 200,
+           body: http_response_body(:rotate_access_token)
+         }}
 
       assert {:ok, %{new_access_token: "access-sandbox-7c69d345-fd46"}} =
                Plaid.Handler.handle_resp(resp, :item)
@@ -192,7 +207,10 @@ defmodule Plaid.HandlerTest do
     test "map holdings from investment response to data structure" do
       resp =
         {:ok,
-         %Plaid.HTTPClient.Response{status_code: 200, body: http_response_body(:"investments/holdings")}}
+         %Plaid.HTTPClient.Response{
+           status_code: 200,
+           body: http_response_body(:"investments/holdings")
+         }}
 
       assert {:ok, ds} = Plaid.Handler.handle_resp(resp, :"investments/holdings")
       assert Plaid.Investments.Holdings == ds.__struct__
@@ -223,7 +241,11 @@ defmodule Plaid.HandlerTest do
 
     test "map link response to data structure" do
       resp =
-        {:ok, %Plaid.HTTPClient.Response{status_code: 200, body: http_response_body(:create_link_token)}}
+        {:ok,
+         %Plaid.HTTPClient.Response{
+           status_code: 200,
+           body: http_response_body(:create_link_token)
+         }}
 
       assert {:ok, ds} = Plaid.Handler.handle_resp(resp, :link)
       assert Plaid.Link == ds.__struct__

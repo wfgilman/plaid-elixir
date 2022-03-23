@@ -35,10 +35,61 @@ defmodule Plaid do
                  """
   end
 
+  @type method :: atom
+  @type endpoint :: String.t()
+  @type params :: %{required(atom) => term}
+  @type config :: %{required(atom) => String.t() | keyword}
+  @type response :: {:ok, Plaid.HTTPClient.Response.t()} | {:error, Plaid.HTTPClient.Error.t()}
+
   @doc """
-  Validate credentials are available for the HTTP request.
+  Validate credentials for the HTTP request.
+
+  Takes runtime Plaid credentials and ensures a value is provided for `client_id`
+  and `secret`. Falls back to the library configuration if not provided in
+  the `config` argument. If neither contains the required credentials, the
+  functions raises a `MissingClientIdError` or `MissingSecretError`
   """
-  @callback valid_credentials?(map) :: true | no_return
+  @callback valid_credentials?(config) :: true | no_return
+
+  @doc """
+  Makes HTTP request to Plaid.
+
+  Build the HTTP request by combining the arguments with system configuration
+  and default values, then hands the request to the client passed in the
+  optional `config` argument. Client defaults to `Plaid.HTTPClient`.
+
+  Returns either `{:ok, %Plaid.HTTPClient.Response{}}` or `{:error, %Plaid.HTTPClient.Error{}}`
+
+  Example
+  ```
+  Plaid.make_request(:post, "accounts/get", %{access_token: "my-token"})
+
+  Plaid.make_request(
+    :post,
+    "accounts/get",
+    %{access_token: "my-token"},
+    %{
+      http_client: MyHTTPClient,
+      http_options: [recv_timeout: 10_000]
+    }
+  )
+  ```
+  """
+  @callback make_request(method, endpoint, params, config) :: response
+
+  @doc """
+  Handles HTTP response from Plaid.
+
+  Accepts the response from `Plaid.make_request/5` and maps it to an internal
+  data structure.
+  """
+  @callback handle_response(
+              response,
+              endpoint,
+              config
+            ) :: {:ok, term} | {:error, Plaid.Error.t() | Plaid.HTTPClient.Error.t()} | no_return
+
+  @doc false
   def valid_credentials?(config) do
     _ = get_client_id(config)
     _ = get_secret(config)
@@ -65,11 +116,7 @@ defmodule Plaid do
     end
   end
 
-  @doc """
-  Make HTTP request to Plaid.
-  """
-  @callback make_request(atom, String.t(), map, map) ::
-              {:ok, Plaid.HTTPClient.Response.t()} | {:error, Plaid.HTTPClient.Error.t()}
+  @doc false
   def make_request(method, endpoint, parameters, config \\ %{}) do
     url = "#{get_root_uri(config)}#{endpoint}"
     request_body = build_request_body(parameters, config)
@@ -113,14 +160,7 @@ defmodule Plaid do
     |> Map.merge(config[:telemetry_metadata] || %{})
   end
 
-  @doc """
-  Handles HTTP client response from Plaid.
-  """
-  @callback handle_response(
-              {:ok, Plaid.HTTPClient.Response.t()} | {:error, Plaid.HTTPClient.Error.t()},
-              atom,
-              map
-            ) :: {:ok, term} | {:error, Plaid.Error.t() | Plaid.HTTPClient.Error.t()}
+  @doc false
   def handle_response(response, endpoint, config \\ %{}) do
     handler = config[:handler] || Plaid.Handler
     handler.handle_resp(response, endpoint)
