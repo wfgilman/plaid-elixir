@@ -17,7 +17,7 @@ defmodule Plaid.PaymentInitiation.Recipients do
   @endpoint :"payment_initiation/recipient"
 
   defmodule Recipient do
-    @doc """
+    @moduledoc """
     Plaid Recipient data structure.
     """
 

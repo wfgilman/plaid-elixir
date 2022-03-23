@@ -20,7 +20,7 @@ defmodule Plaid.PaymentInitiation.Payments do
   @endpoint :"payment_initiation/payment"
 
   defmodule Payment do
-    @doc """
+    @moduledoc """
     Plaid Payment data structure.
     """
 
