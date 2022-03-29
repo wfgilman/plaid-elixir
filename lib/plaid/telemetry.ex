@@ -8,7 +8,7 @@ defmodule Plaid.Telemetry do
 
   @impl Tesla.Middleware
   def call(env, next, _opts) do
-    metadata = env.opts[:metadata]
+    metadata = env.opts[:metadata] || %{}
     start_time = System.monotonic_time()
 
     :telemetry.execute(@events_prefix ++ [:start], %{system_time: start_time}, metadata)
