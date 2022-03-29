@@ -8,7 +8,7 @@ defmodule Plaid.Client do
     Data structure for an HTTP request with convenience functions.
     """
 
-    defstruct body: nil, endpoint: nil, method: nil, opts: %{}
+    defstruct body: %{}, endpoint: nil, method: nil, opts: %{}
     @type t :: %__MODULE__{body: map, endpoint: String.t(), method: atom, opts: map}
 
     @spec to_options(Request.t()) :: keyword
@@ -16,8 +16,9 @@ defmodule Plaid.Client do
       [method: m, url: e, body: b, opts: Map.to_list(o)]
     end
 
-    @spec put_metadata(Request.t(), map) :: Request.t()
-    def put_metadata(%Request{endpoint: e, method: m, opts: o} = request, config) do
+    @spec add_metadata(Request.t()) :: Request.t()
+    @spec add_metadata(Request.t(), map) :: Request.t()
+    def add_metadata(%Request{endpoint: e, method: m, opts: o} = request, config \\ %{}) do
       metadata =
         Map.new()
         |> Map.put(:method, m)

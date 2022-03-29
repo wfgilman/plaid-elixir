@@ -26,7 +26,7 @@ defmodule Plaid.ClientTest do
                })
     end
 
-    test "put_metadata/2 constructs instrumentation metadata" do
+    test "add_metadata/2 constructs instrumentation metadata" do
       request = %Request{body: %{}, endpoint: "some/endpoint", method: :post}
 
       assert %Request{
@@ -37,10 +37,10 @@ defmodule Plaid.ClientTest do
                    u: :native
                  }
                }
-             } = Request.put_metadata(request, %{})
+             } = Request.add_metadata(request)
     end
 
-    test "put_metadata/2 adds metadata passed in config argument" do
+    test "add_metadata/2 adds metadata passed in config argument" do
       request = %Request{body: %{}, endpoint: "some/endpoint", method: :post}
       config = %{telemetry_metadata: %{ins_id: "ins_1"}}
 
@@ -53,7 +53,7 @@ defmodule Plaid.ClientTest do
                    ins_id: "ins_1"
                  }
                }
-             } = Request.put_metadata(request, config)
+             } = Request.add_metadata(request, config)
     end
   end
 
