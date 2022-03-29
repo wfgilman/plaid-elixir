@@ -11,11 +11,25 @@ defmodule Plaid.Client do
     defstruct body: %{}, endpoint: nil, method: nil, opts: %{}
     @type t :: %__MODULE__{body: map, endpoint: String.t(), method: atom, opts: map}
 
+    @doc """
+    Convert `Request` to `options` format passed to `Tesla.request/2`.
+    """
     @spec to_options(Request.t()) :: keyword
     def to_options(%Request{body: b, endpoint: e, method: m, opts: o}) do
       [method: m, url: e, body: b, opts: Map.to_list(o)]
     end
 
+    @doc """
+    Add telemetry metadata to `Request`.
+
+    Calling without the second argument adds default metadata. Custom metadata
+    is added by passing a map with a key `telemetry_metadata`.
+
+    Example
+    ```
+    Request.add_metadata(request, %{telemetry_metadata: %{ins_id: "ins_1"}})
+    ```
+    """
     @spec add_metadata(Request.t()) :: Request.t()
     @spec add_metadata(Request.t(), map) :: Request.t()
     def add_metadata(%Request{endpoint: e, method: m, opts: o} = request, config \\ %{}) do
@@ -30,6 +44,29 @@ defmodule Plaid.Client do
     end
   end
 
+  @doc """
+  Creates a new Tesla client.
+
+  Optional `config` argument sets the following values at runtime:
+  - base url
+  - client_id
+  - secret
+  - `Tesla.Adapter`
+  - HTTP options for selected `Tesla.Adapter`
+
+  Example
+  ```
+  config = %{
+    root_uri: "https://sandbox.plaid.com/",
+    client_id: "my-client-id",
+    secret: "shhhh",
+    adapter: Tesla.Adapter.Httpc,
+    http_options: [recv_timeout: 10_000]
+  }
+
+  client = Client.new(config)
+  ```
+  """
   @spec new(map) :: Tesla.Client.t()
   def new(config \\ %{}) do
     middleware = [
