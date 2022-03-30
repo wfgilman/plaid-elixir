@@ -5,6 +5,9 @@ defmodule Plaid do
   [Plaid API Docs](https://plaid.com/docs/api)
   """
 
+  alias Plaid.Client
+  alias Plaid.Client.Request
+
   defmodule MissingClientIdError do
     defexception message: """
                  The `client_id` is required for calls to Plaid. Please either configure `client_id`
@@ -33,6 +36,44 @@ defmodule Plaid do
                  config :plaid, root_uri: "https://development.plaid.com/" (development)
                  config :plaid, root_uri: "https://production.plaid.com/" (production)
                  """
+  end
+
+  @doc """
+  Send an HTTP request to Plaid.
+
+  Takes a data structure `Plaid.Request.t` and Tesla client built at runtime
+  and returns either `{:ok, Tesla.Env.t}` or `{:error, any()}`.
+  """
+  @callback send_request(Request.t(), Tesla.Client.t()) :: {:ok, Tesla.Env.t()} | {:error, any()}
+
+  @doc """
+  Handle an HTTP response from Plaid.
+
+  Diverts successful Plaid responses to calling module for unmarshalling into 
+  structured data or to `{:error, Plaid.Error.t}` and `{:error, any()}` for
+  handling Plaid and HTTP failure responses.
+  """
+  @callback handle_response({:ok, Tesla.Env.t()} | {:error, any()}) ::
+              {:ok, term} | {:error, Plaid.Error.t()} | {:error, any()}
+
+  @doc false
+  def send_request(request, client) do
+    request
+    |> Request.to_options()
+    |> then(&Tesla.request(client, &1))
+  end
+
+  @doc false
+  def handle_response({:ok, %Tesla.Env{status: status} = env}) when status in 200..299 do
+    {:ok, env.body}
+  end
+
+  def handle_response({:ok, %Tesla.Env{} = env}) do
+    {:error, Poison.Decode.transform(env.body, %{as: %Plaid.Error{}})}
+  end
+
+  def handle_response({:error, _reason} = error) do
+    error
   end
 
   @type method :: atom
