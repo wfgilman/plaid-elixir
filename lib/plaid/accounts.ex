@@ -3,6 +3,9 @@ defmodule Plaid.Accounts do
   Functions for Plaid `accounts` endpoint.
   """
 
+  alias Plaid.Client.Request
+  alias Plaid.Client
+
   @derive Jason.Encoder
   defstruct accounts: [], item: nil, request_id: nil
 
@@ -13,7 +16,7 @@ defmodule Plaid.Accounts do
         }
   @type params :: %{required(atom) => term}
   @type config :: %{required(atom) => String.t() | keyword}
-  @type error :: {:error, Plaid.Error.t() | Plaid.HTTPClient.Error.t()} | no_return
+  @type error :: {:error, Plaid.Error.t() | any()} | no_return
 
   @endpoint :accounts
 
@@ -151,13 +154,38 @@ defmodule Plaid.Accounts do
   """
   @spec get(params, config) :: {:ok, Plaid.Accounts.t()} | error
   def get(params, config \\ %{}) do
-    client = config[:client] || Plaid
+    request_operation("#{@endpoint}/get", params, config)
+  end
 
-    if client.valid_credentials?(config) do
-      :post
-      |> client.make_request("#{@endpoint}/get", params, config)
-      |> client.handle_response(@endpoint, config)
+  defp request_operation(endpoint, params, config) do
+    c = config[:client] || Plaid
+
+    Request
+    |> struct([method: :post, endpoint: endpoint, body: params])
+    |> Request.add_metadata(config)
+    |> c.send_request(Client.new(config))
+    |> c.handle_response()
+    |> case do
+      {:ok, body} ->
+        {:ok, map_accounts(body)}
+
+      {:error, _} = error ->
+        error
     end
+  end
+
+  defp map_accounts(body) do
+    Poison.Decode.transform(
+      body,
+      %{
+        as: %Plaid.Accounts{
+          accounts: [
+            %Plaid.Accounts.Account{balances: %Plaid.Accounts.Account.Balance{}}
+          ],
+          item: %Plaid.Item{}
+        }
+      }
+    )
   end
 
   @doc """
@@ -170,12 +198,6 @@ defmodule Plaid.Accounts do
   """
   @spec get_balance(params, config) :: {:ok, Plaid.Accounts.t()} | error
   def get_balance(params, config \\ %{}) do
-    client = config[:client] || Plaid
-
-    if client.valid_credentials?(config) do
-      :post
-      |> client.make_request("#{@endpoint}/balance/get", params, config)
-      |> client.handle_response(@endpoint, config)
-    end
+    request_operation("#{@endpoint}/balance/get", params, config)
   end
 end
