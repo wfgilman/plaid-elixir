@@ -18,8 +18,6 @@ defmodule Plaid.Accounts do
   @type config :: %{required(atom) => String.t() | keyword}
   @type error :: {:error, Plaid.Error.t() | any()} | no_return
 
-  @endpoint :accounts
-
   defmodule Account do
     @moduledoc """
     Plaid Account data structure.
@@ -154,7 +152,7 @@ defmodule Plaid.Accounts do
   """
   @spec get(params, config) :: {:ok, Plaid.Accounts.t()} | error
   def get(params, config \\ %{}) do
-    request_operation("#{@endpoint}/get", params, config)
+    request_operation("accounts/get", params, config)
   end
 
   defp request_operation(endpoint, params, config) do
@@ -198,6 +196,6 @@ defmodule Plaid.Accounts do
   """
   @spec get_balance(params, config) :: {:ok, Plaid.Accounts.t()} | error
   def get_balance(params, config \\ %{}) do
-    request_operation("#{@endpoint}/balance/get", params, config)
+    request_operation("accounts/balance/get", params, config)
   end
 end
