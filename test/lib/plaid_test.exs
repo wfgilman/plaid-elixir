@@ -223,7 +223,7 @@ defmodule PlaidTest do
     end
   end
 
-  describe "plaid handle_response/" do
+  describe "plaid handle_response/1" do
     @describetag :unit
 
     test "returns {:ok, body} for http response 200-299" do
