@@ -3,6 +3,9 @@ defmodule Plaid.Auth do
   Functions for Plaid `auth` endpoint.
   """
 
+  alias Plaid.Client.Request
+  alias Plaid.Client
+
   @derive Jason.Encoder
   defstruct accounts: [], item: nil, numbers: [], request_id: nil
 
@@ -19,9 +22,7 @@ defmodule Plaid.Auth do
         }
   @type params :: %{required(atom) => term}
   @type config :: %{required(atom) => String.t() | keyword}
-  @type error :: {:error, Plaid.Error.t() | Plaid.HTTPClient.Error.t()} | no_return
-
-  @endpoint :auth
+  @type error :: {:error, Plaid.Error.t() | any()} | no_return
 
   defmodule Numbers do
     @moduledoc """
@@ -119,12 +120,41 @@ defmodule Plaid.Auth do
   """
   @spec get(params, config) :: {:ok, Plaid.Auth.t()} | error
   def get(params, config \\ %{}) do
-    client = config[:client] || Plaid
+    c = config[:client] || Plaid
 
-    if client.valid_credentials?(config) do
-      :post
-      |> client.make_request("#{@endpoint}/get", params, config)
-      |> client.handle_response(@endpoint, config)
+    Request
+    |> struct([method: :post, endpoint: "auth/get", body: params])
+    |> Request.add_metadata(config)
+    |> c.send_request(Client.new(config))
+    |> c.handle_response()
+    |> case do
+      {:ok, body} ->
+        {:ok, map_auth(body)}
+
+      {:error, _} = error ->
+        error
     end
+  end
+
+  defp map_auth(body) do
+    Poison.Decode.transform(
+      body,
+      %{
+        as: %Plaid.Auth{
+          numbers: %Plaid.Auth.Numbers{
+            ach: [%Plaid.Auth.Numbers.ACH{}],
+            eft: [%Plaid.Auth.Numbers.EFT{}],
+            international: [%Plaid.Auth.Numbers.International{}],
+            bacs: [%Plaid.Auth.Numbers.BACS{}]
+          },
+          item: %Plaid.Item{},
+          accounts: [
+            %Plaid.Accounts.Account{
+              balances: %Plaid.Accounts.Account.Balance{}
+            }
+          ]
+        }
+      }
+    )
   end
 end
