@@ -2,6 +2,7 @@ defmodule Plaid.TransactionsTest do
   use ExUnit.Case, async: true
 
   import Mox
+  import Plaid.Factory
 
   setup do
     verify_on_exit!()
@@ -27,36 +28,27 @@ defmodule Plaid.TransactionsTest do
 
   describe "transactions get/2" do
     @tag :unit
-    test "makes post request to transactions/get endpoint", %{params: params, config: config} do
+    test "submits request and unmarshalls response", %{params: params, config: config} do
       PlaidMock
-      |> expect(:valid_credentials?, fn _config -> true end)
-      |> expect(:make_request, fn method, endpoint, _params, _config ->
-        assert method == :post
-        assert endpoint == "transactions/get"
-        {:ok, %Plaid.HTTPClient.Response{}}
+      |> expect(:send_request, fn request, _client ->
+        assert request.method == :post
+        assert request.endpoint == "transactions/get"
+        assert %{metadata: _} = request.opts
+        {:ok, %Tesla.Env{}}
       end)
-      |> expect(:handle_response, fn _response, endpoint, _config ->
-        assert endpoint == :transactions
-        {:ok, %Plaid.Transactions{}}
-      end)
-
-      assert {:ok, %Plaid.Transactions{}} = Plaid.Transactions.get(params, config)
-    end
-
-    @tag :unit
-    test "raises if credentials aren't provided", %{params: params, config: config} do
-      PlaidMock
-      |> expect(:valid_credentials?, fn _config ->
-        raise Plaid.MissingClientIdError
+      |> expect(:handle_response, fn _response ->
+        {:ok, http_response_body(:transactions)}
       end)
 
-      assert_raise Plaid.MissingClientIdError, fn ->
-        Plaid.Transactions.get(params, config)
-      end
+      assert {:ok, ds} = Plaid.Transactions.get(params, config)
+      assert Plaid.Transactions == ds.__struct__
+      assert Plaid.Accounts.Account == List.first(ds.accounts).__struct__
+      assert Plaid.Transactions.Transaction == List.first(ds.transactions).__struct__
+      assert Plaid.Item == ds.item.__struct__
     end
 
     @tag :integration
-    test "returns Plaid.Transactions data structure", %{params: params} do
+    test "success integration test", %{params: params} do
       bypass = Bypass.open()
 
       config = %{
@@ -65,17 +57,19 @@ defmodule Plaid.TransactionsTest do
         root_uri: "http://localhost:#{bypass.port}/"
       }
 
-      body = Plaid.Factory.http_response_body(:transactions)
+      body = http_response_body(:transactions)
 
       Bypass.expect(bypass, fn conn ->
-        Plug.Conn.resp(conn, 200, Poison.encode!(body))
+        conn
+        |> Plug.Conn.put_resp_header("content-type", "application/json")
+        |> Plug.Conn.resp(200, Poison.encode!(body))
       end)
 
       assert {:ok, %Plaid.Transactions{}} = Plaid.Transactions.get(params, config)
     end
 
     @tag :integration
-    test "returns Plaid.Error", %{params: params} do
+    test "error integration test", %{params: params} do
       bypass = Bypass.open()
 
       config = %{
@@ -84,10 +78,12 @@ defmodule Plaid.TransactionsTest do
         root_uri: "http://localhost:#{bypass.port}/"
       }
 
-      body = Plaid.Factory.http_response_body(:error)
+      body = http_response_body(:error)
 
       Bypass.expect(bypass, fn conn ->
-        Plug.Conn.resp(conn, 400, Poison.encode!(body))
+        conn
+        |> Plug.Conn.put_resp_header("content-type", "application/json")
+        |> Plug.Conn.resp(400, Poison.encode!(body))
       end)
 
       assert {:error, %Plaid.Error{}} = Plaid.Transactions.get(params, config)

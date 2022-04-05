@@ -3,6 +3,9 @@ defmodule Plaid.Transactions do
   Functions for Plaid `transactions` endpoint.
   """
 
+  alias Plaid.Client.Request
+  alias Plaid.Client
+
   @derive Jason.Encoder
   defstruct accounts: [], item: nil, total_transactions: nil, transactions: [], request_id: nil
 
@@ -15,9 +18,7 @@ defmodule Plaid.Transactions do
         }
   @type params :: %{required(atom) => term}
   @type config :: %{required(atom) => String.t() | keyword}
-  @type error :: {:error, Plaid.Error.t() | Plaid.HTTPClient.Error.t()} | no_return
-
-  @endpoint :transactions
+  @type error :: {:error, Plaid.Error.t() | any()} | no_return
 
   defmodule Transaction do
     @moduledoc """
@@ -146,12 +147,41 @@ defmodule Plaid.Transactions do
   """
   @spec get(params, config) :: {:ok, Plaid.Transactions.t()} | error
   def get(params, config \\ %{}) do
-    client = config[:client] || Plaid
+    c = config[:client] || Plaid
 
-    if client.valid_credentials?(config) do
-      :post
-      |> client.make_request("#{@endpoint}/get", params, config)
-      |> client.handle_response(@endpoint, config)
+    Request
+    |> struct(method: :post, endpoint: "transactions/get", body: params)
+    |> Request.add_metadata(config)
+    |> c.send_request(Client.new(config))
+    |> c.handle_response()
+    |> case do
+      {:ok, body} ->
+        {:ok, map_transactions(body)}
+
+      {:error, _} = error ->
+        error
     end
+  end
+
+  defp map_transactions(body) do
+    Poison.Decode.transform(
+      body,
+      %{
+        as: %Plaid.Transactions{
+          accounts: [
+            %Plaid.Accounts.Account{
+              balances: %Plaid.Accounts.Account.Balance{}
+            }
+          ],
+          transactions: [
+            %Plaid.Transactions.Transaction{
+              location: %Plaid.Transactions.Transaction.Location{},
+              payment_meta: %Plaid.Transactions.Transaction.PaymentMeta{}
+            }
+          ],
+          item: %Plaid.Item{}
+        }
+      }
+    )
   end
 end
