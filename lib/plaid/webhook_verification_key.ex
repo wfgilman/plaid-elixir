@@ -3,6 +3,9 @@ defmodule Plaid.WebhookVerificationKey do
   Functions for Plaid `webhook_verification_key` endpoint.
   """
 
+  alias Plaid.Client.Request
+  alias Plaid.Client
+
   @derive Jason.Encoder
   defstruct key: %{},
             request_id: nil
@@ -13,9 +16,7 @@ defmodule Plaid.WebhookVerificationKey do
         }
   @type params :: %{required(atom) => term}
   @type config :: %{required(atom) => String.t() | keyword}
-  @type error :: {:error, Plaid.Error.t() | Plaid.HTTPClient.Error.t()} | no_return
-
-  @endpoint :webhook_verification_key
+  @type error :: {:error, Plaid.Error.t() | any()} | no_return
 
   @doc """
   Gets a webhook verification key (JWK).
@@ -29,12 +30,19 @@ defmodule Plaid.WebhookVerificationKey do
   """
   @spec get(params, config) :: {:ok, Plaid.WebhookVerificationKey.t()} | error
   def get(params, config \\ %{}) do
-    client = config[:client] || Plaid
+    c = config[:client] || Plaid
 
-    if client.valid_credentials?(config) do
-      :post
-      |> client.make_request("#{@endpoint}/get", params, config)
-      |> client.handle_response(@endpoint, params)
+    Request
+    |> struct(method: :post, endpoint: "webhook_verification_key/get", body: params)
+    |> Request.add_metadata(config)
+    |> c.send_request(Client.new(config))
+    |> c.handle_response()
+    |> case do
+      {:ok, body} ->
+        {:ok, Poison.Decode.transform(body, %{as: %Plaid.WebhookVerificationKey{}})}
+
+      {:error, _} = error ->
+        error
     end
   end
 end
