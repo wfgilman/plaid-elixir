@@ -3,6 +3,9 @@ defmodule Plaid.Income do
   Functions for Plaid `income` endpoint.
   """
 
+  alias Plaid.Client.Request
+  alias Plaid.Client
+
   @derive Jason.Encoder
   defstruct item: nil, income: nil, request_id: nil
 
@@ -13,9 +16,7 @@ defmodule Plaid.Income do
         }
   @type params :: %{required(atom) => term}
   @type config :: %{required(atom) => String.t() | keyword}
-  @type error :: {:error, Plaid.Error.t() | Plaid.HTTPClient.Error.t()} | no_return
-
-  @endpoint :income
+  @type error :: {:error, Plaid.Error.t() | any()} | no_return
 
   defmodule Income do
     @moduledoc """
@@ -70,12 +71,35 @@ defmodule Plaid.Income do
   """
   @spec get(params, config) :: {:ok, Plaid.Income.t()} | error
   def get(params, config \\ %{}) do
-    client = config[:client] || Plaid
+    c = config[:client] || Plaid
 
-    if client.valid_credentials?(config) do
-      :post
-      |> client.make_request("#{@endpoint}/get", params, config)
-      |> client.handle_response(@endpoint, config)
+    Request
+    |> struct(method: :post, endpoint: "income/get", body: params)
+    |> Request.add_metadata(config)
+    |> c.send_request(Client.new(config))
+    |> c.handle_response()
+    |> case do
+      {:ok, body} ->
+        {:ok, map_income(body)}
+
+      {:error, _} = error ->
+        error
     end
+  end
+
+  defp map_income(body) do
+    Poison.Decode.transform(
+      body,
+      %{
+        as: %Plaid.Income{
+          item: %Plaid.Item{},
+          income: %Plaid.Income.Income{
+            income_streams: [
+              %Plaid.Income.Income.IncomeStream{}
+            ]
+          }
+        }
+      }
+    )
   end
 end

@@ -2,6 +2,7 @@ defmodule Plaid.IncomeTest do
   use ExUnit.Case, async: true
 
   import Mox
+  import Plaid.Factory
 
   setup do
     verify_on_exit!()
@@ -23,36 +24,27 @@ defmodule Plaid.IncomeTest do
 
   describe "income get/2" do
     @tag :unit
-    test "makes post request to income/get enpoint", %{params: params, config: config} do
+    test "sends request and unmarshalls response", %{params: params, config: config} do
       PlaidMock
-      |> expect(:valid_credentials?, fn _config -> true end)
-      |> expect(:make_request, fn method, endpoint, _params, _config ->
-        assert method == :post
-        assert endpoint == "income/get"
-        {:ok, %Plaid.HTTPClient.Response{}}
+      |> expect(:send_request, fn request, _client ->
+        assert request.method == :post
+        assert request.endpoint == "income/get"
+        assert %{metadata: _} = request.opts
+        {:ok, %Tesla.Env{}}
       end)
-      |> expect(:handle_response, fn _response, endpoint, _config ->
-        assert endpoint == :income
-        {:ok, %Plaid.Income{}}
-      end)
-
-      assert {:ok, %Plaid.Income{}} = Plaid.Income.get(params, config)
-    end
-
-    @tag :unit
-    test "raises if credentials aren't provided", %{params: params, config: config} do
-      PlaidMock
-      |> expect(:valid_credentials?, fn _config ->
-        raise Plaid.MissingClientIdError
+      |> expect(:handle_response, fn _response ->
+        {:ok, http_response_body(:income)}
       end)
 
-      assert_raise Plaid.MissingClientIdError, fn ->
-        Plaid.Identity.get(params, config)
-      end
+      assert {:ok, ds} = Plaid.Income.get(params, config)
+      assert Plaid.Income == ds.__struct__
+      assert Plaid.Item == ds.item.__struct__
+      assert Plaid.Income.Income == ds.income.__struct__
+      assert Plaid.Income.Income.IncomeStream = List.first(ds.income.income_streams).__struct__
     end
 
     @tag :integration
-    test "returns Plaid.Income data structure", %{params: params} do
+    test "success integration test", %{params: params} do
       bypass = Bypass.open()
 
       config = %{
@@ -61,17 +53,19 @@ defmodule Plaid.IncomeTest do
         root_uri: "http://localhost:#{bypass.port}/"
       }
 
-      body = Plaid.Factory.http_response_body(:income)
+      body = http_response_body(:income)
 
       Bypass.expect(bypass, fn conn ->
-        Plug.Conn.resp(conn, 200, Poison.encode!(body))
+        conn
+        |> Plug.Conn.put_resp_header("content-type", "application/json")
+        |> Plug.Conn.resp(200, Poison.encode!(body))
       end)
 
       assert {:ok, %Plaid.Income{}} = Plaid.Income.get(params, config)
     end
 
     @tag :integration
-    test "returns Plaid.Error", %{params: params} do
+    test "error integration test", %{params: params} do
       bypass = Bypass.open()
 
       config = %{
@@ -80,10 +74,12 @@ defmodule Plaid.IncomeTest do
         root_uri: "http://localhost:#{bypass.port}/"
       }
 
-      body = Plaid.Factory.http_response_body(:error)
+      body = http_response_body(:error)
 
       Bypass.expect(bypass, fn conn ->
-        Plug.Conn.resp(conn, 400, Poison.encode!(body))
+        conn
+        |> Plug.Conn.put_resp_header("content-type", "application/json")
+        |> Plug.Conn.resp(400, Poison.encode!(body))
       end)
 
       assert {:error, %Plaid.Error{}} = Plaid.Income.get(params, config)
