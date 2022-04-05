@@ -3,6 +3,9 @@ defmodule Plaid.Item do
   Functions for Plaid `item` endpoint.
   """
 
+  alias Plaid.Client.Request
+  alias Plaid.Client
+
   @derive Jason.Encoder
   defstruct available_products: [],
             billed_products: [],
@@ -27,9 +30,7 @@ defmodule Plaid.Item do
         }
   @type params :: %{required(atom) => term}
   @type config :: %{required(atom) => String.t() | keyword}
-  @type error :: {:error, Plaid.Error.t() | Plaid.HTTPClient.Error.t()} | no_return
-
-  @endpoint :item
+  @type error :: {:error, Plaid.Error.t() | any()} | no_return
 
   defmodule Status do
     @moduledoc """
@@ -88,13 +89,41 @@ defmodule Plaid.Item do
   """
   @spec get(params, config) :: {:ok, Plaid.Item.t()} | error
   def get(params, config \\ %{}) do
-    client = config[:client] || Plaid
+    map_fun = fn
+      {:ok, %{"item" => item, "request_id" => r, "status" => s}} ->
+        {:ok, map_item(Map.merge(item, %{"request_id" => r, "status" => s}))}
 
-    if client.valid_credentials?(config) do
-      :post
-      |> client.make_request("#{@endpoint}/get", params, config)
-      |> client.handle_response(@endpoint, config)
+      {:error, _} = error ->
+        error
     end
+
+    request_operation("item/get", params, config, map_fun)
+  end
+
+  defp request_operation(endpoint, params, config, map_fun) do
+    c = config[:client] || Plaid
+
+    Request
+    |> struct(method: :post, endpoint: endpoint, body: params)
+    |> Request.add_metadata(config)
+    |> c.send_request(Client.new(config))
+    |> c.handle_response()
+    |> map_fun.()
+  end
+
+  defp map_item(body) do
+    Poison.Decode.transform(
+      body,
+      %{
+        as: %Plaid.Item{
+          status: %Plaid.Item.Status{
+            investments: %Plaid.Item.Status.Investments{},
+            transactions: %Plaid.Item.Status.Transactions{},
+            last_webhook: %Plaid.Item.Status.LastWebhook{}
+          }
+        }
+      }
+    )
   end
 
   @doc """
@@ -112,13 +141,15 @@ defmodule Plaid.Item do
   """
   @spec exchange_public_token(params, config) :: {:ok, map} | error
   def exchange_public_token(params, config \\ %{}) do
-    client = config[:client] || Plaid
+    map_fun = fn
+      {:ok, %{"access_token" => t, "item_id" => i, "request_id" => r}} ->
+        {:ok, %{access_token: t, item_id: i, request_id: r}}
 
-    if client.valid_credentials?(config) do
-      :post
-      |> client.make_request("#{@endpoint}/public_token/exchange", params, config)
-      |> client.handle_response(@endpoint, config)
+      {:error, _} = error ->
+        error
     end
+
+    request_operation("item/public_token/exchange", params, config, map_fun)
   end
 
   @doc """
@@ -136,13 +167,15 @@ defmodule Plaid.Item do
   """
   @spec create_public_token(params, config) :: {:ok, map} | error
   def create_public_token(params, config \\ %{}) do
-    client = config[:client] || Plaid
+    map_fun = fn
+      {:ok, %{"public_token" => t, "expiration" => e, "request_id" => r}} ->
+        {:ok, %{public_token: t, expiration: e, request_id: r}}
 
-    if client.valid_credentials?(config) do
-      :post
-      |> client.make_request("#{@endpoint}/public_token/create", params, config)
-      |> client.handle_response(@endpoint, config)
+      {:error, _} = error ->
+        error
     end
+
+    request_operation("item/public_token/create", params, config, map_fun)
   end
 
   @doc """
@@ -155,13 +188,15 @@ defmodule Plaid.Item do
   """
   @spec update_webhook(params, config) :: {:ok, Plaid.Item.t()} | error
   def update_webhook(params, config \\ %{}) do
-    client = config[:client] || Plaid
+    map_fun = fn
+      {:ok, %{"item" => item, "request_id" => r}} ->
+        {:ok, map_item(Map.merge(item, %{"request_id" => r}))}
 
-    if client.valid_credentials?(config) do
-      :post
-      |> client.make_request("#{@endpoint}/webhook/update", params, config)
-      |> client.handle_response(@endpoint, config)
+      {:error, _} = error ->
+        error
     end
+
+    request_operation("item/webhook/update", params, config, map_fun)
   end
 
   @doc """
@@ -179,13 +214,15 @@ defmodule Plaid.Item do
   """
   @spec rotate_access_token(params, config) :: {:ok, map} | error
   def rotate_access_token(params, config \\ %{}) do
-    client = config[:client] || Plaid
+    map_fun = fn
+      {:ok, %{"new_access_token" => t, "request_id" => r}} ->
+        {:ok, %{new_access_token: t, request_id: r}}
 
-    if client.valid_credentials?(config) do
-      :post
-      |> client.make_request("#{@endpoint}/access_token/invalidate", params, config)
-      |> client.handle_response(@endpoint, config)
+      {:error, _} = error ->
+        error
     end
+
+    request_operation("item/access_token/invalidate", params, config, map_fun)
   end
 
   @doc """
@@ -203,13 +240,15 @@ defmodule Plaid.Item do
   """
   @spec update_version_access_token(params, config) :: {:ok, map} | error
   def update_version_access_token(params, config \\ %{}) do
-    client = config[:client] || Plaid
+    map_fun = fn
+      {:ok, %{"access_token" => t, "request_id" => r}} ->
+        {:ok, %{access_token: t, request_id: r}}
 
-    if client.valid_credentials?(config) do
-      :post
-      |> client.make_request("#{@endpoint}/access_token/update_version", params, config)
-      |> client.handle_response(@endpoint, config)
+      {:error, _} = error ->
+        error
     end
+
+    request_operation("item/access_token/update_version", params, config, map_fun)
   end
 
   @doc """
@@ -227,13 +266,15 @@ defmodule Plaid.Item do
   """
   @spec remove(params, config) :: {:ok, map} | error
   def remove(params, config \\ %{}) do
-    client = config[:client] || Plaid
+    map_fun = fn
+      {:ok, %{"request_id" => r}} ->
+        {:ok, %{request_id: r}}
 
-    if client.valid_credentials?(config) do
-      :post
-      |> client.make_request("#{@endpoint}/remove", params, config)
-      |> client.handle_response(@endpoint, config)
+      {:error, _} = error ->
+        error
     end
+
+    request_operation("item/remove", params, config, map_fun)
   end
 
   @doc """
@@ -256,13 +297,15 @@ defmodule Plaid.Item do
   """
   @spec create_processor_token(params, config) :: {:ok, map} | error
   def create_processor_token(params, config) do
-    client = config[:client] || Plaid
+    map_fun = fn
+      {:ok, %{"processor_token" => t, "request_id" => r}} ->
+        {:ok, %{processor_token: t, request_id: r}}
 
-    if client.valid_credentials?(config) do
-      :post
-      |> client.make_request("processor/token/create", params, config)
-      |> client.handle_response(@endpoint, config)
+      {:error, _} = error ->
+        error
     end
+
+    request_operation("processor/token/create", params, config, map_fun)
   end
 
   @doc """
@@ -281,12 +324,14 @@ defmodule Plaid.Item do
   """
   @spec create_stripe_bank_account_token(params, config) :: {:ok, map} | error
   def create_stripe_bank_account_token(params, config \\ %{}) do
-    client = config[:client] || Plaid
+    map_fun = fn
+      {:ok, %{"stripe_bank_account_token" => t, "request_id" => r}} ->
+        {:ok, %{stripe_bank_account_token: t, request_id: r}}
 
-    if client.valid_credentials?(config) do
-      :post
-      |> client.make_request("processor/stripe/bank_account_token/create", params, config)
-      |> client.handle_response(@endpoint, config)
+      {:error, _} = error ->
+        error
     end
+
+    request_operation("processor/stripe/bank_account_token/create", params, config, map_fun)
   end
 end
