@@ -32,7 +32,7 @@ defmodule Plaid.AccountsTest do
 
   describe "accounts get/2" do
     @tag :unit
-    test "submits request with correct parameters", %{params: params, config: config} do
+    test "submits request and unmarshalls response", %{params: params, config: config} do
       PlaidMock
       |> expect(:send_request, fn request, _client ->
         assert request.method == :post

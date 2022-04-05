@@ -31,7 +31,7 @@ defmodule Plaid.Categories do
     c = config[:client] || Plaid
 
     Request
-    |> struct([method: :post, endpoint: "categories/get"])
+    |> struct(method: :post, endpoint: "categories/get")
     |> Request.add_metadata(config)
     |> c.send_request(Client.new(config))
     |> c.handle_response()

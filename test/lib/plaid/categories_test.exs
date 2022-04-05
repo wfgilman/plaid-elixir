@@ -21,7 +21,7 @@ defmodule Plaid.CategoriesTest do
 
   describe "categories get/1" do
     @tag :unit
-    test "submits request with correct parameters", %{config: config} do
+    test "submits request and unmarshalls response", %{config: config} do
       PlaidMock
       |> expect(:send_request, fn request, _client ->
         assert request.method == :post
