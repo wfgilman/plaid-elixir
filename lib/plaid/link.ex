@@ -3,6 +3,9 @@ defmodule Plaid.Link do
   Functions for Plaid `link` endpoint.
   """
 
+  alias Plaid.Client.Request
+  alias Plaid.Client
+
   @derive Jason.Encoder
   defstruct link_token: nil,
             expiration: nil,
@@ -20,9 +23,7 @@ defmodule Plaid.Link do
         }
   @type params :: %{required(atom) => term}
   @type config :: %{required(atom) => String.t() | keyword}
-  @type error :: {:error, Plaid.Error.t() | Plaid.HTTPClient.Error.t()} | no_return
-
-  @endpoint :link
+  @type error :: {:error, Plaid.Error.t() | any()} | no_return
 
   defmodule Metadata do
     @moduledoc """
@@ -70,13 +71,33 @@ defmodule Plaid.Link do
   """
   @spec create_link_token(params, config) :: {:ok, Plaid.Link.t()} | error
   def create_link_token(params, config \\ %{}) do
-    client = config[:client] || Plaid
+    request_operation("link/token/create", params, config)
+  end
 
-    if client.valid_credentials?(config) do
-      :post
-      |> client.make_request("#{@endpoint}/token/create", params, config)
-      |> client.handle_response(@endpoint, config)
+  defp request_operation(endpoint, params, config) do
+    c = config[:client] || Plaid
+
+    Request
+    |> struct(method: :post, endpoint: endpoint, body: params)
+    |> Request.add_metadata(config)
+    |> c.send_request(Client.new(config))
+    |> c.handle_response()
+    |> case do
+      {:ok, body} ->
+        {:ok, map_link(body)}
+
+      {:error, _} = error ->
+        error
     end
+  end
+
+  defp map_link(body) do
+    Poison.Decode.transform(
+      body,
+      %{
+        as: %Plaid.Link{metadata: %Plaid.Link.Metadata{}}
+      }
+    )
   end
 
   @doc """
@@ -91,12 +112,6 @@ defmodule Plaid.Link do
   """
   @spec get_link_token(params, config) :: {:ok, Plaid.Link.t()} | error
   def get_link_token(params, config \\ %{}) do
-    client = config[:client] || Plaid
-
-    if client.valid_credentials?(config) do
-      :post
-      |> client.make_request("#{@endpoint}/token/get", params, config)
-      |> client.handle_response(@endpoint, config)
-    end
+    request_operation("link/token/get", params, config)
   end
 end

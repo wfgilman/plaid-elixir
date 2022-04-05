@@ -2,6 +2,7 @@ defmodule Plaid.LinkTest do
   use ExUnit.Case, async: true
 
   import Mox
+  import Plaid.Factory
 
   setup do
     verify_on_exit!()
@@ -17,36 +18,25 @@ defmodule Plaid.LinkTest do
 
   describe "link create_link_token/2" do
     @tag :unit
-    test "makes post request to link/token/create endpoint", %{params: params, config: config} do
+    test "submits request and unmarshalls response", %{params: params, config: config} do
       PlaidMock
-      |> expect(:valid_credentials?, fn _config -> true end)
-      |> expect(:make_request, fn method, endpoint, _params, _config ->
-        assert method == :post
-        assert endpoint == "link/token/create"
-        {:ok, %Plaid.HTTPClient.Response{}}
+      |> expect(:send_request, fn request, _client ->
+        assert request.method == :post
+        assert request.endpoint == "link/token/create"
+        assert %{metadata: _} = request.opts
+        {:ok, %Tesla.Env{}}
       end)
-      |> expect(:handle_response, fn _response, endpoint, _config ->
-        assert endpoint == :link
-        {:ok, %Plaid.Link{}}
-      end)
-
-      assert {:ok, %Plaid.Link{}} = Plaid.Link.create_link_token(params, config)
-    end
-
-    @tag :unit
-    test "raises if credentials aren't provided", %{params: params, config: config} do
-      PlaidMock
-      |> expect(:valid_credentials?, fn _config ->
-        raise Plaid.MissingClientIdError
+      |> expect(:handle_response, fn _response ->
+        {:ok, http_response_body(:create_link_token)}
       end)
 
-      assert_raise Plaid.MissingClientIdError, fn ->
-        Plaid.Link.create_link_token(params, config)
-      end
+      assert {:ok, ds} = Plaid.Link.create_link_token(params, config)
+      assert Plaid.Link == ds.__struct__
+      assert Plaid.Link.Metadata == ds.metadata.__struct__
     end
 
     @tag :integration
-    test "returns Plaid.Link data structure", %{params: params} do
+    test "success integration test", %{params: params} do
       bypass = Bypass.open()
 
       config = %{
@@ -55,17 +45,19 @@ defmodule Plaid.LinkTest do
         root_uri: "http://localhost:#{bypass.port}/"
       }
 
-      body = Plaid.Factory.http_response_body(:create_link_token)
+      body = http_response_body(:create_link_token)
 
       Bypass.expect(bypass, fn conn ->
-        Plug.Conn.resp(conn, 200, Poison.encode!(body))
+        conn
+        |> Plug.Conn.put_resp_header("content-type", "application/json")
+        |> Plug.Conn.resp(200, Poison.encode!(body))
       end)
 
       assert {:ok, %Plaid.Link{}} = Plaid.Link.create_link_token(params, config)
     end
 
     @tag :integration
-    test "returns Plaid.Error", %{params: params} do
+    test "error integration test", %{params: params} do
       bypass = Bypass.open()
 
       config = %{
@@ -74,10 +66,12 @@ defmodule Plaid.LinkTest do
         root_uri: "http://localhost:#{bypass.port}/"
       }
 
-      body = Plaid.Factory.http_response_body(:error)
+      body = http_response_body(:error)
 
       Bypass.expect(bypass, fn conn ->
-        Plug.Conn.resp(conn, 400, Poison.encode!(body))
+        conn
+        |> Plug.Conn.put_resp_header("content-type", "application/json")
+        |> Plug.Conn.resp(400, Poison.encode!(body))
       end)
 
       assert {:error, %Plaid.Error{}} = Plaid.Link.create_link_token(params, config)
@@ -86,36 +80,25 @@ defmodule Plaid.LinkTest do
 
   describe "link get_link_token/2" do
     @tag :unit
-    test "makes post request to link/token/get endpoint", %{params: params, config: config} do
+    test "submits request and unmarshalls response", %{params: params, config: config} do
       PlaidMock
-      |> expect(:valid_credentials?, fn _config -> true end)
-      |> expect(:make_request, fn method, endpoint, _params, _config ->
-        assert method == :post
-        assert endpoint == "link/token/get"
-        {:ok, %Plaid.HTTPClient.Response{}}
+      |> expect(:send_request, fn request, _client ->
+        assert request.method == :post
+        assert request.endpoint == "link/token/get"
+        assert %{metadata: _} = request.opts
+        {:ok, %Tesla.Env{}}
       end)
-      |> expect(:handle_response, fn _response, endpoint, _config ->
-        assert endpoint == :link
-        {:ok, %Plaid.Link{}}
-      end)
-
-      assert {:ok, %Plaid.Link{}} = Plaid.Link.get_link_token(params, config)
-    end
-
-    @tag :unit
-    test "raises if credentials aren't provided", %{params: params, config: config} do
-      PlaidMock
-      |> expect(:valid_credentials?, fn _config ->
-        raise Plaid.MissingClientIdError
+      |> expect(:handle_response, fn _response ->
+        {:ok, http_response_body(:get_link_token)}
       end)
 
-      assert_raise Plaid.MissingClientIdError, fn ->
-        Plaid.Link.get_link_token(params, config)
-      end
+      assert {:ok, ds} = Plaid.Link.get_link_token(params, config)
+      assert Plaid.Link == ds.__struct__
+      assert Plaid.Link.Metadata == ds.metadata.__struct__
     end
 
     @tag :integration
-    test "returns Plaid.Link data structure", %{params: params} do
+    test "success integration test", %{params: params} do
       bypass = Bypass.open()
 
       config = %{
@@ -124,17 +107,19 @@ defmodule Plaid.LinkTest do
         root_uri: "http://localhost:#{bypass.port}/"
       }
 
-      body = Plaid.Factory.http_response_body(:get_link_token)
+      body = http_response_body(:get_link_token)
 
       Bypass.expect(bypass, fn conn ->
-        Plug.Conn.resp(conn, 200, Poison.encode!(body))
+        conn
+        |> Plug.Conn.put_resp_header("content-type", "application/json")
+        |> Plug.Conn.resp(200, Poison.encode!(body))
       end)
 
       assert {:ok, %Plaid.Link{}} = Plaid.Link.get_link_token(params, config)
     end
 
     @tag :integration
-    test "returns Plaid.Error", %{params: params} do
+    test "error integration test", %{params: params} do
       bypass = Bypass.open()
 
       config = %{
@@ -143,10 +128,12 @@ defmodule Plaid.LinkTest do
         root_uri: "http://localhost:#{bypass.port}/"
       }
 
-      body = Plaid.Factory.http_response_body(:error)
+      body = http_response_body(:error)
 
       Bypass.expect(bypass, fn conn ->
-        Plug.Conn.resp(conn, 400, Poison.encode!(body))
+        conn
+        |> Plug.Conn.put_resp_header("content-type", "application/json")
+        |> Plug.Conn.resp(400, Poison.encode!(body))
       end)
 
       assert {:error, %Plaid.Error{}} = Plaid.Link.get_link_token(params, config)
