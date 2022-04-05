@@ -2,6 +2,7 @@ defmodule Plaid.InstitutionsTest do
   use ExUnit.Case, async: true
 
   import Mox
+  import Plaid.Factory
 
   setup do
     verify_on_exit!()
@@ -43,36 +44,24 @@ defmodule Plaid.InstitutionsTest do
 
   describe "institutions get/2" do
     @tag :unit
-    test "makes post request to institutions/get endpoint", %{params: params, config: config} do
+    test "submits request and unmarshalls response", %{params: params, config: config} do
       PlaidMock
-      |> expect(:valid_credentials?, fn _config -> true end)
-      |> expect(:make_request, fn method, endpoint, _params, _config ->
-        assert method == :post
-        assert endpoint == "institutions/get"
-        {:ok, %Plaid.HTTPClient.Response{}}
+      |> expect(:send_request, fn request, _client ->
+        assert request.method == :post
+        assert request.endpoint == "institutions/get"
+        {:ok, %Tesla.Env{}}
       end)
-      |> expect(:handle_response, fn _response, endpoint, _config ->
-        assert endpoint == :institutions
-        {:ok, %Plaid.Institutions{}}
+      |> expect(:handle_response, fn _response ->
+        {:ok, http_response_body(:institutions)}
       end)
 
-      assert {:ok, %Plaid.Institutions{}} = Plaid.Institutions.get(params, config)
-    end
-
-    @tag :unit
-    test "raises if credentials aren't provided", %{params: params, config: config} do
-      PlaidMock
-      |> expect(:valid_credentials?, fn _config ->
-        raise Plaid.MissingClientIdError
-      end)
-
-      assert_raise Plaid.MissingClientIdError, fn ->
-        Plaid.Institutions.get(params, config)
-      end
+      assert {:ok, ds} = Plaid.Institutions.get(params, config)
+      assert Plaid.Institutions == ds.__struct__
+      assert Plaid.Institutions.Institution == List.first(ds.institutions).__struct__
     end
 
     @tag :integration
-    test "returns Plaid.Institutions data structure", %{params: params} do
+    test "success integration test", %{params: params} do
       bypass = Bypass.open()
 
       config = %{
@@ -81,17 +70,19 @@ defmodule Plaid.InstitutionsTest do
         root_uri: "http://localhost:#{bypass.port}/"
       }
 
-      body = Plaid.Factory.http_response_body(:institutions)
+      body = http_response_body(:institutions)
 
       Bypass.expect(bypass, fn conn ->
-        Plug.Conn.resp(conn, 200, Poison.encode!(body))
+        conn
+        |> Plug.Conn.put_resp_header("content-type", "application/json")
+        |> Plug.Conn.resp(200, Poison.encode!(body))
       end)
 
       assert {:ok, %Plaid.Institutions{}} = Plaid.Institutions.get(params, config)
     end
 
     @tag :integration
-    test "returns Plaid.Error", %{params: params} do
+    test "error integration test", %{params: params} do
       bypass = Bypass.open()
 
       config = %{
@@ -100,10 +91,12 @@ defmodule Plaid.InstitutionsTest do
         root_uri: "http://localhost:#{bypass.port}/"
       }
 
-      body = Plaid.Factory.http_response_body(:error)
+      body = http_response_body(:error)
 
       Bypass.expect(bypass, fn conn ->
-        Plug.Conn.resp(conn, 400, Poison.encode!(body))
+        conn
+        |> Plug.Conn.put_resp_header("content-type", "application/json")
+        |> Plug.Conn.resp(400, Poison.encode!(body))
       end)
 
       assert {:error, %Plaid.Error{}} = Plaid.Institutions.get(params, config)
@@ -112,59 +105,42 @@ defmodule Plaid.InstitutionsTest do
 
   describe "institutions get_by_id/2" do
     @tag :unit
-    test "makes post request to institutions/get_by_id endpoint", %{
+    test "sends request and unmarshalls response", %{
       params: params,
       config: config
     } do
       PlaidMock
-      |> expect(:valid_credentials?, fn _config -> true end)
-      |> expect(:make_request, fn method, endpoint, _params, _config ->
-        assert method == :post
-        assert endpoint == "institutions/get_by_id"
-        {:ok, %Plaid.HTTPClient.Response{}}
+      |> expect(:send_request, fn request, _client ->
+        assert request.method == :post
+        assert request.endpoint == "institutions/get_by_id"
+        assert %{metadata: _} = request.opts
+        {:ok, %Tesla.Env{}}
       end)
-      |> expect(:handle_response, fn _response, endpoint, _config ->
-        assert endpoint == :institution
-        {:ok, %Plaid.Institutions.Institution{}}
+      |> expect(:handle_response, fn _response ->
+        {:ok, http_response_body(:institution)}
       end)
 
-      assert {:ok, %Plaid.Institutions.Institution{}} =
-               Plaid.Institutions.get_by_id(params, config)
+      assert {:ok, ds} = Plaid.Institutions.get_by_id(params, config)
+      assert Plaid.Institutions.Institution == ds.__struct__
+      assert ds.request_id
     end
 
     @tag :unit
-    test "converts string parameter to map before calling make_request/4", %{config: config} do
+    test "converts string parameter to map before calling send_request/2", %{config: config} do
       PlaidMock
-      |> expect(:valid_credentials?, fn _config -> true end)
-      |> expect(:make_request, fn method, endpoint, params, _config ->
-        assert method == :post
-        assert endpoint == "institutions/get_by_id"
-        assert params == %{institution_id: "ins_1"}
-        {:ok, %Plaid.HTTPClient.Response{}}
+      |> expect(:send_request, fn request, _client ->
+        assert request.body == %{institution_id: "ins_1"}
+        {:ok, %Tesla.Env{}}
       end)
-      |> expect(:handle_response, fn _response, endpoint, _config ->
-        assert endpoint == :institution
-        {:ok, %Plaid.Institutions.Institution{}}
+      |> expect(:handle_response, fn _response ->
+        {:ok, http_response_body(:institution)}
       end)
 
-      assert {:ok, %Plaid.Institutions.Institution{}} =
-               Plaid.Institutions.get_by_id("ins_1", config)
-    end
-
-    @tag :unit
-    test "raises if credentials aren't provided", %{params: params, config: config} do
-      PlaidMock
-      |> expect(:valid_credentials?, fn _config ->
-        raise Plaid.MissingClientIdError
-      end)
-
-      assert_raise Plaid.MissingClientIdError, fn ->
-        Plaid.Institutions.get_by_id(params, config)
-      end
+      Plaid.Institutions.get_by_id("ins_1", config)
     end
 
     @tag :integration
-    test "returns Plaid.Institutions data structure" do
+    test "success integration test" do
       bypass = Bypass.open()
 
       config = %{
@@ -173,10 +149,12 @@ defmodule Plaid.InstitutionsTest do
         root_uri: "http://localhost:#{bypass.port}/"
       }
 
-      body = Plaid.Factory.http_response_body(:institution)
+      body = http_response_body(:institution)
 
       Bypass.expect(bypass, fn conn ->
-        Plug.Conn.resp(conn, 200, Poison.encode!(body))
+        conn
+        |> Plug.Conn.put_resp_header("content-type", "application/json")
+        |> Plug.Conn.resp(200, Poison.encode!(body))
       end)
 
       assert {:ok, %Plaid.Institutions.Institution{}} =
@@ -184,7 +162,7 @@ defmodule Plaid.InstitutionsTest do
     end
 
     @tag :integration
-    test "returns Plaid.Error" do
+    test "error integration test" do
       bypass = Bypass.open()
 
       config = %{
@@ -193,10 +171,12 @@ defmodule Plaid.InstitutionsTest do
         root_uri: "http://localhost:#{bypass.port}/"
       }
 
-      body = Plaid.Factory.http_response_body(:error)
+      body = http_response_body(:error)
 
       Bypass.expect(bypass, fn conn ->
-        Plug.Conn.resp(conn, 400, Poison.encode!(body))
+        conn
+        |> Plug.Conn.put_resp_header("content-type", "application/json")
+        |> Plug.Conn.resp(400, Poison.encode!(body))
       end)
 
       assert {:error, %Plaid.Error{}} = Plaid.Institutions.get_by_id("ins_1", config)
@@ -205,36 +185,25 @@ defmodule Plaid.InstitutionsTest do
 
   describe "institutions search/2" do
     @tag :unit
-    test "makes post request to institutions/get endpoint", %{params: params, config: config} do
+    test "sends request and unmarshalls response", %{params: params, config: config} do
       PlaidMock
-      |> expect(:valid_credentials?, fn _config -> true end)
-      |> expect(:make_request, fn method, endpoint, _params, _config ->
-        assert method == :post
-        assert endpoint == "institutions/search"
-        {:ok, %Plaid.HTTPClient.Response{}}
+      |> expect(:send_request, fn request, _client ->
+        assert request.method == :post
+        assert request.endpoint == "institutions/search"
+        assert %{metadata: _} = request.opts
+        {:ok, %Tesla.Env{}}
       end)
-      |> expect(:handle_response, fn _response, endpoint, _config ->
-        assert endpoint == :institutions
-        {:ok, %Plaid.Institutions{}}
-      end)
-
-      assert {:ok, %Plaid.Institutions{}} = Plaid.Institutions.search(params, config)
-    end
-
-    @tag :unit
-    test "raises if credentials aren't provided", %{params: params, config: config} do
-      PlaidMock
-      |> expect(:valid_credentials?, fn _config ->
-        raise Plaid.MissingClientIdError
+      |> expect(:handle_response, fn _response ->
+        {:ok, http_response_body(:institutions)}
       end)
 
-      assert_raise Plaid.MissingClientIdError, fn ->
-        Plaid.Institutions.search(params, config)
-      end
+      assert {:ok, ds} = Plaid.Institutions.search(params, config)
+      assert Plaid.Institutions == ds.__struct__
+      assert Plaid.Institutions.Institution == List.first(ds.institutions).__struct__
     end
 
     @tag :integration
-    test "returns Plaid.Institutions data structure", %{params: params} do
+    test "success integration test", %{params: params} do
       bypass = Bypass.open()
 
       config = %{
@@ -243,17 +212,19 @@ defmodule Plaid.InstitutionsTest do
         root_uri: "http://localhost:#{bypass.port}/"
       }
 
-      body = Plaid.Factory.http_response_body(:institutions)
+      body = http_response_body(:institutions)
 
       Bypass.expect(bypass, fn conn ->
-        Plug.Conn.resp(conn, 200, Poison.encode!(body))
+        conn
+        |> Plug.Conn.put_resp_header("content-type", "application/json")
+        |> Plug.Conn.resp(200, Poison.encode!(body))
       end)
 
       assert {:ok, %Plaid.Institutions{}} = Plaid.Institutions.search(params, config)
     end
 
     @tag :integration
-    test "returns Plaid.Error", %{params: params} do
+    test "error integration test", %{params: params} do
       bypass = Bypass.open()
 
       config = %{
@@ -262,10 +233,12 @@ defmodule Plaid.InstitutionsTest do
         root_uri: "http://localhost:#{bypass.port}/"
       }
 
-      body = Plaid.Factory.http_response_body(:error)
+      body = http_response_body(:error)
 
       Bypass.expect(bypass, fn conn ->
-        Plug.Conn.resp(conn, 400, Poison.encode!(body))
+        conn
+        |> Plug.Conn.put_resp_header("content-type", "application/json")
+        |> Plug.Conn.resp(400, Poison.encode!(body))
       end)
 
       assert {:error, %Plaid.Error{}} = Plaid.Institutions.search(params, config)
