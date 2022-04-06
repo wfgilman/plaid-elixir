@@ -6,7 +6,15 @@ defmodule Plaid.AuthTest do
 
   setup do
     verify_on_exit!()
-    {:ok, params: %{access_token: "my-token"}, config: %{client: PlaidMock}}
+
+    {:ok,
+     params: %{access_token: "my-token"},
+     config: %{
+       client: PlaidMock,
+       client_id: "test_id",
+       secret: "test_secret",
+       root_uri: "http://localhost:4000/"
+     }}
   end
 
   @moduletag :auth

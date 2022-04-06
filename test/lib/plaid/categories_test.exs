@@ -6,7 +6,16 @@ defmodule Plaid.CategoriesTest do
 
   setup do
     verify_on_exit!()
-    {:ok, %{config: %{client: PlaidMock}}}
+
+    {:ok,
+     %{
+       config: %{
+         client: PlaidMock,
+         client_id: "test_id",
+         secret: "test_secret",
+         root_uri: "http://localhost:4000/"
+       }
+     }}
   end
 
   @moduletag :categories
