@@ -5,7 +5,6 @@ defmodule Plaid do
   [Plaid API Docs](https://plaid.com/docs/api)
   """
 
-  alias Plaid.Client
   alias Plaid.Client.Request
 
   defmodule MissingClientIdError do
