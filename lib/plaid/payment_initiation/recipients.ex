@@ -3,6 +3,9 @@ defmodule Plaid.PaymentInitiation.Recipients do
   Functions for Plaid `payment_initiation/recipient` endpoints.
   """
 
+  alias Plaid.Client.Request
+  alias Plaid.Client
+
   @derive Jason.Encoder
   defstruct recipients: [], request_id: nil
 
@@ -12,9 +15,7 @@ defmodule Plaid.PaymentInitiation.Recipients do
         }
   @type params :: %{required(atom) => term}
   @type config :: %{required(atom) => String.t() | keyword}
-  @type error :: {:error, Plaid.Error.t() | Plaid.HTTPClient.Error.t()} | no_return
-
-  @endpoint :"payment_initiation/recipient"
+  @type error :: {:error, Plaid.Error.t() | any()} | no_return
 
   defmodule Recipient do
     @moduledoc """
@@ -68,13 +69,43 @@ defmodule Plaid.PaymentInitiation.Recipients do
   """
   @spec create(params, config) :: {:ok, Plaid.PaymentInitiation.Recipients.Recipient.t()} | error
   def create(params, config \\ %{}) do
-    client = config[:client] || Plaid
+    request_operation("payment_initiation/recipient/create", params, config)
+  end
 
-    if client.valid_credentials?(config) do
-      :post
-      |> client.make_request("#{@endpoint}/create", params, config)
-      |> client.handle_response(@endpoint, config)
+  defp request_operation(endpoint, params, config) do
+    c = config[:client] || Plaid
+
+    Request
+    |> struct(method: :post, endpoint: endpoint, body: params)
+    |> Request.add_metadata(config)
+    |> c.send_request(Client.new(config))
+    |> c.handle_response()
+    |> case do
+        {:ok, %{"recipients" => _} = body} ->
+          {:ok, map_recipients(body)}
+
+        {:ok, body} ->
+          {:ok, map_recipient(body)}
+
+        {:error, _} = error ->
+          error
     end
+  end
+
+  defp map_recipients(body) do
+    Poison.Decode.transform(body, %{
+      as: %Plaid.PaymentInitiation.Recipients{recipients: [full_struct()]}
+    })
+  end
+
+  defp map_recipient(body) do
+    Poison.Decode.transform(body, %{as: full_struct()})
+  end
+
+  defp full_struct do
+    %Plaid.PaymentInitiation.Recipients.Recipient{
+      address: %Plaid.PaymentInitiation.Recipients.Recipient.Address{}
+    }
   end
 
   @doc """
@@ -89,13 +120,7 @@ defmodule Plaid.PaymentInitiation.Recipients do
   """
   @spec get(params, config) :: {:ok, Plaid.PaymentInitiation.Recipients.Recipient.t()} | error
   def get(params, config \\ %{}) do
-    client = config[:client] || Plaid
-
-    if client.valid_credentials?(config) do
-      :post
-      |> client.make_request("#{@endpoint}/get", params, config)
-      |> client.handle_response(@endpoint, config)
-    end
+    request_operation("payment_initiation/recipient/get", params, config)
   end
 
   @doc """
@@ -103,12 +128,6 @@ defmodule Plaid.PaymentInitiation.Recipients do
   """
   @spec list(config) :: {:ok, Plaid.PaymentInitiation.Recipients.t()} | error
   def list(config \\ %{}) do
-    client = config[:client] || Plaid
-
-    if client.valid_credentials?(config) do
-      :post
-      |> client.make_request("#{@endpoint}/list", %{}, config)
-      |> client.handle_response(@endpoint, config)
-    end
+    request_operation("payment_initiation/recipient/list", %{}, config)
   end
 end

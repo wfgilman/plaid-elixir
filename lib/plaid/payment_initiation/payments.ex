@@ -3,6 +3,9 @@ defmodule Plaid.PaymentInitiation.Payments do
   Functions for Plaid `payment_initiation/payment` endpoints.
   """
 
+  alias Plaid.Client.Request
+  alias Plaid.Client
+
   @derive Jason.Encoder
   defstruct payments: [],
             next_cursor: nil,
@@ -15,9 +18,7 @@ defmodule Plaid.PaymentInitiation.Payments do
         }
   @type params :: %{required(atom) => term}
   @type config :: %{required(atom) => String.t() | keyword}
-  @type error :: {:error, Plaid.Error.t() | Plaid.HTTPClient.Error.t()} | no_return
-
-  @endpoint :"payment_initiation/payment"
+  @type error :: {:error, Plaid.Error.t() | any()} | no_return
 
   defmodule Payment do
     @moduledoc """
@@ -104,13 +105,44 @@ defmodule Plaid.PaymentInitiation.Payments do
   """
   @spec create(params, config) :: {:ok, Plaid.PaymentInitiation.Payments.Payment.t()} | error
   def create(params, config \\ %{}) do
-    client = config[:client] || Plaid
+    request_operation("payment_initiation/payment/create", params, config)
+  end
 
-    if client.valid_credentials?(config) do
-      :post
-      |> client.make_request("#{@endpoint}/create", params, config)
-      |> client.handle_response(@endpoint, config)
+  defp request_operation(endpoint, params, config) do
+    c = config[:client] || Plaid
+
+    Request
+    |> struct(method: :post, endpoint: endpoint, body: params)
+    |> Request.add_metadata(config)
+    |> c.send_request(Client.new(config))
+    |> c.handle_response()
+    |> case do
+      {:ok, %{"payments" => _} = body} ->
+        {:ok, map_payments(body)}
+
+      {:ok, body} ->
+        {:ok, map_payment(body)}
+
+      {:error, _} = error ->
+        error
     end
+  end
+
+  defp map_payments(body) do
+    Poison.Decode.transform(body, %{
+      as: %Plaid.PaymentInitiation.Payments{payments: [full_struct()]}
+    })
+  end
+
+  defp map_payment(body) do
+    Poison.Decode.transform(body, %{as: full_struct()})
+  end
+
+  defp full_struct do
+    %Plaid.PaymentInitiation.Payments.Payment{
+      amount: %Plaid.PaymentInitiation.Payments.Payment.Amount{},
+      schedule: %Plaid.PaymentInitiation.Payments.Payment.Schedule{}
+    }
   end
 
   @doc """
@@ -125,13 +157,7 @@ defmodule Plaid.PaymentInitiation.Payments do
   """
   @spec get(params, config) :: {:ok, Plaid.PaymentInitiation.Payments.Payment.t()} | error
   def get(params, config \\ %{}) do
-    client = config[:client] || Plaid
-
-    if client.valid_credentials?(config) do
-      :post
-      |> client.make_request("#{@endpoint}/get", params, config)
-      |> client.handle_response(@endpoint, config)
-    end
+    request_operation("payment_initiation/payment/get", params, config)
   end
 
   @doc """
@@ -149,12 +175,6 @@ defmodule Plaid.PaymentInitiation.Payments do
   """
   @spec list(params, config) :: {:ok, Plaid.PaymentInitiation.Payments.t()} | error
   def list(params, config \\ %{}) do
-    client = config[:client] || Plaid
-
-    if client.valid_credentials?(config) do
-      :post
-      |> client.make_request("#{@endpoint}/list", params, config)
-      |> client.handle_response(@endpoint, config)
-    end
+    request_operation("payment_initiation/payment/list", params, config)
   end
 end
