@@ -3,6 +3,9 @@ defmodule Plaid.Investments.Holdings do
   Functions for Plaid `investments/holdings` endpoints.
   """
 
+  alias Plaid.Client.Request
+  alias Plaid.Client
+
   @derive Jason.Encoder
   defstruct accounts: [], item: nil, securities: [], holdings: [], request_id: nil
 
@@ -15,9 +18,7 @@ defmodule Plaid.Investments.Holdings do
         }
   @type params :: %{required(atom) => term}
   @type config :: %{required(atom) => String.t() | keyword}
-  @type error :: {:error, Plaid.Error.t() | Plaid.HTTPClient.Error.t()} | no_return
-
-  @endpoint :"investments/holdings"
+  @type error :: {:error, Plaid.Error.t() | any()} | no_return
 
   defmodule Holding do
     @moduledoc """
@@ -63,12 +64,37 @@ defmodule Plaid.Investments.Holdings do
   """
   @spec get(params, config) :: {:ok, Plaid.Investments.Holdings.t()} | error
   def get(params, config \\ %{}) do
-    client = config[:client] || Plaid
+    c = config[:client] || Plaid
 
-    if client.valid_credentials?(config) do
-      :post
-      |> client.make_request("#{@endpoint}/get", params, config)
-      |> client.handle_response(@endpoint, config)
+    Request
+    |> struct(method: :post, endpoint: "investments/holdings/get", body: params)
+    |> Request.add_metadata(config)
+    |> c.send_request(Client.new(config))
+    |> c.handle_response()
+    |> case do
+      {:ok, body} ->
+        {:ok, map_investments_holdings(body)}
+
+      {:error, _} = error ->
+        error
     end
+  end
+
+  defp map_investments_holdings(body) do
+    Poison.Decode.transform(
+      body,
+      %{
+        as: %Plaid.Investments.Holdings{
+          accounts: [
+            %Plaid.Accounts.Account{
+              balances: %Plaid.Accounts.Account.Balance{}
+            }
+          ],
+          securities: [%Plaid.Investments.Security{}],
+          holdings: [%Plaid.Investments.Holdings.Holding{}],
+          item: %Plaid.Item{}
+        }
+      }
+    )
   end
 end
