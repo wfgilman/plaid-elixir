@@ -30,12 +30,12 @@ defmodule Plaid.Mixfile do
   defp deps do
     [
       {:tesla, "~> 1.4"},
-      {:hackney, "~> 1.14"},
+      {:hackney, "~> 1.18"},
       {:poison, "~> 4.0"},
       {:jason, "~> 1.1"},
       {:bypass, "~> 2.1", only: [:test]},
       {:credo, "~> 0.5", only: [:dev], runtime: false},
-      {:excoveralls, "~> 0.6", only: [:test]},
+      {:excoveralls, "~> 0.14", only: [:test]},
       {:ex_doc, ">= 0.0.0", only: [:dev], runtime: false},
       {:dialyxir, "~> 1.0", only: [:dev], runtime: false},
       {:telemetry, "~> 1.0"},

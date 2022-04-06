@@ -6,19 +6,15 @@
 - `Plaid.get_cred/0` - Soft deprecated since `2.0`
 - `Plaid.get_key/0` - Soft deprecated since `2.0`
 - `Plaid.make_request/5` - Soft deprecated since `2.0`
-- `Plaid.make_request_with_cred/6` - Replaced by `Plaid.make_request/4`
-- `Plaid.Utils` - Renamed to `Plaid.Handler`
-- `Plaid.Utils.map_response` - Made a private function called by `Plaid.Handler.handle_resp`
+- `Plaid.make_request_with_cred/6` - Replaced by `Plaid.send_request/2`
+- `Plaid.Utils` - Removed and moved unmarshalling into calling module
 - `Plaid.Item.create_processor_token/3` - Replaced by `Plaid.Item.create_processor_token/2`
 
 ### Return Type Changes
-- `HTTPoison.Error` has been replaced with `Plaid.HTTPClient.Error` throughout the library
 - `Plaid.PaymentInitiation.Payments.create/2` - Returns `Plaid.PaymentInitiation.Payments.Payment.t` instead of `Plaid.PaymentInitiation.Payments.t`
 - `Plaid.PaymentInitiation.Payments.list/2` - Returns `Plaid.PaymentInitiation.Payments.t` instead of `[Plaid.PaymentInitiation.Payments.Payment.t]`. Access the former's `payments` key instead
 - `Plaid.PaymentInitiation.Recipients.create/2` - Returns `Plaid.PaymentInitiation.Recipients.Recipient.t` instead of `Plaid.PaymentInitiation.Recipients.t`
 - `Plaid.PaymentInitiation.Recipients.list/1` - Returns `Plaid.PaymentInitiation.Recipients.t` instead of `[Plaid.PaymentInitiation.Recipients.Recipient.t]` Access the former's `recipients` key instead
-- `Plaid.make_request/4` - Returns `{:ok, Plaid.HTTPClient.Response.t}` instead of `{:ok, HTTPoison.Response.t`, and `{:error, Plaid.HTTPClient.Error.t` instead of `{:error, HTTPoison.Error.t`
-- `Plaid.Handler.handle_resp/2` - Now also returns `no_return` when raising `Plaid.HTTPClient.Error`
 
 ### Struct Changes
 - `Plaid.Auth` - Fixed bug causing the `numbers` key not to be set to type `Plaid.Auth.Numbers`
@@ -32,10 +28,10 @@
 - `Plaid.Item` - Removed type `service` which is now passed in the `params` argument to `Plaid.Item.create_processor_token/2`
 
 ### Configuration
-- Added `http_client`
+- Added `adapter` to support Tesla
+- Added `middleware` to support Tesla
 - `httpoison_options` changed to `http_options`
 
 ### Project Structure
-- Moved HTTP request functionality to `Plaid.HTTPClient` for better testing and customization
+- Moved HTTP request functionality to `Tesla` for better testing and customization
 - Moved all telemetry functionality to `Plaid.Telemetry` which is invoked by `Tesla.Middleware` behaviour
-- Renamed `Plaid.Utils` to `Plaid.Handler`

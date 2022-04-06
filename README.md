@@ -44,6 +44,34 @@ def deps do
 end
 ```
 
+Call the library from your project and match on the responses, for example, from a
+Phoenix controller.
+
+```elixir
+defmodule MyController do
+  use Web, :controller
+
+  def index(conn, _params) do
+    token = ...
+
+    case Plaid.Accounts.get(%{access_token: token}) do
+      {:ok, %Plaid.Accounts{accounts: accts}} ->
+        conn
+        |> put_status(200)
+        |> json(accts)
+      {:error, %Plaid.Error{error_message: msg}} ->
+        conn
+        |> put_status(400)
+        |> json(%{message: msg})
+      {:error, reason} ->
+        conn
+        |> put_status(400)
+        |> json(%{message: "Request failed, please try again."})
+    end
+  end
+end
+```
+
 ## Configuration
 
 All calls to Plaid require your client id and secret. Add the following configuration
@@ -56,21 +84,19 @@ config :plaid,
   root_uri: "https://development.plaid.com/",
   client_id: "your_client_id",
   secret: "your_secret",
-  http_client: Plaid.HTTPClient, # optional
+  adapter: Tesla.Adapter.Hackney, # optional
+  middleware: [Tesla.Middleware.Logger], # optional
   http_options: [timeout: 10_000, recv_timeout: 30_000] # optional
 ```
 
 By default, `root_uri` is set by `mix` environment. You can override it in your config.
-- `dev` - development.plaid.com
-- `prod` - production.plaid.com
+* `dev` - https://development.plaid.com/
+* `prod` - https://production.plaid.com/
 
-Finally, you can specify your HTTP client of choice with `http_client` in a module that implements the
-`Plaid.HTTPClient.call/6` behaviour. Under the hood, the HTTP client implementation uses [Tesla](https://github.com/teamon/tesla)
-for middleware and [hackney](https://github.com/benoitc/hackney) as the actual HTTP client adapter, which
-is the HTTP client used by prior versions of this library. If this no value is provided, the library
-will use the default implementation, `Plaid.HTTPClient`.
+Finally, you can specify your HTTP client of choice with `adapter` key. The adapter is passed to [Tesla](https://github.com/teamon/tesla) and [hackney](https://github.com/benoitc/hackney) is the default adapter if this
+configuration is omitted.
 
-The `http_options` key specifies the custom configuration for HTTP client adapter. It's recommended you
+The `http_options` key specifies the custom configuration for your HTTP client adapter. It's recommended you
 extend the receive timeout for Plaid, especially for retrieving historical transactions. In the code
 snippet above, `[timeout: 10_000, recv_timeout: 30_000]` are timeout options understood by hackney.
 
@@ -90,7 +116,8 @@ Plaid.Accounts.get(
 ```
 
 HTTP client options may also be passed to the configuration at runtime. This can be
-useful if you'd like to extend the `recv_timeout` parameter for certain calls to Plaid.
+useful if you'd like to extend the receive timeout for certain calls to Plaid.
+HTTP client options will need to conform to the selected HTTP adapter.
 
 ```elixir
 Plaid.Transactions.get(
@@ -135,101 +162,17 @@ All times are in `:native` unit. Telemetry instrumentation is implemented using 
 
 Using [Tesla](https://github.com/teamon/tesla) under the hood provides additional capabilities that can
 be useful for communicating with Plaid, such as retry logic and logging, or emitting refined telemetry events.
-To use customized middleware, perform the following steps.
 
-### 1. Implement the Plaid.HTTPClient.call/6 behaviour
-Add a new module to your project that conforms to the Plaid.HTTPClient behaviour, then specify it in `config.exs`.
+By default this library uses the following middleware:
+* `Tesla.Middleware.BaseUrl`
+* `Tesla.Middleware.Headers`
+* `Tesla.Middleware.JSON`
+* `Plaid.Telemetry` (_custom implementation of_ `Tesla.Middleware.Telemetry`)
 
-```elixir
-defmodule MyHTTPClient do
+To include additional middleware, add either Tesla's supported middleware, or your own, to the `middleware` key
+in `config.exs` or pass it via the `config` argument at runtime.
 
-  @behaviour Plaid.HTTPClient
-
-  @impl Plaid.HTTPClient
-  def call(method, url, body, headers, http_options, metadata) do
-    client = new(http_options)
-
-    options = [
-      method: method,
-      url: url,
-      headers: headers,
-      body: body,
-      opts: [metadata: metadata]
-    ]
-
-    case Tesla.request(client, options) do
-      {:ok, %Tesla.Env{status: status, body: body}} ->
-        {:ok, %Plaid.HTTPClient.Response{status_code: status, body: Poison.Parser.parse!(body, %{})}}
-
-      {:error, reason} ->
-        {:error, %Plaid.HTTPClient.Error{reason: reason}}
-    end
-  end
-
-  defp new(http_options) do
-    ...
-  end
-end
-```
-
-```elixir
-config :plaid,
-  http_client: MyHTTPClient
-```
-
-### 2. Create your custom Tesla client
-Build a Tesla client with your desired HTTP adapter and Middlewares. Consult the Tesla [documentation](https://hexdocs.pm/tesla/readme.html) to see which middlewares require mix dependencies and inclusion in `application/0`.
-```elixir
-defmodule MyHTTPClient do
-
-  @behaviour Plaid.HTTPClient
-
-  @impl Plaid.HTTPClient
-  def call(method, url, body, headers, http_options, metadata) do
-    client = new(http_options)
-    ...
-  end
-
-  defp new(http_options) do
-    middleware = [
-      Tesla.Middleware.JSON,
-      Tesla.Middleware.Logger, # Custom logging
-      Tesla.Middleware.Fuse,   # Custom retry
-      MyMiddleware             # Custom middleware
-    ]
-
-    adapter = {Tesla.Adapter.Hackney, http_options}
-    Tesla.client(middleware, adapter)
-  end
-end
-```
-```elixir
-# mix.exs
-
-def application do
-  [extra_applications: [:logger, :fuse]]
-end
-
-defp deps do
-  ...
-  {:fuse, "~> 2.4"}
-end
-```
-
-### 3. Write your custom Middlewares
-If the standard middlewares available in the Tesla library do not meet your needs you can write your own. Just create a new module in your project which conforms to the [`Tesla.Middleware.call/3`](https://hexdocs.pm/tesla/Tesla.Middleware.html#c:call/3) behaviour and add it to the list of middlewares defined in your custom HTTP client.
-
-```elixir
-defmodule MyMiddleware do
-
-  @behaviour Tesla.Middleware
-
-  @impl Tesla.Middleware
-  def call(env, next, opts) do
-    ...
-  end
-end
-```
+To write your own middleware, please see [Tesla's documentation](https://hexdocs.pm/tesla/Tesla.Middleware.html#module-writing-custom-middleware) or the [Wiki Cookbook on Github](https://github.com/teamon/tesla/wiki).
 
 ## Compatibility
 
