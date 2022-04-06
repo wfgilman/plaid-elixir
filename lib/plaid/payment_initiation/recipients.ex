@@ -81,14 +81,14 @@ defmodule Plaid.PaymentInitiation.Recipients do
     |> c.send_request(Client.new(config))
     |> c.handle_response()
     |> case do
-        {:ok, %{"recipients" => _} = body} ->
-          {:ok, map_recipients(body)}
+      {:ok, %{"recipients" => _} = body} ->
+        {:ok, map_recipients(body)}
 
-        {:ok, body} ->
-          {:ok, map_recipient(body)}
+      {:ok, body} ->
+        {:ok, map_recipient(body)}
 
-        {:error, _} = error ->
-          error
+      {:error, _} = error ->
+        error
     end
   end
 
