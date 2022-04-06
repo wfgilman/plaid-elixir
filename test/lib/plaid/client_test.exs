@@ -216,6 +216,10 @@ defmodule Plaid.ClientTest do
       client = Client.new(%{adapter: Tesla.Adapter.Mint, http_options: [recv_timeout: 67_890]})
 
       assert client.adapter == {Tesla.Adapter.Mint, :call, [[recv_timeout: 67_890]]}
+
+      # cleanup
+      Application.delete_env(:plaid, :adapter)
+      Application.delete_env(:plaid, :http_options)
     end
   end
 end
