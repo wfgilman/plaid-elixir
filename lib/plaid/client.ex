@@ -81,7 +81,7 @@ defmodule Plaid.Client do
        ]},
       Tesla.Middleware.JSON,
       Plaid.Telemetry
-    ]
+    ] ++ get_middleware(config)
 
     adapter = {get_adapter(config), get_http_options(config)}
 
@@ -115,6 +115,15 @@ defmodule Plaid.Client do
 
       secret ->
         secret
+    end
+  end
+
+  defp get_middleware(config) do
+    case config[:middleware] || Application.get_env(:plaid, :middleware) || [] do
+      middleware when is_list(middleware) ->
+        middleware
+      m ->
+        [m]
     end
   end
 
