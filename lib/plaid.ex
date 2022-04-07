@@ -50,9 +50,9 @@ defmodule Plaid do
   @doc """
   Handle an HTTP response from Plaid.
 
-  Takes response argument in the form of ``{:ok, Tesla.Env.t}`` or ``{:error, any()}``
+  Takes response argument in the form of `{:ok, Tesla.Env.t}` or `{:error, any()}`
   and a 1-arity mapping function argument which is applied to the body of the
-  Tesla.Env in the success case to unmarshall JSON into structured data.
+  Tesla.Env in the success case to unmarshal JSON into structured data.
 
   Error cases are diverted into `{:error, Plaid.Error.t}` and `{:error, any()}`
   for handling Plaid and HTTP failure responses.
