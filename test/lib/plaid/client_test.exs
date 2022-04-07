@@ -203,23 +203,23 @@ defmodule Plaid.ClientTest do
       client = Client.new(%{middleware: [Tesla.Middleware.Logger]})
 
       assert Enum.any?(client.pre, fn
-              {Tesla.Middleware.Logger, _, _} ->
-                true
+               {Tesla.Middleware.Logger, _, _} ->
+                 true
 
-              _ ->
-                false
-              end)
+               _ ->
+                 false
+             end)
 
       # accepts options and wraps in a list if omitted
       client2 = Client.new(%{middleware: {Tesla.Middleware.Retry, delay: 500}})
 
       assert Enum.any?(client2.pre, fn
-              {Tesla.Middleware.Retry, _, [[delay: 500]]} ->
-                true
+               {Tesla.Middleware.Retry, _, [[delay: 500]]} ->
+                 true
 
-              _ ->
-                false
-              end)
+               _ ->
+                 false
+             end)
 
       # reads from app env
       Application.put_env(:plaid, :middleware, Tesla.Middleware.Fuse)
@@ -227,12 +227,12 @@ defmodule Plaid.ClientTest do
       client3 = Client.new()
 
       assert Enum.any?(client3.pre, fn
-              {Tesla.Middleware.Fuse, _, _} ->
-                true
+               {Tesla.Middleware.Fuse, _, _} ->
+                 true
 
-              _ ->
-                false
-              end)
+               _ ->
+                 false
+             end)
 
       # cleanup
       Application.delete_env(:plaid, :middleware)

@@ -36,14 +36,7 @@ defmodule Plaid.Identity do
     |> struct(method: :post, endpoint: "identity/get", body: params)
     |> Request.add_metadata(config)
     |> c.send_request(Client.new(config))
-    |> c.handle_response()
-    |> case do
-      {:ok, body} ->
-        {:ok, map_identity(body)}
-
-      {:error, _} = error ->
-        error
-    end
+    |> c.handle_response(&map_identity(&1))
   end
 
   defp map_identity(body) do

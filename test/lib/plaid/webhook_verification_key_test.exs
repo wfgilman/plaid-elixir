@@ -34,8 +34,9 @@ defmodule Plaid.WebhookVerificationKeyTest do
         assert %{metadata: _} = request.opts
         {:ok, %Tesla.Env{}}
       end)
-      |> expect(:handle_response, fn _response ->
-        {:ok, http_response_body(:webhook_verification_key)}
+      |> expect(:handle_response, fn _response, mapper ->
+        body = http_response_body(:webhook_verification_key)
+        {:ok, mapper.(body)}
       end)
 
       assert {:ok, ds} = Plaid.WebhookVerificationKey.get(params, config)

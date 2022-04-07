@@ -40,8 +40,9 @@ defmodule Plaid.IncomeTest do
         assert %{metadata: _} = request.opts
         {:ok, %Tesla.Env{}}
       end)
-      |> expect(:handle_response, fn _response ->
-        {:ok, http_response_body(:income)}
+      |> expect(:handle_response, fn _response, mapper ->
+        body = http_response_body(:income)
+        {:ok, mapper.(body)}
       end)
 
       assert {:ok, ds} = Plaid.Income.get(params, config)

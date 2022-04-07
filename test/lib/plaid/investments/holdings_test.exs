@@ -40,8 +40,9 @@ defmodule Plaid.Investments.HoldingsTest do
         assert %{metadata: _} = request.opts
         {:ok, %Tesla.Env{}}
       end)
-      |> expect(:handle_response, fn _response ->
-        {:ok, http_response_body(:"investments/holdings")}
+      |> expect(:handle_response, fn _response, mapper ->
+        body = http_response_body(:"investments/holdings")
+        {:ok, mapper.(body)}
       end)
 
       assert {:ok, ds} = Plaid.Investments.Holdings.get(params, config)

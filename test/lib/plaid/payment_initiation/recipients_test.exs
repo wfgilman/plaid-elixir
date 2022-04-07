@@ -41,8 +41,9 @@ defmodule Plaid.PaymentInitiation.RecipientsTest do
         assert %{metadata: _} = request.opts
         {:ok, %Tesla.Env{}}
       end)
-      |> expect(:handle_response, fn _response ->
-        {:ok, http_response_body(:"payment_initiation/recipient/create")}
+      |> expect(:handle_response, fn _response, mapper ->
+        body = http_response_body(:"payment_initiation/recipient/create")
+        {:ok, mapper.(body)}
       end)
 
       assert {:ok, ds} = Plaid.PaymentInitiation.Recipients.create(params, config)
@@ -105,8 +106,9 @@ defmodule Plaid.PaymentInitiation.RecipientsTest do
         assert %{metadata: _} = request.opts
         {:ok, %Tesla.Env{}}
       end)
-      |> expect(:handle_response, fn _response ->
-        {:ok, http_response_body(:"payment_initiation/recipient/get")}
+      |> expect(:handle_response, fn _response, mapper ->
+        body = http_response_body(:"payment_initiation/recipient/get")
+        {:ok, mapper.(body)}
       end)
 
       assert {:ok, %Plaid.PaymentInitiation.Recipients.Recipient{}} =
@@ -167,8 +169,9 @@ defmodule Plaid.PaymentInitiation.RecipientsTest do
         assert %{metadata: _} = request.opts
         {:ok, %Tesla.Env{}}
       end)
-      |> expect(:handle_response, fn _response ->
-        {:ok, http_response_body(:"payment_initiation/recipient/list")}
+      |> expect(:handle_response, fn _response, mapper ->
+        body = http_response_body(:"payment_initiation/recipient/list")
+        {:ok, mapper.(body)}
       end)
 
       assert {:ok, ds} = Plaid.PaymentInitiation.Recipients.list(config)

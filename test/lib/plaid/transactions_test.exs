@@ -44,8 +44,9 @@ defmodule Plaid.TransactionsTest do
         assert %{metadata: _} = request.opts
         {:ok, %Tesla.Env{}}
       end)
-      |> expect(:handle_response, fn _response ->
-        {:ok, http_response_body(:transactions)}
+      |> expect(:handle_response, fn _response, mapper ->
+        body = http_response_body(:transactions)
+        {:ok, mapper.(body)}
       end)
 
       assert {:ok, ds} = Plaid.Transactions.get(params, config)

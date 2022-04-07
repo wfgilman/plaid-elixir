@@ -153,14 +153,7 @@ defmodule Plaid.Transactions do
     |> struct(method: :post, endpoint: "transactions/get", body: params)
     |> Request.add_metadata(config)
     |> c.send_request(Client.new(config))
-    |> c.handle_response()
-    |> case do
-      {:ok, body} ->
-        {:ok, map_transactions(body)}
-
-      {:error, _} = error ->
-        error
-    end
+    |> c.handle_response(&map_transactions(&1))
   end
 
   defp map_transactions(body) do

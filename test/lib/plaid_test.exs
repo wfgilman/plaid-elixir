@@ -6,6 +6,8 @@ defmodule PlaidTest do
 
   @moduletag :plaid
 
+  defmodule Result, do: defstruct([:some])
+
   describe "plaid send_request/2" do
     setup do
       bypass = Bypass.open()
@@ -220,16 +222,18 @@ defmodule PlaidTest do
     end
   end
 
-  describe "plaid handle_response/1" do
+  describe "plaid handle_response/2" do
     @describetag :unit
 
-    test "returns {:ok, body} for http response 200-299" do
+    test "returns {:ok, body} and applies mapper fun for http response 200-299" do
       env = %Tesla.Env{
         status: 200,
         body: %{some: "body"}
       }
 
-      assert {:ok, %{some: "body"}} == Plaid.handle_response({:ok, env})
+      mapper = fn body -> struct(Result, Map.to_list(body)) end
+
+      assert {:ok, %Result{some: "body"}} == Plaid.handle_response({:ok, env}, mapper)
     end
 
     test "returns {:error, Plaid.Error.t} for response >=300" do
@@ -238,11 +242,15 @@ defmodule PlaidTest do
         body: Plaid.Factory.http_response_body(:error)
       }
 
-      assert {:error, %Plaid.Error{}} = Plaid.handle_response({:ok, env})
+      mapper = fn body -> body end
+
+      assert {:error, %Plaid.Error{}} = Plaid.handle_response({:ok, env}, mapper)
     end
 
     test "returns http failure" do
-      assert {:error, :econnrefused} = Plaid.handle_response({:error, :econnrefused})
+      mapper = fn body -> body end
+
+      assert {:error, :econnrefused} = Plaid.handle_response({:error, :econnrefused}, mapper)
     end
   end
 

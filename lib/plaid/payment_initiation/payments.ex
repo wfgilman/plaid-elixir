@@ -105,27 +105,17 @@ defmodule Plaid.PaymentInitiation.Payments do
   """
   @spec create(params, config) :: {:ok, Plaid.PaymentInitiation.Payments.Payment.t()} | error
   def create(params, config \\ %{}) do
-    request_operation("payment_initiation/payment/create", params, config)
+    request_operation("payment_initiation/payment/create", params, config, &map_payment(&1))
   end
 
-  defp request_operation(endpoint, params, config) do
+  defp request_operation(endpoint, params, config, mapper) do
     c = config[:client] || Plaid
 
     Request
     |> struct(method: :post, endpoint: endpoint, body: params)
     |> Request.add_metadata(config)
     |> c.send_request(Client.new(config))
-    |> c.handle_response()
-    |> case do
-      {:ok, %{"payments" => _} = body} ->
-        {:ok, map_payments(body)}
-
-      {:ok, body} ->
-        {:ok, map_payment(body)}
-
-      {:error, _} = error ->
-        error
-    end
+    |> c.handle_response(mapper)
   end
 
   defp map_payments(body) do
@@ -157,7 +147,7 @@ defmodule Plaid.PaymentInitiation.Payments do
   """
   @spec get(params, config) :: {:ok, Plaid.PaymentInitiation.Payments.Payment.t()} | error
   def get(params, config \\ %{}) do
-    request_operation("payment_initiation/payment/get", params, config)
+    request_operation("payment_initiation/payment/get", params, config, &map_payment(&1))
   end
 
   @doc """
@@ -175,6 +165,6 @@ defmodule Plaid.PaymentInitiation.Payments do
   """
   @spec list(params, config) :: {:ok, Plaid.PaymentInitiation.Payments.t()} | error
   def list(params, config \\ %{}) do
-    request_operation("payment_initiation/payment/list", params, config)
+    request_operation("payment_initiation/payment/list", params, config, &map_payments(&1))
   end
 end

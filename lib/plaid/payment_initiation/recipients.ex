@@ -69,27 +69,17 @@ defmodule Plaid.PaymentInitiation.Recipients do
   """
   @spec create(params, config) :: {:ok, Plaid.PaymentInitiation.Recipients.Recipient.t()} | error
   def create(params, config \\ %{}) do
-    request_operation("payment_initiation/recipient/create", params, config)
+    request_operation("payment_initiation/recipient/create", params, config, &map_recipient(&1))
   end
 
-  defp request_operation(endpoint, params, config) do
+  defp request_operation(endpoint, params, config, mapper) do
     c = config[:client] || Plaid
 
     Request
     |> struct(method: :post, endpoint: endpoint, body: params)
     |> Request.add_metadata(config)
     |> c.send_request(Client.new(config))
-    |> c.handle_response()
-    |> case do
-      {:ok, %{"recipients" => _} = body} ->
-        {:ok, map_recipients(body)}
-
-      {:ok, body} ->
-        {:ok, map_recipient(body)}
-
-      {:error, _} = error ->
-        error
-    end
+    |> c.handle_response(mapper)
   end
 
   defp map_recipients(body) do
@@ -120,7 +110,7 @@ defmodule Plaid.PaymentInitiation.Recipients do
   """
   @spec get(params, config) :: {:ok, Plaid.PaymentInitiation.Recipients.Recipient.t()} | error
   def get(params, config \\ %{}) do
-    request_operation("payment_initiation/recipient/get", params, config)
+    request_operation("payment_initiation/recipient/get", params, config, &map_recipient(&1))
   end
 
   @doc """
@@ -128,6 +118,6 @@ defmodule Plaid.PaymentInitiation.Recipients do
   """
   @spec list(config) :: {:ok, Plaid.PaymentInitiation.Recipients.t()} | error
   def list(config \\ %{}) do
-    request_operation("payment_initiation/recipient/list", %{}, config)
+    request_operation("payment_initiation/recipient/list", %{}, config, &map_recipients(&1))
   end
 end

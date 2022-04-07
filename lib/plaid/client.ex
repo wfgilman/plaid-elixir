@@ -69,19 +69,20 @@ defmodule Plaid.Client do
   """
   @spec new(map) :: Tesla.Client.t()
   def new(config \\ %{}) do
-    middleware = [
-      {Tesla.Middleware.BaseUrl, get_base_url(config)},
-      {Tesla.Middleware.Headers,
-       [
-         {"Content-Type", "application/json"},
-         {"user-agent", "Elixir-SDK"},
-         {"Plaid-Version", "2020-09-14"},
-         {"PLAID-CLIENT-ID", get_client_id(config)},
-         {"PLAID-SECRET", get_secret(config)}
-       ]},
-      Tesla.Middleware.JSON,
-      Plaid.Telemetry
-    ] ++ get_middleware(config)
+    middleware =
+      [
+        {Tesla.Middleware.BaseUrl, get_base_url(config)},
+        {Tesla.Middleware.Headers,
+         [
+           {"Content-Type", "application/json"},
+           {"user-agent", "Elixir-SDK"},
+           {"Plaid-Version", "2020-09-14"},
+           {"PLAID-CLIENT-ID", get_client_id(config)},
+           {"PLAID-SECRET", get_secret(config)}
+         ]},
+        Tesla.Middleware.JSON,
+        Plaid.Telemetry
+      ] ++ get_middleware(config)
 
     adapter = {get_adapter(config), get_http_options(config)}
 
@@ -122,6 +123,7 @@ defmodule Plaid.Client do
     case config[:middleware] || Application.get_env(:plaid, :middleware) || [] do
       middleware when is_list(middleware) ->
         middleware
+
       m ->
         [m]
     end

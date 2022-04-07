@@ -89,26 +89,21 @@ defmodule Plaid.Item do
   """
   @spec get(params, config) :: {:ok, Plaid.Item.t()} | error
   def get(params, config \\ %{}) do
-    map_fun = fn
-      {:ok, %{"item" => item, "request_id" => r, "status" => s}} ->
-        {:ok, map_item(Map.merge(item, %{"request_id" => r, "status" => s}))}
-
-      {:error, _} = error ->
-        error
+    mapper = fn %{"item" => item, "request_id" => r, "status" => s} ->
+      map_item(Map.merge(item, %{"request_id" => r, "status" => s}))
     end
 
-    request_operation("item/get", params, config, map_fun)
+    request_operation("item/get", params, config, mapper)
   end
 
-  defp request_operation(endpoint, params, config, map_fun) do
+  defp request_operation(endpoint, params, config, mapper) do
     c = config[:client] || Plaid
 
     Request
     |> struct(method: :post, endpoint: endpoint, body: params)
     |> Request.add_metadata(config)
     |> c.send_request(Client.new(config))
-    |> c.handle_response()
-    |> map_fun.()
+    |> c.handle_response(mapper)
   end
 
   defp map_item(body) do
@@ -141,15 +136,11 @@ defmodule Plaid.Item do
   """
   @spec exchange_public_token(params, config) :: {:ok, map} | error
   def exchange_public_token(params, config \\ %{}) do
-    map_fun = fn
-      {:ok, %{"access_token" => t, "item_id" => i, "request_id" => r}} ->
-        {:ok, %{access_token: t, item_id: i, request_id: r}}
-
-      {:error, _} = error ->
-        error
+    mapper = fn %{"access_token" => t, "item_id" => i, "request_id" => r} ->
+      %{access_token: t, item_id: i, request_id: r}
     end
 
-    request_operation("item/public_token/exchange", params, config, map_fun)
+    request_operation("item/public_token/exchange", params, config, mapper)
   end
 
   @doc """
@@ -167,15 +158,11 @@ defmodule Plaid.Item do
   """
   @spec create_public_token(params, config) :: {:ok, map} | error
   def create_public_token(params, config \\ %{}) do
-    map_fun = fn
-      {:ok, %{"public_token" => t, "expiration" => e, "request_id" => r}} ->
-        {:ok, %{public_token: t, expiration: e, request_id: r}}
-
-      {:error, _} = error ->
-        error
+    mapper = fn %{"public_token" => t, "expiration" => e, "request_id" => r} ->
+      %{public_token: t, expiration: e, request_id: r}
     end
 
-    request_operation("item/public_token/create", params, config, map_fun)
+    request_operation("item/public_token/create", params, config, mapper)
   end
 
   @doc """
@@ -188,15 +175,11 @@ defmodule Plaid.Item do
   """
   @spec update_webhook(params, config) :: {:ok, Plaid.Item.t()} | error
   def update_webhook(params, config \\ %{}) do
-    map_fun = fn
-      {:ok, %{"item" => item, "request_id" => r}} ->
-        {:ok, map_item(Map.merge(item, %{"request_id" => r}))}
-
-      {:error, _} = error ->
-        error
+    mapper = fn %{"item" => item, "request_id" => r} ->
+      map_item(Map.merge(item, %{"request_id" => r}))
     end
 
-    request_operation("item/webhook/update", params, config, map_fun)
+    request_operation("item/webhook/update", params, config, mapper)
   end
 
   @doc """
@@ -214,15 +197,11 @@ defmodule Plaid.Item do
   """
   @spec rotate_access_token(params, config) :: {:ok, map} | error
   def rotate_access_token(params, config \\ %{}) do
-    map_fun = fn
-      {:ok, %{"new_access_token" => t, "request_id" => r}} ->
-        {:ok, %{new_access_token: t, request_id: r}}
-
-      {:error, _} = error ->
-        error
+    mapper = fn %{"new_access_token" => t, "request_id" => r} ->
+      %{new_access_token: t, request_id: r}
     end
 
-    request_operation("item/access_token/invalidate", params, config, map_fun)
+    request_operation("item/access_token/invalidate", params, config, mapper)
   end
 
   @doc """
@@ -240,15 +219,11 @@ defmodule Plaid.Item do
   """
   @spec update_version_access_token(params, config) :: {:ok, map} | error
   def update_version_access_token(params, config \\ %{}) do
-    map_fun = fn
-      {:ok, %{"access_token" => t, "request_id" => r}} ->
-        {:ok, %{access_token: t, request_id: r}}
-
-      {:error, _} = error ->
-        error
+    mapper = fn %{"access_token" => t, "request_id" => r} ->
+      %{access_token: t, request_id: r}
     end
 
-    request_operation("item/access_token/update_version", params, config, map_fun)
+    request_operation("item/access_token/update_version", params, config, mapper)
   end
 
   @doc """
@@ -266,15 +241,11 @@ defmodule Plaid.Item do
   """
   @spec remove(params, config) :: {:ok, map} | error
   def remove(params, config \\ %{}) do
-    map_fun = fn
-      {:ok, %{"request_id" => r}} ->
-        {:ok, %{request_id: r}}
-
-      {:error, _} = error ->
-        error
+    mapper = fn %{"request_id" => r} ->
+      %{request_id: r}
     end
 
-    request_operation("item/remove", params, config, map_fun)
+    request_operation("item/remove", params, config, mapper)
   end
 
   @doc """
@@ -297,15 +268,11 @@ defmodule Plaid.Item do
   """
   @spec create_processor_token(params, config) :: {:ok, map} | error
   def create_processor_token(params, config) do
-    map_fun = fn
-      {:ok, %{"processor_token" => t, "request_id" => r}} ->
-        {:ok, %{processor_token: t, request_id: r}}
-
-      {:error, _} = error ->
-        error
+    mapper = fn %{"processor_token" => t, "request_id" => r} ->
+      %{processor_token: t, request_id: r}
     end
 
-    request_operation("processor/token/create", params, config, map_fun)
+    request_operation("processor/token/create", params, config, mapper)
   end
 
   @doc """
@@ -324,14 +291,10 @@ defmodule Plaid.Item do
   """
   @spec create_stripe_bank_account_token(params, config) :: {:ok, map} | error
   def create_stripe_bank_account_token(params, config \\ %{}) do
-    map_fun = fn
-      {:ok, %{"stripe_bank_account_token" => t, "request_id" => r}} ->
-        {:ok, %{stripe_bank_account_token: t, request_id: r}}
-
-      {:error, _} = error ->
-        error
+    mapper = fn %{"stripe_bank_account_token" => t, "request_id" => r} ->
+      %{stripe_bank_account_token: t, request_id: r}
     end
 
-    request_operation("processor/stripe/bank_account_token/create", params, config, map_fun)
+    request_operation("processor/stripe/bank_account_token/create", params, config, mapper)
   end
 end

@@ -34,14 +34,7 @@ defmodule Plaid.Categories do
     |> struct(method: :post, endpoint: "categories/get")
     |> Request.add_metadata(config)
     |> c.send_request(Client.new(config))
-    |> c.handle_response()
-    |> case do
-      {:ok, body} ->
-        {:ok, map_categories(body)}
-
-      {:error, _} = error ->
-        error
-    end
+    |> c.handle_response(&map_categories(&1))
   end
 
   defp map_categories(body) do

@@ -256,36 +256,27 @@ defmodule Plaid.Institutions do
   """
   @spec get(params, config) :: {:ok, Plaid.Institutions.t()} | error
   def get(params, config \\ %{}) do
-    request_operation("institutions/get", params, config)
+    request_operation("institutions/get", params, config, &map_institutions(&1))
   end
 
-  defp request_operation(endpoint, params, config) do
+  defp request_operation(endpoint, params, config, mapper) do
     c = config[:client] || Plaid
 
     Request
     |> struct(method: :post, endpoint: endpoint, body: params)
     |> Request.add_metadata(config)
     |> c.send_request(Client.new(config))
-    |> c.handle_response()
-    |> case do
-      {:ok, %{"institution" => ins, "request_id" => request_id}} ->
-        i = Map.put_new(ins, "request_id", request_id)
-        {:ok, map_institution(i)}
-
-      {:ok, body} ->
-        {:ok, map_institutions(body)}
-
-      {:error, _} = error ->
-        error
-    end
+    |> c.handle_response(mapper)
   end
 
   defp map_institutions(body) do
     Poison.Decode.transform(body, %{as: %Plaid.Institutions{institutions: [full_struct()]}})
   end
 
-  defp map_institution(body) do
-    Poison.Decode.transform(body, %{as: full_struct()})
+  defp map_institution(%{"institution" => ins, "request_id" => request_id}) do
+    ins
+    |> Map.put_new("request_id", request_id)
+    |> Poison.Decode.transform(%{as: full_struct()})
   end
 
   defp full_struct do
@@ -328,7 +319,7 @@ defmodule Plaid.Institutions do
   def get_by_id(params, config \\ %{}) do
     params = if is_binary(params), do: %{institution_id: params}, else: params
 
-    request_operation("institutions/get_by_id", params, config)
+    request_operation("institutions/get_by_id", params, config, &map_institution(&1))
   end
 
   @doc """
@@ -341,6 +332,6 @@ defmodule Plaid.Institutions do
   """
   @spec search(params, config) :: {:ok, Plaid.Institutions.t()} | error
   def search(params, config \\ %{}) do
-    request_operation("institutions/search", params, config)
+    request_operation("institutions/search", params, config, &map_institutions(&1))
   end
 end

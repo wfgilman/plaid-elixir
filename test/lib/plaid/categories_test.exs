@@ -38,8 +38,9 @@ defmodule Plaid.CategoriesTest do
         assert %{metadata: _} = request.opts
         {:ok, %Tesla.Env{}}
       end)
-      |> expect(:handle_response, fn _response ->
-        {:ok, http_response_body(:categories)}
+      |> expect(:handle_response, fn _response, mapper ->
+        body = http_response_body(:categories)
+        {:ok, mapper.(body)}
       end)
 
       assert {:ok, ds} = Plaid.Categories.get(config)

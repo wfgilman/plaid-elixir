@@ -77,14 +77,7 @@ defmodule Plaid.Income do
     |> struct(method: :post, endpoint: "income/get", body: params)
     |> Request.add_metadata(config)
     |> c.send_request(Client.new(config))
-    |> c.handle_response()
-    |> case do
-      {:ok, body} ->
-        {:ok, map_income(body)}
-
-      {:error, _} = error ->
-        error
-    end
+    |> c.handle_response(&map_income(&1))
   end
 
   defp map_income(body) do

@@ -42,8 +42,9 @@ defmodule Plaid.PaymentInitiation.PaymentsTest do
         assert %{metadata: _} = request.opts
         {:ok, %Tesla.Env{}}
       end)
-      |> expect(:handle_response, fn _response ->
-        {:ok, http_response_body(:"payment_initiation/payment/create")}
+      |> expect(:handle_response, fn _response, mapper ->
+        body = http_response_body(:"payment_initiation/payment/create")
+        {:ok, mapper.(body)}
       end)
 
       assert {:ok, ds} = Plaid.PaymentInitiation.Payments.create(params, config)
@@ -107,8 +108,9 @@ defmodule Plaid.PaymentInitiation.PaymentsTest do
         assert %{metadata: _} = request.opts
         {:ok, %Tesla.Env{}}
       end)
-      |> expect(:handle_response, fn _response ->
-        {:ok, http_response_body(:"payment_initiation/payment/get")}
+      |> expect(:handle_response, fn _response, mapper ->
+        body = http_response_body(:"payment_initiation/payment/get")
+        {:ok, mapper.(body)}
       end)
 
       assert {:ok, ds} = Plaid.PaymentInitiation.Payments.get(params, config)
@@ -170,8 +172,9 @@ defmodule Plaid.PaymentInitiation.PaymentsTest do
         assert %{metadata: _} = request.opts
         {:ok, %Tesla.Env{}}
       end)
-      |> expect(:handle_response, fn _response ->
-        {:ok, http_response_body(:"payment_initiation/payment/list")}
+      |> expect(:handle_response, fn _response, mapper ->
+        body = http_response_body(:"payment_initiation/payment/list")
+        {:ok, mapper.(body)}
       end)
 
       assert {:ok, ds} = Plaid.PaymentInitiation.Payments.list(params, config)

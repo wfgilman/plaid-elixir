@@ -41,8 +41,9 @@ defmodule Plaid.ItemTest do
         assert %{metadata: _} = request.opts
         {:ok, %Tesla.Env{}}
       end)
-      |> expect(:handle_response, fn _response ->
-        {:ok, http_response_body(:item)}
+      |> expect(:handle_response, fn _response, mapper ->
+        body = http_response_body(:item)
+        {:ok, mapper.(body)}
       end)
 
       assert {:ok, ds} = Plaid.Item.get(params, config)
@@ -104,8 +105,9 @@ defmodule Plaid.ItemTest do
         assert %{metadata: _} = request.opts
         {:ok, %Tesla.Env{}}
       end)
-      |> expect(:handle_response, fn _response ->
-        {:ok, http_response_body(:exchange_public_token)}
+      |> expect(:handle_response, fn _response, mapper ->
+        body = http_response_body(:exchange_public_token)
+        {:ok, mapper.(body)}
       end)
 
       assert {:ok, r} = Plaid.Item.exchange_public_token(params, config)
@@ -147,8 +149,9 @@ defmodule Plaid.ItemTest do
         assert %{metadata: _} = request.opts
         {:ok, %Tesla.Env{}}
       end)
-      |> expect(:handle_response, fn _response ->
-        {:ok, http_response_body(:create_public_token)}
+      |> expect(:handle_response, fn _response, mapper ->
+        body = http_response_body(:create_public_token)
+        {:ok, mapper.(body)}
       end)
 
       assert {:ok, r} = Plaid.Item.create_public_token(params, config)
@@ -190,8 +193,9 @@ defmodule Plaid.ItemTest do
         assert %{metadata: _} = request.opts
         {:ok, %Tesla.Env{}}
       end)
-      |> expect(:handle_response, fn _response ->
-        {:ok, http_response_body(:webhook)}
+      |> expect(:handle_response, fn _response, mapper ->
+        body = http_response_body(:webhook)
+        {:ok, mapper.(body)}
       end)
 
       assert {:ok, ds} = Plaid.Item.update_webhook(params, config)
@@ -231,8 +235,9 @@ defmodule Plaid.ItemTest do
         assert %{metadata: _} = request.opts
         {:ok, %Tesla.Env{}}
       end)
-      |> expect(:handle_response, fn _response ->
-        {:ok, http_response_body(:rotate_access_token)}
+      |> expect(:handle_response, fn _response, mapper ->
+        body = http_response_body(:rotate_access_token)
+        {:ok, mapper.(body)}
       end)
 
       assert {:ok, r} = Plaid.Item.rotate_access_token(params, config)
@@ -273,8 +278,9 @@ defmodule Plaid.ItemTest do
         assert %{metadata: _} = request.opts
         {:ok, %Tesla.Env{}}
       end)
-      |> expect(:handle_response, fn _response ->
-        {:ok, http_response_body(:update_version_access_token)}
+      |> expect(:handle_response, fn _response, mapper ->
+        body = http_response_body(:update_version_access_token)
+        {:ok, mapper.(body)}
       end)
 
       assert {:ok, r} = Plaid.Item.update_version_access_token(params, config)
@@ -315,8 +321,9 @@ defmodule Plaid.ItemTest do
         assert %{metadata: _} = request.opts
         {:ok, %Tesla.Env{}}
       end)
-      |> expect(:handle_response, fn _response ->
-        {:ok, http_response_body(:remove)}
+      |> expect(:handle_response, fn _response, mapper ->
+        body = http_response_body(:remove)
+        {:ok, mapper.(body)}
       end)
 
       assert {:ok, r} = Plaid.Item.remove(params, config)
@@ -355,8 +362,9 @@ defmodule Plaid.ItemTest do
         assert %{metadata: _} = request.opts
         {:ok, %Tesla.Env{}}
       end)
-      |> expect(:handle_response, fn _response ->
-        {:ok, http_response_body(:processor_token)}
+      |> expect(:handle_response, fn _response, mapper ->
+        body = http_response_body(:processor_token)
+        {:ok, mapper.(body)}
       end)
 
       assert {:ok, r} = Plaid.Item.create_processor_token(params, config)
@@ -397,8 +405,9 @@ defmodule Plaid.ItemTest do
         assert %{metadata: _} = request.opts
         {:ok, %Tesla.Env{}}
       end)
-      |> expect(:handle_response, fn _response ->
-        {:ok, http_response_body(:stripe_bank_account_token)}
+      |> expect(:handle_response, fn _response, mapper ->
+        body = http_response_body(:stripe_bank_account_token)
+        {:ok, mapper.(body)}
       end)
 
       assert {:ok, r} = Plaid.Item.create_stripe_bank_account_token(params, config)

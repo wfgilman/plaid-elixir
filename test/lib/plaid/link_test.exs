@@ -34,8 +34,9 @@ defmodule Plaid.LinkTest do
         assert %{metadata: _} = request.opts
         {:ok, %Tesla.Env{}}
       end)
-      |> expect(:handle_response, fn _response ->
-        {:ok, http_response_body(:create_link_token)}
+      |> expect(:handle_response, fn _response, mapper ->
+        body = http_response_body(:create_link_token)
+        {:ok, mapper.(body)}
       end)
 
       assert {:ok, ds} = Plaid.Link.create_link_token(params, config)
@@ -96,8 +97,9 @@ defmodule Plaid.LinkTest do
         assert %{metadata: _} = request.opts
         {:ok, %Tesla.Env{}}
       end)
-      |> expect(:handle_response, fn _response ->
-        {:ok, http_response_body(:get_link_token)}
+      |> expect(:handle_response, fn _response, mapper ->
+        body = http_response_body(:get_link_token)
+        {:ok, mapper.(body)}
       end)
 
       assert {:ok, ds} = Plaid.Link.get_link_token(params, config)

@@ -48,8 +48,9 @@ defmodule Plaid.AccountsTest do
         assert %{metadata: _} = request.opts
         {:ok, %Tesla.Env{}}
       end)
-      |> expect(:handle_response, fn _response ->
-        {:ok, http_response_body(:accounts)}
+      |> expect(:handle_response, fn _response, mapper ->
+        body = http_response_body(:accounts)
+        {:ok, mapper.(body)}
       end)
 
       assert {:ok, ds} = Plaid.Accounts.get(params, config)
@@ -111,8 +112,9 @@ defmodule Plaid.AccountsTest do
         assert %{metadata: _} = request.opts
         {:ok, %Tesla.Env{}}
       end)
-      |> expect(:handle_response, fn _response ->
-        {:ok, http_response_body(:accounts)}
+      |> expect(:handle_response, fn _response, mapper ->
+        body = http_response_body(:accounts)
+        {:ok, mapper.(body)}
       end)
 
       assert {:ok, ds} = Plaid.Accounts.get_balance(params, config)

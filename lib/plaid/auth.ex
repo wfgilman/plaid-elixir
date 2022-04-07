@@ -126,14 +126,7 @@ defmodule Plaid.Auth do
     |> struct(method: :post, endpoint: "auth/get", body: params)
     |> Request.add_metadata(config)
     |> c.send_request(Client.new(config))
-    |> c.handle_response()
-    |> case do
-      {:ok, body} ->
-        {:ok, map_auth(body)}
-
-      {:error, _} = error ->
-        error
-    end
+    |> c.handle_response(&map_auth(&1))
   end
 
   defp map_auth(body) do

@@ -32,6 +32,8 @@ responses into internal data structures.
 While these changes are primarily transparent, if you are considering upgrading to version `3.0`
 it's recommended you review the full list of breaking changes in the changelog.
 
+Big thanks to [yordis](https://github.com/yordis) for driving major improvements to `3.0`!
+
 ## Usage
 
 Add to your dependencies in `mix.exs`. The hex specification is required.

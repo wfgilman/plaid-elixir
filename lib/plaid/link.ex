@@ -81,14 +81,7 @@ defmodule Plaid.Link do
     |> struct(method: :post, endpoint: endpoint, body: params)
     |> Request.add_metadata(config)
     |> c.send_request(Client.new(config))
-    |> c.handle_response()
-    |> case do
-      {:ok, body} ->
-        {:ok, map_link(body)}
-
-      {:error, _} = error ->
-        error
-    end
+    |> c.handle_response(&map_link(&1))
   end
 
   defp map_link(body) do

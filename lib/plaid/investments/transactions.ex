@@ -88,14 +88,7 @@ defmodule Plaid.Investments.Transactions do
     |> struct(method: :post, endpoint: "investments/transactions/get", body: params)
     |> Request.add_metadata(config)
     |> c.send_request(Client.new(config))
-    |> c.handle_response()
-    |> case do
-      {:ok, body} ->
-        {:ok, map_investments_transactions(body)}
-
-      {:error, _} = error ->
-        error
-    end
+    |> c.handle_response(&map_investments_transactions(&1))
   end
 
   defp map_investments_transactions(body) do

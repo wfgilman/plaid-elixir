@@ -59,8 +59,9 @@ defmodule Plaid.InstitutionsTest do
         assert request.endpoint == "institutions/get"
         {:ok, %Tesla.Env{}}
       end)
-      |> expect(:handle_response, fn _response ->
-        {:ok, http_response_body(:institutions)}
+      |> expect(:handle_response, fn _response, mapper ->
+        body = http_response_body(:institutions)
+        {:ok, mapper.(body)}
       end)
 
       assert {:ok, ds} = Plaid.Institutions.get(params, config)
@@ -124,8 +125,9 @@ defmodule Plaid.InstitutionsTest do
         assert %{metadata: _} = request.opts
         {:ok, %Tesla.Env{}}
       end)
-      |> expect(:handle_response, fn _response ->
-        {:ok, http_response_body(:institution)}
+      |> expect(:handle_response, fn _response, mapper ->
+        body = http_response_body(:institution)
+        {:ok, mapper.(body)}
       end)
 
       assert {:ok, ds} = Plaid.Institutions.get_by_id(params, config)
@@ -140,8 +142,9 @@ defmodule Plaid.InstitutionsTest do
         assert request.body == %{institution_id: "ins_1"}
         {:ok, %Tesla.Env{}}
       end)
-      |> expect(:handle_response, fn _response ->
-        {:ok, http_response_body(:institution)}
+      |> expect(:handle_response, fn _response, mapper ->
+        body = http_response_body(:institution)
+        {:ok, mapper.(body)}
       end)
 
       Plaid.Institutions.get_by_id("ins_1", config)
@@ -201,8 +204,9 @@ defmodule Plaid.InstitutionsTest do
         assert %{metadata: _} = request.opts
         {:ok, %Tesla.Env{}}
       end)
-      |> expect(:handle_response, fn _response ->
-        {:ok, http_response_body(:institutions)}
+      |> expect(:handle_response, fn _response, mapper ->
+        body = http_response_body(:institutions)
+        {:ok, mapper.(body)}
       end)
 
       assert {:ok, ds} = Plaid.Institutions.search(params, config)

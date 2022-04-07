@@ -37,6 +37,8 @@ defmodule Plaid do
                  """
   end
 
+  @type mapper :: (any() -> any())
+
   @doc """
   Send an HTTP request to Plaid.
 
@@ -48,11 +50,14 @@ defmodule Plaid do
   @doc """
   Handle an HTTP response from Plaid.
 
-  Diverts successful Plaid responses to calling module for unmarshalling into
-  structured data or to `{:error, Plaid.Error.t}` and `{:error, any()}` for
-  handling Plaid and HTTP failure responses.
+  Takes response argument in the form of ``{:ok, Tesla.Env.t}`` or ``{:error, any()}``
+  and a 1-arity mapping function argument which is applied to the body of the
+  Tesla.Env in the success case to unmarshall JSON into structured data.
+
+  Error cases are diverted into `{:error, Plaid.Error.t}` and `{:error, any()}`
+  for handling Plaid and HTTP failure responses.
   """
-  @callback handle_response({:ok, Tesla.Env.t()} | {:error, any()}) ::
+  @callback handle_response({:ok, Tesla.Env.t()} | {:error, any()}, mapper) ::
               {:ok, term} | {:error, Plaid.Error.t()} | {:error, any()}
 
   # Behaviour implementation
@@ -65,15 +70,15 @@ defmodule Plaid do
   end
 
   @doc false
-  def handle_response({:ok, %Tesla.Env{status: status} = env}) when status in 200..299 do
-    {:ok, env.body}
+  def handle_response({:ok, %Tesla.Env{status: status} = env}, mapper) when status in 200..299 do
+    {:ok, mapper.(env.body)}
   end
 
-  def handle_response({:ok, %Tesla.Env{} = env}) do
+  def handle_response({:ok, %Tesla.Env{} = env}, _mapper) do
     {:error, Poison.Decode.transform(env.body, %{as: %Plaid.Error{}})}
   end
 
-  def handle_response({:error, _reason} = error) do
+  def handle_response({:error, _reason} = error, _mapper) do
     error
   end
 end
