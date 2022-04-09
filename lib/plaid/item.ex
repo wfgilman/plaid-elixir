@@ -31,7 +31,7 @@ defmodule Plaid.Item do
         }
   @type params :: %{required(atom) => String.t() | [String.t()] | map}
   @type config :: %{required(atom) => String.t()}
-  @type service :: :dwolla | :modern_treasury
+  @type service :: :dwolla | :modern_treasury | :svb_api
 
   @endpoint :item
 
@@ -264,14 +264,12 @@ defmodule Plaid.Item do
           {:ok, map} | {:error, Plaid.Error.t()}
   def create_processor_token(params, service, config) do
     config = validate_cred(config)
-    endpoint = "processor/#{service_to_string(service)}/processor_token/create"
+    endpoint = "processor/token/create"
+    param_with_processor = Map.put(params, :processor, service)
 
-    make_request_with_cred(:post, endpoint, config, params)
+    make_request_with_cred(:post, endpoint, config, param_with_processor)
     |> Utils.handle_resp(@endpoint)
   end
-
-  defp service_to_string(:dwolla), do: "dwolla"
-  defp service_to_string(:modern_treasury), do: "modern_treasury"
 
   @doc """
   [Creates a stripe bank account token](https://stripe.com/docs/ach)
