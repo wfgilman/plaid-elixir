@@ -78,13 +78,21 @@ defmodule PlaidTest do
       assert {:error, :econnrefused} = Plaid.send_request(request, client)
     end
 
-    test "emits telemetry events", %{bypass: bypass, client: client, request: request} do
+    test "emits telemetry events", %{bypass: bypass, request: request} do
+      config = %{
+        client_id: "my-client",
+        secret: "my-secret",
+        telemetry_metadata: %{type: :cowabunga}
+      }
+
+      client = Client.new(config)
+
       :ok =
         :telemetry.attach_many(
           "success-handler",
           [
-            [:plaid, :request, :start],
-            [:plaid, :request, :stop]
+            [:tesla, :request, :start],
+            [:tesla, :request, :stop]
           ],
           &__MODULE__.echo_event/4,
           %{caller: self()}
@@ -94,29 +102,25 @@ defmodule PlaidTest do
         Plug.Conn.resp(conn, 200, "{\"status\":\"ok\"}")
       end)
 
-      r = Request.add_metadata(request, %{telemetry_metadata: %{type: :cowabunga}})
+      Plaid.send_request(request, client)
 
-      Plaid.send_request(r, client)
+      assert_receive {:event, [:tesla, :request, :start], %{system_time: _}, metadata}
 
-      assert_receive {:event, [:plaid, :request, :start], %{system_time: _}, metadata}
+      assert metadata.u == :native
+      assert metadata.service == :plaid
+      assert metadata.type == :cowabunga
+      assert metadata.env.status == nil
+      assert metadata.env.method == :post
+      assert metadata.env.url =~ "some/endpoint"
 
-      assert %{
-               method: :post,
-               path: "some/endpoint",
-               u: :native,
-               type: :cowabunga
-             } == metadata
+      assert_receive {:event, [:tesla, :request, :stop], %{duration: _}, metadata}
 
-      assert_receive {:event, [:plaid, :request, :stop], %{duration: _}, metadata}
-
-      assert %{
-               status: 200,
-               result: {:ok, %Tesla.Env{}},
-               method: :post,
-               path: "some/endpoint",
-               u: :native,
-               type: :cowabunga
-             } = metadata
+      assert metadata.u == :native
+      assert metadata.service == :plaid
+      assert metadata.type == :cowabunga
+      assert metadata.env.status == 200
+      assert metadata.env.method == :post
+      assert metadata.env.url =~ "some/endpoint"
 
       :ok = :telemetry.detach("success-handler")
     end
@@ -130,8 +134,8 @@ defmodule PlaidTest do
         :telemetry.attach_many(
           "error-handler",
           [
-            [:plaid, :request, :start],
-            [:plaid, :request, :stop]
+            [:tesla, :request, :start],
+            [:tesla, :request, :stop]
           ],
           &__MODULE__.echo_event/4,
           %{caller: self()}
@@ -139,27 +143,19 @@ defmodule PlaidTest do
 
       Bypass.down(bypass)
 
-      r = Request.add_metadata(request)
+      Plaid.send_request(request, client)
 
-      Plaid.send_request(r, client)
+      assert_receive {:event, [:tesla, :request, :start], %{system_time: _}, metadata}
 
-      assert_receive {:event, [:plaid, :request, :start], %{system_time: _}, metadata}
+      assert %{env: %Tesla.Env{}, u: :native} = metadata
 
-      assert %{
-               method: :post,
-               path: "some/endpoint",
-               u: :native
-             } == metadata
+      assert_receive {:event, [:tesla, :request, :stop], %{duration: _}, metadata}
 
-      assert_receive {:event, [:plaid, :request, :stop], %{duration: _}, metadata}
-
-      assert %{
-               result: {:error, :econnrefused},
-               reason: :econnrefused,
-               method: :post,
-               path: "some/endpoint",
-               u: :native
-             } = metadata
+      assert metadata.u == :native
+      assert metadata.service == :plaid
+      assert metadata.error == :econnrefused
+      assert metadata.env.method == :post
+      assert metadata.env.url =~ "some/endpoint"
 
       :ok = :telemetry.detach("error-handler")
     end
@@ -168,7 +164,7 @@ defmodule PlaidTest do
       :ok =
         :telemetry.attach(
           "duration-measurement-handler",
-          [:plaid, :request, :stop],
+          [:tesla, :request, :stop],
           &__MODULE__.echo_event/4,
           %{caller: self()}
         )
@@ -202,13 +198,13 @@ defmodule PlaidTest do
         Plug.Conn.resp(conn, 200, "{\"status\":\"ok\"}")
       end)
 
-      Plaid.send_request(Request.add_metadata(request, config1), client1)
-      Plaid.send_request(Request.add_metadata(request, config2), client2)
+      Plaid.send_request(request, client1)
+      Plaid.send_request(request, client2)
 
-      assert_receive {:event, [:plaid, :request, :stop], %{duration: duration1},
+      assert_receive {:event, [:tesla, :request, :stop], %{duration: duration1},
                       %{call: :instant}}
 
-      assert_receive {:event, [:plaid, :request, :stop], %{duration: duration2},
+      assert_receive {:event, [:tesla, :request, :stop], %{duration: duration2},
                       %{call: :delayed}}
 
       # Check to see if duration reflects delay
@@ -220,12 +216,64 @@ defmodule PlaidTest do
 
       :ok = :telemetry.detach("duration-measurement-handler")
     end
+
+    test "emits Plaid.Telemetry events when added to config", %{bypass: bypass, request: request} do
+      config = %{
+        client_id: "my-client",
+        secret: "my-secret",
+        middleware: [Plaid.Telemetry],
+        telemetry_metadata: %{type: :cowabunga}
+      }
+
+      client = Client.new(config)
+
+      :ok =
+        :telemetry.attach_many(
+          "plaid-success-handler",
+          [
+            [:plaid, :request, :start],
+            [:plaid, :request, :stop]
+          ],
+          &__MODULE__.echo_event/4,
+          %{caller: self()}
+        )
+
+      Bypass.expect(bypass, fn conn ->
+        Plug.Conn.resp(conn, 200, "{\"status\":\"ok\"}")
+      end)
+
+      r = Request.add_metadata(request, config)
+
+      Plaid.send_request(r, client)
+
+      assert_receive {:event, [:plaid, :request, :start], %{system_time: _}, metadata}
+
+      assert %{
+               method: :post,
+               path: "some/endpoint",
+               u: :native,
+               type: :cowabunga
+             } == metadata
+
+      assert_receive {:event, [:plaid, :request, :stop], %{duration: _}, metadata}
+
+      assert %{
+               status: 200,
+               result: {:ok, %Tesla.Env{}},
+               method: :post,
+               path: "some/endpoint",
+               u: :native,
+               type: :cowabunga
+             } = metadata
+
+      :ok = :telemetry.detach("plaid-success-handler")
+    end
   end
 
   describe "plaid handle_response/2" do
     @describetag :unit
 
-    test "returns {:ok, body} and applies mapper fun for http response 200-299" do
+    test "returns {:ok, term()} and applies mapper fun for http response 200-299" do
       env = %Tesla.Env{
         status: 200,
         body: %{some: "body"}

@@ -2,11 +2,15 @@ defmodule Plaid.Telemetry do
   @moduledoc """
   Custom implementation of `telemetry` using Tesla Middleware.
   """
+
+  @moduledoc deprecated: "Use Tesla.Middleware.Telemetry instead"
+
   @events_prefix [:plaid, :request]
 
   @behaviour Tesla.Middleware
 
   @impl Tesla.Middleware
+  @deprecated "Use Tesla.Middleware.Telemetry instead"
   def call(env, next, _opts) do
     metadata = env.opts[:metadata] || %{}
     start_time = System.monotonic_time()

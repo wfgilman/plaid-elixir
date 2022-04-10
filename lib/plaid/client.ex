@@ -81,7 +81,7 @@ defmodule Plaid.Client do
            {"PLAID-SECRET", get_secret(config)}
          ]},
         Tesla.Middleware.JSON,
-        Plaid.Telemetry
+        {Tesla.Middleware.Telemetry, get_metadata(config)}
       ] ++ get_middleware(config)
 
     adapter = {get_adapter(config), get_http_options(config)}
@@ -127,6 +127,17 @@ defmodule Plaid.Client do
       m ->
         [m]
     end
+  end
+
+  defp get_metadata(config) do
+    default_metadata = %{
+      u: :native,
+      service: :plaid
+    }
+
+    metadata = Map.merge(default_metadata, config[:telemetry_metadata] || %{})
+
+    %{metadata: metadata}
   end
 
   defp get_adapter(config) do

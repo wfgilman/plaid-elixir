@@ -186,11 +186,24 @@ defmodule Plaid.ClientTest do
              end)
     end
 
-    test "telemetry middleware is initialized" do
-      client = Client.new()
+    test "telemetry middleware is initialized with options" do
+      # with custom metadata
+      config = %{telemetry_metadata: %{type: :cowabunga}}
+      client = Client.new(config)
 
       assert Enum.any?(client.pre, fn
-               {Plaid.Telemetry, _, _} ->
+               {Tesla.Middleware.Telemetry, _, [%{metadata: %{u: :native, type: :cowabunga}}]} ->
+                 true
+
+               _ ->
+                 false
+             end)
+
+      client2 = Client.new()
+
+      # without
+      assert Enum.any?(client2.pre, fn
+               {Tesla.Middleware.Telemetry, _, [%{metadata: %{u: :native}}]} ->
                  true
 
                _ ->
@@ -228,6 +241,17 @@ defmodule Plaid.ClientTest do
 
       assert Enum.any?(client3.pre, fn
                {Tesla.Middleware.Fuse, _, _} ->
+                 true
+
+               _ ->
+                 false
+             end)
+
+      # Plaid.Telemetry
+      client4 = Client.new(%{middleware: Plaid.Telemetry})
+
+      assert Enum.any?(client4.pre, fn
+               {Plaid.Telemetry, _, _} ->
                  true
 
                _ ->

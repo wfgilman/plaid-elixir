@@ -145,20 +145,40 @@ Consult Plaid's documentation for additional detail on this process.
 
 This library emits [telemetry](https://github.com/beam-telemetry/telemetry) that you can use to get insight into communication
 between your system and Plaid service. Emitted events are designed to be similar to the ones Phoenix emits. Those are the following:
-* `[:plaid, :request, :start]` with `:system_time` measurement - signifies the moment request is being initiated
-* `[:plaid, :request, :stop]` with `:duration` measurement - emitted after request has been finished
-* `[:plaid, :request, :exception]` with `:duration` measurement - emitted in case there's an exception while making a request
+* `[:tesla, :request, :start]` with `:system_time` measurement - signifies the moment request is being initiated
+* `[:tesla, :request, :stop]` with `:duration` measurement - emitted after request has been finished
+* `[:tesla, :request, :exception]` with `:duration` measurement - emitted in case there's an exception while making a request
 
 Metadata attached (if applicable to event type) are as follows:
-* `:method`, `:path`, `:status` - HTTP information on the request.
+* `:env` - `Tesla.Env` containing information on the request, including `:method, :url, :status`
+* `:service` - Included by default to distinguish events from other potential tesla middleware. Only value is `:plaid`
 * `:u` - unit in which time is reported. Only value is `:native`.
-* `:exception` - The exception that was thrown during making the request.
-* `:result` - If no exception, contains either `{:ok, %Tesla.Env{}}` or `{:error, reason}`
+* `:error` - The error returned when making the request.
+* `:kind, :reason, :stacktrace` - Information about any exception raised during the request
 
 Additionally, you can pass your custom metadata through the `config` parameter when calling a product endpoint.
-Put it under `telemetry_metadata` and it will be merged to the standard metadata map.
+Put it under `telemetry_metadata` and it will be merged to the event metadata.
 
 All times are in `:native` unit. Telemetry instrumentation is implemented using [Tesla.Middleware](https://github.com/teamon/tesla#middleware).
+
+#### Backward Compatibility
+
+To continue receiving events in the format of the `2.5` version of this library,
+add `Plaid.Telemetry` to the `middleware` in your config:
+```elixir
+config  :plaid
+  middleware: [Plaid.Telemetry]
+```
+
+If you'd like to migrate to the telemetry events emitted in `3.0`, modify your event handler
+to listen for `[:tesla, :request, :start]` instead of `[:plaid, :request, :start]`. In the
+metadata, the fields in `2.5` map to the following in `3.0`:
+* `:method` -> `Tesla.Env{:method}`
+* `:path` -> `Tesla.Env[:url]`
+* `:status` -> `Tesla.Env[:status]`
+* `:result` -> `Tesla.Env`
+* `:reason` -> `:error`
+* `:exception` -> `:kind, :reason, :stacktrace`
 
 ## Custom Middleware
 
