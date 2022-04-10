@@ -124,7 +124,7 @@ defmodule Plaid.ItemTest do
 
       Bypass.expect(bypass, fn conn ->
         assert "POST" == conn.method
-        assert "processor/dwolla/processor_token/create" == Enum.join(conn.path_info, "/")
+        assert "processor/token/create" == Enum.join(conn.path_info, "/")
         Plug.Conn.resp(conn, 200, Poison.encode!(body))
       end)
 
@@ -139,7 +139,7 @@ defmodule Plaid.ItemTest do
 
       Bypass.expect(bypass, fn conn ->
         assert "POST" == conn.method
-        assert "processor/dwolla/processor_token/create" == Enum.join(conn.path_info, "/")
+        assert "processor/token/create" == Enum.join(conn.path_info, "/")
         Plug.Conn.resp(conn, 200, Poison.encode!(body))
       end)
 
