@@ -1,4 +1,4 @@
-defmodule Plaid.InstitutionsTest do
+defmodule Plaid.PaymentInitiation.PaymentsTest do
   use ExUnit.Case, async: true
 
   import Mox
@@ -17,203 +17,43 @@ defmodule Plaid.InstitutionsTest do
      }}
   end
 
-  @moduletag :institutions
+  @moduletag :"payment_initiation/payments"
 
   @tag :unit
-  test "instititutions data structure encodes with Jason" do
+  test "payment_initiation/payments data structure encodes with Jason" do
     assert {:ok, _} =
-             Jason.encode(%Plaid.Institutions{
-               institutions: [
-                 %Plaid.Institutions.Institution{
-                   credentials: [%Plaid.Institutions.Institution.Credentials{}],
-                   status: %Plaid.Institutions.Institution.Status{
-                     item_logins: %Plaid.Institutions.Institution.Status.ItemLogins{
-                       breakdown: %Plaid.Institutions.Institution.Status.ItemLogins.Breakdown{}
-                     },
-                     transactions_updates:
-                       %Plaid.Institutions.Institution.Status.TransactionsUpdates{
-                         breakdown:
-                           %Plaid.Institutions.Institution.Status.TransactionsUpdates.Breakdown{}
-                       },
-                     auth: %Plaid.Institutions.Institution.Status.Auth{
-                       breakdown: %Plaid.Institutions.Institution.Status.Auth.Breakdown{}
-                     },
-                     balance: %Plaid.Institutions.Institution.Status.Balance{
-                       breakdown: %Plaid.Institutions.Institution.Status.Balance.Breakdown{}
-                     },
-                     identity: %Plaid.Institutions.Institution.Status.Identity{
-                       breakdown: %Plaid.Institutions.Institution.Status.Identity.Breakdown{}
-                     }
-                   }
+             Jason.encode(%Plaid.PaymentInitiation.Payments{
+               payments: [
+                 %Plaid.PaymentInitiation.Payments.Payment{
+                   amount: %Plaid.PaymentInitiation.Payments.Payment.Amount{},
+                   schedule: %Plaid.PaymentInitiation.Payments.Payment.Schedule{}
                  }
                ]
              })
   end
 
-  describe "institutions get/2" do
+  describe "payment_initiation/payments create/2" do
     @tag :unit
     test "submits request and unmarshalls response", %{params: params, config: config} do
       PlaidMock
       |> expect(:send_request, fn request, _client ->
         assert request.method == :post
-        assert request.endpoint == "institutions/get"
-        {:ok, %Tesla.Env{}}
-      end)
-      |> expect(:handle_response, fn _response, mapper ->
-        body = http_response_body(:institutions)
-        {:ok, mapper.(body)}
-      end)
-
-      assert {:ok, ds} = Plaid.Institutions.get(params, config)
-      assert Plaid.Institutions == ds.__struct__
-      assert Plaid.Institutions.Institution == List.first(ds.institutions).__struct__
-    end
-
-    @tag :integration
-    test "success integration test", %{params: params} do
-      bypass = Bypass.open()
-
-      config = %{
-        client_id: "test_id",
-        secret: "test_secret",
-        root_uri: "http://localhost:#{bypass.port}/"
-      }
-
-      body = http_response_body(:institutions)
-
-      Bypass.expect(bypass, fn conn ->
-        conn
-        |> Plug.Conn.put_resp_header("content-type", "application/json")
-        |> Plug.Conn.resp(200, Poison.encode!(body))
-      end)
-
-      assert {:ok, %Plaid.Institutions{}} = Plaid.Institutions.get(params, config)
-    end
-
-    @tag :integration
-    test "error integration test", %{params: params} do
-      bypass = Bypass.open()
-
-      config = %{
-        client_id: "test_id",
-        secret: "test_secret",
-        root_uri: "http://localhost:#{bypass.port}/"
-      }
-
-      body = http_response_body(:error)
-
-      Bypass.expect(bypass, fn conn ->
-        conn
-        |> Plug.Conn.put_resp_header("content-type", "application/json")
-        |> Plug.Conn.resp(400, Poison.encode!(body))
-      end)
-
-      assert {:error, %Plaid.Error{}} = Plaid.Institutions.get(params, config)
-    end
-  end
-
-  describe "institutions get_by_id/2" do
-    @tag :unit
-    test "sends request and unmarshalls response", %{
-      params: params,
-      config: config
-    } do
-      PlaidMock
-      |> expect(:send_request, fn request, _client ->
-        assert request.method == :post
-        assert request.endpoint == "institutions/get_by_id"
+        assert request.endpoint == "payment_initiation/payment/create"
         assert %{metadata: _} = request.opts
         {:ok, %Tesla.Env{}}
       end)
       |> expect(:handle_response, fn _response, mapper ->
-        body = http_response_body(:institution)
+        body = http_response_body(:"payment_initiation/payment/create")
         {:ok, mapper.(body)}
       end)
 
-      assert {:ok, ds} = Plaid.Institutions.get_by_id(params, config)
-      assert Plaid.Institutions.Institution == ds.__struct__
+      assert {:ok, ds} = Plaid.PaymentInitiation.Payments.create(params, config)
+      assert Plaid.PaymentInitiation.Payments.Payment == ds.__struct__
+      assert ds.payment_id
+      assert ds.status
       assert ds.request_id
     end
 
-    @tag :unit
-    test "converts string parameter to map before calling send_request/2", %{config: config} do
-      PlaidMock
-      |> expect(:send_request, fn request, _client ->
-        assert request.body == %{institution_id: "ins_1"}
-        {:ok, %Tesla.Env{}}
-      end)
-      |> expect(:handle_response, fn _response, mapper ->
-        body = http_response_body(:institution)
-        {:ok, mapper.(body)}
-      end)
-
-      Plaid.Institutions.get_by_id("ins_1", config)
-    end
-
-    @tag :integration
-    test "success integration test" do
-      bypass = Bypass.open()
-
-      config = %{
-        client_id: "test_id",
-        secret: "test_secret",
-        root_uri: "http://localhost:#{bypass.port}/"
-      }
-
-      body = http_response_body(:institution)
-
-      Bypass.expect(bypass, fn conn ->
-        conn
-        |> Plug.Conn.put_resp_header("content-type", "application/json")
-        |> Plug.Conn.resp(200, Poison.encode!(body))
-      end)
-
-      assert {:ok, %Plaid.Institutions.Institution{}} =
-               Plaid.Institutions.get_by_id("ins_1", config)
-    end
-
-    @tag :integration
-    test "error integration test" do
-      bypass = Bypass.open()
-
-      config = %{
-        client_id: "test_id",
-        secret: "test_secret",
-        root_uri: "http://localhost:#{bypass.port}/"
-      }
-
-      body = http_response_body(:error)
-
-      Bypass.expect(bypass, fn conn ->
-        conn
-        |> Plug.Conn.put_resp_header("content-type", "application/json")
-        |> Plug.Conn.resp(400, Poison.encode!(body))
-      end)
-
-      assert {:error, %Plaid.Error{}} = Plaid.Institutions.get_by_id("ins_1", config)
-    end
-  end
-
-  describe "institutions search/2" do
-    @tag :unit
-    test "sends request and unmarshalls response", %{params: params, config: config} do
-      PlaidMock
-      |> expect(:send_request, fn request, _client ->
-        assert request.method == :post
-        assert request.endpoint == "institutions/search"
-        assert %{metadata: _} = request.opts
-        {:ok, %Tesla.Env{}}
-      end)
-      |> expect(:handle_response, fn _response, mapper ->
-        body = http_response_body(:institutions)
-        {:ok, mapper.(body)}
-      end)
-
-      assert {:ok, ds} = Plaid.Institutions.search(params, config)
-      assert Plaid.Institutions == ds.__struct__
-      assert Plaid.Institutions.Institution == List.first(ds.institutions).__struct__
-    end
-
     @tag :integration
     test "success integration test", %{params: params} do
       bypass = Bypass.open()
@@ -224,7 +64,7 @@ defmodule Plaid.InstitutionsTest do
         root_uri: "http://localhost:#{bypass.port}/"
       }
 
-      body = http_response_body(:institutions)
+      body = http_response_body(:"payment_initiation/payment/create")
 
       Bypass.expect(bypass, fn conn ->
         conn
@@ -232,7 +72,8 @@ defmodule Plaid.InstitutionsTest do
         |> Plug.Conn.resp(200, Poison.encode!(body))
       end)
 
-      assert {:ok, %Plaid.Institutions{}} = Plaid.Institutions.search(params, config)
+      assert {:ok, %Plaid.PaymentInitiation.Payments.Payment{}} =
+               Plaid.PaymentInitiation.Payments.create(params, config)
     end
 
     @tag :integration
@@ -253,7 +94,138 @@ defmodule Plaid.InstitutionsTest do
         |> Plug.Conn.resp(400, Poison.encode!(body))
       end)
 
-      assert {:error, %Plaid.Error{}} = Plaid.Institutions.search(params, config)
+      assert {:error, %Plaid.Error{}} = Plaid.PaymentInitiation.Payments.create(params, config)
+    end
+  end
+
+  describe "payment_initiation/payments get/2" do
+    @tag :unit
+    test "submits request and unmarshalls response", %{params: params, config: config} do
+      PlaidMock
+      |> expect(:send_request, fn request, _client ->
+        assert request.method == :post
+        assert request.endpoint == "payment_initiation/payment/get"
+        assert %{metadata: _} = request.opts
+        {:ok, %Tesla.Env{}}
+      end)
+      |> expect(:handle_response, fn _response, mapper ->
+        body = http_response_body(:"payment_initiation/payment/get")
+        {:ok, mapper.(body)}
+      end)
+
+      assert {:ok, ds} = Plaid.PaymentInitiation.Payments.get(params, config)
+      assert Plaid.PaymentInitiation.Payments.Payment == ds.__struct__
+      assert Plaid.PaymentInitiation.Payments.Payment.Amount == ds.amount.__struct__
+    end
+
+    @tag :integration
+    test "success integration test", %{params: params} do
+      bypass = Bypass.open()
+
+      config = %{
+        client_id: "test_id",
+        secret: "test_secret",
+        root_uri: "http://localhost:#{bypass.port}/"
+      }
+
+      body = http_response_body(:"payment_initiation/payment/get")
+
+      Bypass.expect(bypass, fn conn ->
+        conn
+        |> Plug.Conn.put_resp_header("content-type", "application/json")
+        |> Plug.Conn.resp(200, Poison.encode!(body))
+      end)
+
+      assert {:ok, %Plaid.PaymentInitiation.Payments.Payment{}} =
+               Plaid.PaymentInitiation.Payments.get(params, config)
+    end
+
+    @tag :integration
+    test "error integration test", %{params: params} do
+      bypass = Bypass.open()
+
+      config = %{
+        client_id: "test_id",
+        secret: "test_secret",
+        root_uri: "http://localhost:#{bypass.port}/"
+      }
+
+      body = http_response_body(:error)
+
+      Bypass.expect(bypass, fn conn ->
+        conn
+        |> Plug.Conn.put_resp_header("content-type", "application/json")
+        |> Plug.Conn.resp(400, Poison.encode!(body))
+      end)
+
+      assert {:error, %Plaid.Error{}} = Plaid.PaymentInitiation.Payments.get(params, config)
+    end
+  end
+
+  describe "payment_initiation/payments list/2" do
+    @tag :unit
+    test "submits request and unmarshalls response", %{params: params, config: config} do
+      PlaidMock
+      |> expect(:send_request, fn request, _client ->
+        assert request.method == :post
+        assert request.endpoint == "payment_initiation/payment/list"
+        assert %{metadata: _} = request.opts
+        {:ok, %Tesla.Env{}}
+      end)
+      |> expect(:handle_response, fn _response, mapper ->
+        body = http_response_body(:"payment_initiation/payment/list")
+        {:ok, mapper.(body)}
+      end)
+
+      assert {:ok, ds} = Plaid.PaymentInitiation.Payments.list(params, config)
+      assert Plaid.PaymentInitiation.Payments == ds.__struct__
+      assert Plaid.PaymentInitiation.Payments.Payment == List.first(ds.payments).__struct__
+
+      assert Plaid.PaymentInitiation.Payments.Payment.Amount ==
+               List.first(ds.payments).amount.__struct__
+    end
+
+    @tag :integration
+    test "success integration test", %{params: params} do
+      bypass = Bypass.open()
+
+      config = %{
+        client_id: "test_id",
+        secret: "test_secret",
+        root_uri: "http://localhost:#{bypass.port}/"
+      }
+
+      body = http_response_body(:"payment_initiation/payment/list")
+
+      Bypass.expect(bypass, fn conn ->
+        conn
+        |> Plug.Conn.put_resp_header("content-type", "application/json")
+        |> Plug.Conn.resp(200, Poison.encode!(body))
+      end)
+
+      assert {:ok, %Plaid.PaymentInitiation.Payments{}} =
+               Plaid.PaymentInitiation.Payments.list(params, config)
+    end
+
+    @tag :integration
+    test "error integration test", %{params: params} do
+      bypass = Bypass.open()
+
+      config = %{
+        client_id: "test_id",
+        secret: "test_secret",
+        root_uri: "http://localhost:#{bypass.port}/"
+      }
+
+      body = http_response_body(:error)
+
+      Bypass.expect(bypass, fn conn ->
+        conn
+        |> Plug.Conn.put_resp_header("content-type", "application/json")
+        |> Plug.Conn.resp(400, Poison.encode!(body))
+      end)
+
+      assert {:error, %Plaid.Error{}} = Plaid.PaymentInitiation.Payments.list(params, config)
     end
   end
 end

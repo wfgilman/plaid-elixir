@@ -3,9 +3,8 @@ defmodule Plaid.Accounts do
   Functions for Plaid `accounts` endpoint.
   """
 
-  import Plaid, only: [make_request_with_cred: 4, validate_cred: 1]
-
-  alias Plaid.Utils
+  alias Plaid.Client.Request
+  alias Plaid.Client
 
   @derive Jason.Encoder
   defstruct accounts: [], item: nil, request_id: nil
@@ -15,10 +14,9 @@ defmodule Plaid.Accounts do
           item: Plaid.Item.t(),
           request_id: String.t()
         }
-  @type params :: %{required(atom) => String.t() | [String.t()] | map}
-  @type config :: %{required(atom) => String.t()}
-
-  @endpoint :accounts
+  @type params :: %{required(atom) => term}
+  @type config :: %{required(atom) => String.t() | keyword}
+  @type error :: {:error, Plaid.Error.t() | any()} | no_return
 
   defmodule Account do
     @moduledoc """
@@ -152,13 +150,33 @@ defmodule Plaid.Accounts do
   %{access_token: "access-token"}
   ```
   """
-  @spec get(params, config | nil) :: {:ok, Plaid.Accounts.t()} | {:error, Plaid.Error.t()}
+  @spec get(params, config) :: {:ok, Plaid.Accounts.t()} | error
   def get(params, config \\ %{}) do
-    config = validate_cred(config)
-    endpoint = "#{@endpoint}/get"
+    request_operation("accounts/get", params, config)
+  end
 
-    make_request_with_cred(:post, endpoint, config, params)
-    |> Utils.handle_resp(@endpoint)
+  defp request_operation(endpoint, params, config) do
+    c = config[:client] || Plaid
+
+    Request
+    |> struct(method: :post, endpoint: endpoint, body: params)
+    |> Request.add_metadata(config)
+    |> c.send_request(Client.new(config))
+    |> c.handle_response(&map_accounts(&1))
+  end
+
+  defp map_accounts(body) do
+    Poison.Decode.transform(
+      body,
+      %{
+        as: %Plaid.Accounts{
+          accounts: [
+            %Plaid.Accounts.Account{balances: %Plaid.Accounts.Account.Balance{}}
+          ],
+          item: %Plaid.Item{}
+        }
+      }
+    )
   end
 
   @doc """
@@ -169,12 +187,8 @@ defmodule Plaid.Accounts do
   %{access_token: "access-token", options: %{account_ids: ["account-id"]}}
   ```
   """
-  @spec get_balance(params, config | nil) :: {:ok, Plaid.Accounts.t()} | {:error, Plaid.Error.t()}
+  @spec get_balance(params, config) :: {:ok, Plaid.Accounts.t()} | error
   def get_balance(params, config \\ %{}) do
-    config = validate_cred(config)
-    endpoint = "#{@endpoint}/balance/get"
-
-    make_request_with_cred(:post, endpoint, config, params)
-    |> Utils.handle_resp(@endpoint)
+    request_operation("accounts/balance/get", params, config)
   end
 end

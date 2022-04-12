@@ -3,13 +3,15 @@ defmodule Plaid.Categories do
   Functions for Plaid `categories` endpoint.
   """
 
+  alias Plaid.Client.Request
+  alias Plaid.Client
+
   @derive Jason.Encoder
   defstruct categories: [], request_id: nil
 
   @type t :: %__MODULE__{categories: [Plaid.Categories.Category.t()], request_id: String.t()}
-  @type config :: %{required(atom) => String.t()}
-
-  @endpoint :categories
+  @type config :: %{required(atom) => String.t() | keyword}
+  @type error :: {:error, Plaid.Error.t() | any()} | no_return
 
   defmodule Category do
     @moduledoc """
@@ -24,12 +26,27 @@ defmodule Plaid.Categories do
   @doc """
   Gets all categories.
   """
-  @spec get(config | nil) :: {:ok, Plaid.Categories.t()} | {:error, Plaid.Error.t()}
+  @spec get(config) :: {:ok, Plaid.Categories.t()} | error
   def get(config \\ %{}) do
-    config = Map.drop(config, [:public_key, :client_id, :secret])
-    endpoint = "#{@endpoint}/get"
+    c = config[:client] || Plaid
 
-    Plaid.make_request_with_cred(:post, endpoint, config)
-    |> Plaid.Utils.handle_resp(@endpoint)
+    Request
+    |> struct(method: :post, endpoint: "categories/get")
+    |> Request.add_metadata(config)
+    |> c.send_request(Client.new(config))
+    |> c.handle_response(&map_categories(&1))
+  end
+
+  defp map_categories(body) do
+    Poison.Decode.transform(
+      body,
+      %{
+        as: %Plaid.Categories{
+          categories: [
+            %Plaid.Categories.Category{}
+          ]
+        }
+      }
+    )
   end
 end

@@ -3,9 +3,8 @@ defmodule Plaid.WebhookVerificationKey do
   Functions for Plaid `webhook_verification_key` endpoint.
   """
 
-  import Plaid, only: [make_request_with_cred: 4, validate_cred: 1]
-
-  alias Plaid.Utils
+  alias Plaid.Client.Request
+  alias Plaid.Client
 
   @derive Jason.Encoder
   defstruct key: %{},
@@ -15,10 +14,9 @@ defmodule Plaid.WebhookVerificationKey do
           key: map(),
           request_id: String.t()
         }
-  @type params :: %{required(atom) => String.t()}
-  @type config :: %{required(atom) => String.t()}
-
-  @endpoint :webhook_verification_key
+  @type params :: %{required(atom) => term}
+  @type config :: %{required(atom) => String.t() | keyword}
+  @type error :: {:error, Plaid.Error.t() | any()} | no_return
 
   @doc """
   Gets a webhook verification key (JWK).
@@ -30,13 +28,14 @@ defmodule Plaid.WebhookVerificationKey do
   }
   ```
   """
-  @spec get(params, config | nil) ::
-          {:ok, Plaid.Link.t()} | {:error, Plaid.Error.t()}
+  @spec get(params, config) :: {:ok, Plaid.WebhookVerificationKey.t()} | error
   def get(params, config \\ %{}) do
-    config = validate_cred(config)
-    endpoint = "#{@endpoint}/get"
+    c = config[:client] || Plaid
 
-    make_request_with_cred(:post, endpoint, config, params)
-    |> Utils.handle_resp(@endpoint)
+    Request
+    |> struct(method: :post, endpoint: "webhook_verification_key/get", body: params)
+    |> Request.add_metadata(config)
+    |> c.send_request(Client.new(config))
+    |> c.handle_response(&Poison.Decode.transform(&1, %{as: %Plaid.WebhookVerificationKey{}}))
   end
 end

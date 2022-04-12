@@ -1,329 +1,308 @@
 defmodule PlaidTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
 
-  setup do
-    bypass = Bypass.open()
-    Application.put_env(:plaid, :root_uri, "http://localhost:#{bypass.port}/")
-    {:ok, bypass: bypass}
-  end
+  alias Plaid.Client
+  alias Plaid.Client.Request
 
-  describe "plaid" do
-    test "get_cred/0 returns credentials as a map" do
-      assert %{client_id: _, secret: _} = Plaid.get_cred()
-    end
+  @moduletag :plaid
 
-    test "get_cred/0 raises when client_id is missing" do
-      Application.put_env(:plaid, :client_id, nil)
-      assert_raise Plaid.MissingClientIdError, fn -> Plaid.get_cred() end
-      cleanup_config()
-    end
+  defmodule Result, do: defstruct([:some])
 
-    test "get_cred/0 raises when secret is missing" do
-      Application.put_env(:plaid, :secret, nil)
-      assert_raise Plaid.MissingSecretError, fn -> Plaid.get_cred() end
-      cleanup_config()
-    end
+  describe "plaid send_request/2" do
+    setup do
+      bypass = Bypass.open()
+      Application.put_env(:plaid, :root_uri, "http://localhost:#{bypass.port}/")
 
-    test "get_key/0 raises when public_key is missing" do
-      Application.put_env(:plaid, :public_key, nil)
-      assert_raise Plaid.MissingPublicKeyError, fn -> Plaid.get_key() end
-      cleanup_config()
-    end
-
-    test "validate_cred/1 returns credentials from config" do
       config = %{
-        client_id: "me",
-        secret: "shhhh",
-        public_key: "yoyo",
-        root_uri: "http://localhost:1234/"
+        client_id: "my-client",
+        secret: "my-secret"
       }
 
-      assert %{
-               client_id: "me",
-               secret: "shhhh",
-               root_uri: "http://localhost:1234/",
-               httpoison_options: [],
-               telemetry_metadata: %{}
-             } == Plaid.validate_cred(config)
+      client = Client.new(config)
+      request = %Request{method: :post, endpoint: "some/endpoint", body: %{some: "body"}}
+
+      {:ok, bypass: bypass, client: client, request: request}
     end
 
-    test "validate_cred/1 uses configuration value when no config is passed as argument", %{
-      bypass: bypass
+    @describetag :integration
+
+    test "passes request parameters to Tesla client correctly", %{
+      bypass: bypass,
+      client: client,
+      request: request
     } do
-      Application.put_env(:plaid, :client_id, "you")
-      Application.put_env(:plaid, :secret, "no secrets")
-
-      assert %{
-               client_id: "you",
-               secret: "no secrets",
-               root_uri: "http://localhost:#{bypass.port}/",
-               httpoison_options: [],
-               telemetry_metadata: %{}
-             } == Plaid.validate_cred(%{})
-    end
-
-    test "validate_cred/1 raises ClientIdError when client_id is missing from config argument and app configuration" do
-      Application.put_env(:plaid, :client_id, nil)
-      assert_raise Plaid.MissingClientIdError, fn -> Plaid.validate_cred(%{secret: "shhh"}) end
-      cleanup_config()
-    end
-
-    test "validate_cred/1 raises SecretError when secret is missing from config argument and app configuration" do
-      Application.put_env(:plaid, :secret, nil)
-      assert_raise Plaid.MissingSecretError, fn -> Plaid.validate_cred(%{client_id: "me"}) end
-      cleanup_config()
-    end
-
-    test "validate_cred/1 preserves telemetry_metadata and httpoison_options" do
-      config = %{
-        httpoison_options: [some_key: "some_value"],
-        telemetry_metadata: %{ins_id: "ins_id"}
-      }
-
-      assert %{
-               httpoison_options: [some_key: "some_value"],
-               telemetry_metadata: %{ins_id: "ins_id"}
-             } = Plaid.validate_cred(config)
-    end
-
-    test "validate_public_key/1 uses configuration value when no config is passed as argument", %{
-      bypass: bypass
-    } do
-      Application.put_env(:plaid, :public_key, "yoyoyo")
-
-      assert %{
-               public_key: "yoyoyo",
-               root_uri: "http://localhost:#{bypass.port}/"
-             } == Plaid.validate_public_key(%{})
-    end
-
-    test "validate_public_key/1 raises when public_key is missing from config argument and app configuration" do
-      Application.put_env(:plaid, :public_key, nil)
-      assert_raise Plaid.MissingPublicKeyError, fn -> Plaid.validate_public_key(%{}) end
-      cleanup_config()
-    end
-
-    test "make_request/2 requests GET returns HTTPoison.Response", %{bypass: bypass} do
       Bypass.expect(bypass, fn conn ->
-        assert "GET" == conn.method
+        assert "POST" == conn.method
+        {:ok, body, _conn} = Plug.Conn.read_body(conn)
+        assert "{\"some\":\"body\"}" == body
+        assert "localhost" == conn.host
+        assert "/some/endpoint" == conn.request_path
+
+        assert [
+                 {"content-type", "application/json"},
+                 {"plaid-client-id", "my-client"},
+                 {"plaid-secret", "my-secret"},
+                 {"plaid-version", "2020-09-14"},
+                 {"user-agent", "Elixir-SDK"}
+               ] ==
+                 Enum.filter(conn.req_headers, fn {k, _v} ->
+                   k in [
+                     "content-type",
+                     "plaid-client-id",
+                     "plaid-secret",
+                     "plaid-version",
+                     "user-agent"
+                   ]
+                 end)
+
         Plug.Conn.resp(conn, 200, "{\"status\":\"ok\"}")
       end)
 
-      {:ok, resp} = Plaid.make_request(:get, "any")
-
-      assert HTTPoison.Response == resp.__struct__
+      Plaid.send_request(request, client)
     end
 
-    test "make_request/2 returns HTTPoison.Error when HTTP call fails", %{bypass: bypass} do
+    test "returns correct values", %{bypass: bypass, client: client, request: request} do
+      # successful request
+      Bypass.expect(bypass, fn conn ->
+        conn
+        |> Plug.Conn.put_resp_header("content-type", "application/json")
+        |> Plug.Conn.resp(200, "{\"status\":\"ok\"}")
+      end)
+
+      assert {:ok, %Tesla.Env{status: 200} = env} = Plaid.send_request(request, client)
+      assert is_map(env.body)
+
+      # failed request
       Bypass.down(bypass)
 
-      assert {:error, %HTTPoison.Error{}} = Plaid.make_request(:get, "any")
+      assert {:error, :econnrefused} = Plaid.send_request(request, client)
     end
 
-    test "make_request_with_cred/3 merges credentials into request body", %{bypass: bypass} do
-      Bypass.expect(bypass, fn conn ->
-        {:ok, body, _conn} = Plug.Conn.read_body(conn)
-        assert "POST" == conn.method
-        assert "{\"secret\":\"shhhh\",\"client_id\":\"id\"}" == body
-        Plug.Conn.resp(conn, 200, "{\"status\":\"ok\"}")
-      end)
+    test "emits telemetry events", %{bypass: bypass, request: request} do
+      config = %{
+        client_id: "my-client",
+        secret: "my-secret",
+        telemetry_metadata: %{type: :cowabunga}
+      }
 
-      Plaid.make_request_with_cred(:post, "any", %{client_id: "id", secret: "shhhh"})
-    end
-
-    test "make_request_with_cred/3 uses root_uri in configuration if not passed in config", %{
-      bypass: bypass
-    } do
-      Bypass.expect(bypass, fn conn ->
-        assert "localhost" == conn.host
-        assert "/any" == conn.request_path
-        Plug.Conn.resp(conn, 200, "{\"status\":\"ok\"}")
-      end)
-
-      Plaid.make_request_with_cred(:post, "any", %{})
-    end
-
-    test "make_request_with_cred/3 uses root_uri value if provided in config argument", %{
-      bypass: bypass
-    } do
-      Bypass.expect(bypass, fn conn ->
-        assert "0.0.0.0" == conn.host
-        assert "/any" == conn.request_path
-        Plug.Conn.resp(conn, 200, "{\"status\":\"ok\"}")
-      end)
-
-      Plaid.make_request_with_cred(:post, "any", %{root_uri: "http://0.0.0.0:#{bypass.port}/"})
-    end
-
-    test "make_request/2 sets headers correctly", %{bypass: bypass} do
-      Bypass.expect(bypass, fn conn ->
-        content_type =
-          Enum.find(conn.req_headers, fn {k, _v} ->
-            k == "content-type"
-          end)
-
-        assert {"content-type", "application/json"} == content_type
-        Plug.Conn.resp(conn, 200, "{\"status\":\"ok\"}")
-      end)
-
-      Plaid.make_request(:get, "any")
-    end
-
-    test "make_request_with_cred/4 overrides httpoison_options in config", %{bypass: bypass} do
-      Application.put_env(:plaid, :httpoison_options, recv_timeout: 5_000)
-
-      Bypass.expect(bypass, fn conn ->
-        Plug.Conn.resp(conn, 200, "{\"status\":\"ok\"}")
-      end)
-
-      {:ok, resp} =
-        Plaid.make_request_with_cred(:get, "any", %{
-          httpoison_options: [recv_timeout: 12345, ssl: [certfile: "certs/client.crt"]]
-        })
-
-      assert resp.request.options[:recv_timeout] == 12345
-      assert resp.request.options[:ssl] == [certfile: "certs/client.crt"]
-      cleanup_config()
-    end
-
-    test "make_request_with_cred/6 options argument overrides all others", %{bypass: bypass} do
-      Application.put_env(:plaid, :httpoison_options, recv_timeout: 5_000)
-
-      Bypass.expect(bypass, fn conn ->
-        Plug.Conn.resp(conn, 200, "{\"status\":\"ok\"}")
-      end)
-
-      {:ok, resp} =
-        Plaid.make_request_with_cred(
-          :get,
-          "any",
-          %{httpoison_options: [recv_timeout: 12345, ssl: [certfile: "certs/client.crt"]]},
-          %{},
-          %{},
-          recv_timeout: 678_910
-        )
-
-      assert resp.request.options[:recv_timeout] == 678_910
-      assert resp.request.options[:ssl] == [certfile: "certs/client.crt"]
-      cleanup_config()
-    end
-  end
-
-  describe "Telemetry events" do
-    @start_event [:plaid, :request, :start]
-    @stop_event [:plaid, :request, :stop]
-    @exception_event [:plaid, :request, :exception]
-
-    setup do
-      id = UUID.uuid4()
-      me = self()
+      client = Client.new(config)
 
       :ok =
         :telemetry.attach_many(
-          id,
-          [@start_event, @stop_event, @exception_event],
-          fn name, data, meta, :unused_config ->
-            send(me, {:telemetry_event, name, data, meta})
-          end,
-          :unused_config
+          "success-handler",
+          [
+            [:tesla, :request, :start],
+            [:tesla, :request, :stop]
+          ],
+          &__MODULE__.echo_event/4,
+          %{caller: self()}
         )
 
-      on_exit(fn -> :telemetry.detach(id) end)
-    end
-
-    test "are sent on make_request_with_cred", %{bypass: bypass} do
       Bypass.expect(bypass, fn conn ->
         Plug.Conn.resp(conn, 200, "{\"status\":\"ok\"}")
       end)
 
-      {:ok, _resp} = Plaid.make_request_with_cred(:get, "any", %{})
+      Plaid.send_request(request, client)
 
-      [start, stop] = receive_events(2)
+      assert_receive {:event, [:tesla, :request, :start], %{system_time: _}, metadata}
 
-      assert {@start_event, %{system_time: _}, start_meta} = start
-      assert {@stop_event, %{duration: _}, stop_meta} = stop
+      assert metadata.u == :native
+      assert metadata.service == :plaid
+      assert metadata.type == :cowabunga
+      assert metadata.env.status == nil
+      assert metadata.env.method == :post
+      assert metadata.env.url =~ "some/endpoint"
 
-      assert %{method: :get, path: "any", u: :native} = start_meta
-      assert %{method: :get, path: "any", status: 200, u: :native, result: {:ok, _}} = stop_meta
+      assert_receive {:event, [:tesla, :request, :stop], %{duration: _}, metadata}
+
+      assert metadata.u == :native
+      assert metadata.service == :plaid
+      assert metadata.type == :cowabunga
+      assert metadata.env.status == 200
+      assert metadata.env.method == :post
+      assert metadata.env.url =~ "some/endpoint"
+
+      :ok = :telemetry.detach("success-handler")
     end
 
-    test "are sent when there's a lower level error", %{bypass: bypass} do
+    test "emits telemetry event during http failure", %{
+      bypass: bypass,
+      client: client,
+      request: request
+    } do
+      :ok =
+        :telemetry.attach_many(
+          "error-handler",
+          [
+            [:tesla, :request, :start],
+            [:tesla, :request, :stop]
+          ],
+          &__MODULE__.echo_event/4,
+          %{caller: self()}
+        )
+
       Bypass.down(bypass)
 
-      {:error, _econnrefused} = Plaid.make_request_with_cred(:get, "any", %{})
+      Plaid.send_request(request, client)
 
-      [start, stop] = receive_events(2)
+      assert_receive {:event, [:tesla, :request, :start], %{system_time: _}, metadata}
 
-      assert {@start_event, %{system_time: _}, _start_meta} = start
-      assert {@stop_event, %{duration: _}, stop_meta} = stop
+      assert %{env: %Tesla.Env{}, u: :native} = metadata
 
-      assert %{method: :get, path: "any", u: :native, result: {:error, _reason}} = stop_meta
+      assert_receive {:event, [:tesla, :request, :stop], %{duration: _}, metadata}
+
+      assert metadata.u == :native
+      assert metadata.service == :plaid
+      assert metadata.error == :econnrefused
+      assert metadata.env.method == :post
+      assert metadata.env.url =~ "some/endpoint"
+
+      :ok = :telemetry.detach("error-handler")
     end
 
-    test "are sent when there's an exception" do
-      # A character outside of utf-8 so that Poison raises
-      body = %{key: <<128>>}
+    test "telemetry measures duration of http request", %{request: request} do
+      :ok =
+        :telemetry.attach(
+          "duration-measurement-handler",
+          [:tesla, :request, :stop],
+          &__MODULE__.echo_event/4,
+          %{caller: self()}
+        )
 
-      try do
-        Plaid.make_request_with_cred(:get, "any", %{}, body)
-      rescue
-        _ -> :ok
-      end
+      bypass1 = Bypass.open()
 
-      [start, exception] = receive_events(2)
+      config1 = %{
+        root_uri: "http://localhost:#{bypass1.port}/",
+        telemetry_metadata: %{call: :instant}
+      }
 
-      assert {@start_event, %{system_time: _}, _meta} = start
-      assert {@exception_event, %{duration: _}, meta} = exception
+      client1 = Client.new(config1)
 
-      assert %{method: :get, path: "any", exception: %Poison.EncodeError{}, u: :native} = meta
-      refute :result in Map.keys(meta)
+      bypass2 = Bypass.open()
+
+      config2 = %{
+        root_uri: "http://localhost:#{bypass2.port}/",
+        telemetry_metadata: %{call: :delayed}
+      }
+
+      client2 = Client.new(config2)
+
+      Bypass.expect(bypass1, fn conn ->
+        # Instant response
+        Plug.Conn.resp(conn, 200, "{\"status\":\"ok\"}")
+      end)
+
+      Bypass.expect(bypass2, fn conn ->
+        # Delayed response
+        :timer.sleep(800)
+        Plug.Conn.resp(conn, 200, "{\"status\":\"ok\"}")
+      end)
+
+      Plaid.send_request(request, client1)
+      Plaid.send_request(request, client2)
+
+      assert_receive {:event, [:tesla, :request, :stop], %{duration: duration1},
+                      %{call: :instant}}
+
+      assert_receive {:event, [:tesla, :request, :stop], %{duration: duration2},
+                      %{call: :delayed}}
+
+      # Check to see if duration reflects delay
+      refute_in_delta(
+        System.convert_time_unit(duration1, :native, :millisecond),
+        System.convert_time_unit(duration2, :native, :millisecond),
+        500
+      )
+
+      :ok = :telemetry.detach("duration-measurement-handler")
     end
 
-    test "contain telemetry_metadata passed in config", %{bypass: bypass} do
+    test "emits Plaid.Telemetry events when added to config", %{bypass: bypass, request: request} do
+      config = %{
+        client_id: "my-client",
+        secret: "my-secret",
+        middleware: [Plaid.Telemetry],
+        telemetry_metadata: %{type: :cowabunga}
+      }
+
+      client = Client.new(config)
+
+      :ok =
+        :telemetry.attach_many(
+          "plaid-success-handler",
+          [
+            [:plaid, :request, :start],
+            [:plaid, :request, :stop]
+          ],
+          &__MODULE__.echo_event/4,
+          %{caller: self()}
+        )
+
       Bypass.expect(bypass, fn conn ->
         Plug.Conn.resp(conn, 200, "{\"status\":\"ok\"}")
       end)
 
-      {:ok, _resp} =
-        Plaid.make_request_with_cred(:get, "any", %{telemetry_metadata: %{ins_id: "ins_1"}})
+      r = Request.add_metadata(request, config)
 
-      [start, stop] = receive_events(2)
+      Plaid.send_request(r, client)
 
-      assert {@start_event, %{system_time: _}, start_meta} = start
-      assert {@stop_event, %{duration: _}, stop_meta} = stop
-
-      assert %{method: :get, path: "any", u: :native, ins_id: "ins_1"} = start_meta
+      assert_receive {:event, [:plaid, :request, :start], %{system_time: _}, metadata}
 
       assert %{
-               method: :get,
-               path: "any",
-               status: 200,
+               method: :post,
+               path: "some/endpoint",
                u: :native,
-               result: {:ok, _},
-               ins_id: "ins_1"
-             } = stop_meta
-    end
+               type: :cowabunga
+             } == metadata
 
-    defp receive_events(n, acc_events \\ [])
+      assert_receive {:event, [:plaid, :request, :stop], %{duration: _}, metadata}
 
-    defp receive_events(0, acc_events) do
-      acc_events
-    end
+      assert %{
+               status: 200,
+               result: {:ok, %Tesla.Env{}},
+               method: :post,
+               path: "some/endpoint",
+               u: :native,
+               type: :cowabunga
+             } = metadata
 
-    defp receive_events(n, acc_events) do
-      receive do
-        {:telemetry_event, name, data, meta} ->
-          receive_events(n - 1, acc_events ++ [{name, data, meta}])
-      after
-        5_000 -> :error
-      end
+      :ok = :telemetry.detach("plaid-success-handler")
     end
   end
 
-  defp cleanup_config do
-    Application.put_env(:plaid, :client_id, "test_id")
-    Application.put_env(:plaid, :secret, "test_secret")
-    Application.put_env(:plaid, :public_key, "s3cret")
-    Application.delete_env(:plaid, :httpoison_options)
+  describe "plaid handle_response/2" do
+    @describetag :unit
+
+    test "returns {:ok, term()} and applies mapper fun for http response 200-299" do
+      env = %Tesla.Env{
+        status: 200,
+        body: %{some: "body"}
+      }
+
+      mapper = fn body -> struct(Result, Map.to_list(body)) end
+
+      assert {:ok, %Result{some: "body"}} == Plaid.handle_response({:ok, env}, mapper)
+    end
+
+    test "returns {:error, Plaid.Error.t} for response >=300" do
+      env = %Tesla.Env{
+        status: 400,
+        body: Plaid.Factory.http_response_body(:error)
+      }
+
+      mapper = fn body -> body end
+
+      assert {:error, %Plaid.Error{}} = Plaid.handle_response({:ok, env}, mapper)
+    end
+
+    test "returns http failure" do
+      mapper = fn body -> body end
+
+      assert {:error, :econnrefused} = Plaid.handle_response({:error, :econnrefused}, mapper)
+    end
+  end
+
+  def echo_event(event, measurements, metadata, config) do
+    send(config.caller, {:event, event, measurements, metadata})
   end
 end

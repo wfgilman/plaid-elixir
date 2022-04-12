@@ -3,9 +3,8 @@ defmodule Plaid.Investments.Transactions do
   Functions for Plaid `investments/transactions` endpoints.
   """
 
-  import Plaid, only: [make_request_with_cred: 4, validate_cred: 1]
-
-  alias Plaid.Utils
+  alias Plaid.Client.Request
+  alias Plaid.Client
 
   @derive Jason.Encoder
   defstruct accounts: [],
@@ -23,10 +22,9 @@ defmodule Plaid.Investments.Transactions do
           total_investment_transactions: integer,
           request_id: String.t()
         }
-  @type params :: %{required(atom) => String.t() | map}
-  @type config :: %{required(atom) => String.t()}
-
-  @endpoint :"investments/transactions"
+  @type params :: %{required(atom) => term}
+  @type config :: %{required(atom) => String.t() | keyword}
+  @type error :: {:error, Plaid.Error.t() | any()} | no_return
 
   defmodule Transaction do
     @moduledoc """
@@ -82,13 +80,32 @@ defmodule Plaid.Investments.Transactions do
   }
   ```
   """
-  @spec get(params, config | nil) ::
-          {:ok, Plaid.Investments.Transactions.t()} | {:error, Plaid.Error.t()}
+  @spec get(params, config) :: {:ok, Plaid.Investments.Transactions.t()} | error
   def get(params, config \\ %{}) do
-    config = validate_cred(config)
-    endpoint = "#{@endpoint}/get"
+    c = config[:client] || Plaid
 
-    make_request_with_cred(:post, endpoint, config, params)
-    |> Utils.handle_resp(@endpoint)
+    Request
+    |> struct(method: :post, endpoint: "investments/transactions/get", body: params)
+    |> Request.add_metadata(config)
+    |> c.send_request(Client.new(config))
+    |> c.handle_response(&map_investments_transactions(&1))
+  end
+
+  defp map_investments_transactions(body) do
+    Poison.Decode.transform(
+      body,
+      %{
+        as: %Plaid.Investments.Transactions{
+          accounts: [
+            %Plaid.Accounts.Account{
+              balances: %Plaid.Accounts.Account.Balance{}
+            }
+          ],
+          securities: [%Plaid.Investments.Security{}],
+          investment_transactions: [%Plaid.Investments.Transactions.Transaction{}],
+          item: %Plaid.Item{}
+        }
+      }
+    )
   end
 end

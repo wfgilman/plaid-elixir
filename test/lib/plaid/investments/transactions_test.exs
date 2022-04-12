@@ -1,4 +1,4 @@
-defmodule Plaid.AuthTest do
+defmodule Plaid.Investments.TransactionsTest do
   use ExUnit.Case, async: true
 
   import Mox
@@ -17,40 +17,42 @@ defmodule Plaid.AuthTest do
      }}
   end
 
-  @moduletag :auth
+  @moduletag :"investments/transactions"
 
-  test "auth data structure encodes with Jason" do
+  @tag :unit
+  test "investments/transactions data structure encodes with Jason" do
     assert {:ok, _} =
-             Jason.encode(%Plaid.Auth{
+             Jason.encode(%Plaid.Investments.Transactions{
                accounts: [%Plaid.Accounts.Account{}],
                item: %Plaid.Item{},
-               numbers: %Plaid.Auth.Numbers{
-                 ach: [%Plaid.Auth.Numbers.ACH{}],
-                 eft: [%Plaid.Auth.Numbers.EFT{}],
-                 international: [%Plaid.Auth.Numbers.International{}],
-                 bacs: [%Plaid.Auth.Numbers.BACS{}]
-               }
+               securities: [%Plaid.Investments.Security{}],
+               investment_transactions: [%Plaid.Investments.Transactions.Transaction{}]
              })
   end
 
-  describe "auth get/2" do
+  describe "investments/transactions get/2" do
     @tag :unit
     test "submits request and unmarshalls response", %{params: params, config: config} do
       PlaidMock
       |> expect(:send_request, fn request, _client ->
         assert request.method == :post
-        assert request.endpoint == "auth/get"
+        assert request.endpoint == "investments/transactions/get"
         assert %{metadata: _} = request.opts
         {:ok, %Tesla.Env{}}
       end)
       |> expect(:handle_response, fn _response, mapper ->
-        body = http_response_body(:auth)
+        body = http_response_body(:"investments/transactions")
         {:ok, mapper.(body)}
       end)
 
-      assert {:ok, ds} = Plaid.Auth.get(params, config)
-      assert Plaid.Auth == ds.__struct__
+      assert {:ok, ds} = Plaid.Investments.Transactions.get(params, config)
+      assert Plaid.Investments.Transactions == ds.__struct__
       assert Plaid.Accounts.Account == List.first(ds.accounts).__struct__
+      assert Plaid.Investments.Security == List.first(ds.securities).__struct__
+
+      assert Plaid.Investments.Transactions.Transaction ==
+               List.first(ds.investment_transactions).__struct__
+
       assert Plaid.Item == ds.item.__struct__
     end
 
@@ -64,7 +66,7 @@ defmodule Plaid.AuthTest do
         root_uri: "http://localhost:#{bypass.port}/"
       }
 
-      body = http_response_body(:accounts)
+      body = http_response_body(:"investments/transactions")
 
       Bypass.expect(bypass, fn conn ->
         conn
@@ -72,7 +74,8 @@ defmodule Plaid.AuthTest do
         |> Plug.Conn.resp(200, Poison.encode!(body))
       end)
 
-      assert {:ok, %Plaid.Auth{}} = Plaid.Auth.get(params, config)
+      assert {:ok, %Plaid.Investments.Transactions{}} =
+               Plaid.Investments.Transactions.get(params, config)
     end
 
     @tag :integration
@@ -93,7 +96,7 @@ defmodule Plaid.AuthTest do
         |> Plug.Conn.resp(400, Poison.encode!(body))
       end)
 
-      assert {:error, %Plaid.Error{}} = Plaid.Auth.get(params, config)
+      assert {:error, %Plaid.Error{}} = Plaid.Investments.Transactions.get(params, config)
     end
   end
 end

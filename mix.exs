@@ -6,14 +6,17 @@ defmodule Plaid.Mixfile do
   def project do
     [
       app: :plaid,
-      version: "2.5.0",
+      version: "3.0.0",
       elixir: "~> 1.5",
       elixirc_paths: elixirc_paths(Mix.env()),
       package: package(),
       deps: deps(),
       docs: docs(),
       test_coverage: [tool: ExCoveralls],
-      preferred_cli_env: [coveralls: :test, "coveralls.detail": :test]
+      preferred_cli_env: [coveralls: :test, "coveralls.detail": :test],
+      dialyzer: [
+        plt_add_deps: :apps_direct
+      ]
     ]
   end
 
@@ -26,16 +29,17 @@ defmodule Plaid.Mixfile do
 
   defp deps do
     [
-      {:httpoison, "~> 1.4"},
+      {:tesla, "~> 1.4"},
+      {:hackney, "~> 1.18"},
       {:poison, "~> 4.0"},
       {:jason, "~> 1.1"},
-      {:bypass, "~> 0.8", only: [:test]},
+      {:bypass, "~> 2.1", only: [:test]},
       {:credo, "~> 0.5", only: [:dev], runtime: false},
-      {:excoveralls, "~> 0.6", only: [:test]},
+      {:excoveralls, "~> 0.14", only: [:test]},
       {:ex_doc, ">= 0.0.0", only: [:dev], runtime: false},
-      {:dialyxir, "~> 1.0.0-rc.6", only: [:dev, :test], runtime: false},
+      {:dialyxir, "~> 1.0", only: [:dev], runtime: false},
       {:telemetry, "~> 1.0"},
-      {:uuid, "~> 1.1", only: [:test]}
+      {:mox, "~> 1.0", only: :test}
     ]
   end
 
@@ -55,7 +59,8 @@ defmodule Plaid.Mixfile do
       extras: [
         "LICENSE.md": [title: "License"],
         "README.md": [title: "Overview"],
-        "parameters.md": []
+        "parameters.md": [],
+        "CHANGELOG.md": []
       ],
       main: "readme",
       logo: "assets/plaid-logo.png",

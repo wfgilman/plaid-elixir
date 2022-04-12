@@ -1,174 +1,440 @@
 defmodule Plaid.ItemTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
 
+  import Mox
   import Plaid.Factory
 
   setup do
-    bypass = Bypass.open()
-    Application.put_env(:plaid, :root_uri, "http://localhost:#{bypass.port}/")
-    {:ok, bypass: bypass}
+    verify_on_exit!()
+
+    {:ok,
+     params: %{access_token: "my-token"},
+     config: %{
+       client: PlaidMock,
+       client_id: "test_id",
+       secret: "test_secret",
+       root_uri: "http://localhost:4000/"
+     }}
   end
 
-  describe "item" do
-    test "get/1 requests POST and returns Plaid.Item", %{bypass: bypass} do
+  @moduletag :item
+
+  @tag :unit
+  test "item data structure encodes with Jason" do
+    assert {:ok, _} =
+             Jason.encode(%Plaid.Item{
+               status: %Plaid.Item.Status{
+                 investments: %Plaid.Item.Status.Investments{},
+                 transactions: %Plaid.Item.Status.Transactions{},
+                 last_webhook: %Plaid.Item.Status.LastWebhook{}
+               }
+             })
+  end
+
+  describe "item get/2" do
+    @tag :unit
+    test "submits request and unmarshalls response", %{params: params, config: config} do
+      PlaidMock
+      |> expect(:send_request, fn request, _client ->
+        assert request.method == :post
+        assert request.endpoint == "item/get"
+        assert %{metadata: _} = request.opts
+        {:ok, %Tesla.Env{}}
+      end)
+      |> expect(:handle_response, fn _response, mapper ->
+        body = http_response_body(:item)
+        {:ok, mapper.(body)}
+      end)
+
+      assert {:ok, ds} = Plaid.Item.get(params, config)
+      assert Plaid.Item == ds.__struct__
+      assert Plaid.Item.Status == ds.status.__struct__
+      assert ds.request_id
+    end
+
+    @tag :integration
+    test "success integration test", %{params: params} do
+      bypass = Bypass.open()
+
+      config = %{
+        client_id: "test_id",
+        secret: "test_secret",
+        root_uri: "http://localhost:#{bypass.port}/"
+      }
+
       body = http_response_body(:item)
 
       Bypass.expect(bypass, fn conn ->
-        assert "POST" == conn.method
-        assert "item/get" == Enum.join(conn.path_info, "/")
-        Plug.Conn.resp(conn, 200, Poison.encode!(body))
+        conn
+        |> Plug.Conn.put_resp_header("content-type", "application/json")
+        |> Plug.Conn.resp(200, Poison.encode!(body))
       end)
 
-      assert {:ok, resp} = Plaid.Item.get(%{access_token: "my-token"})
-      assert Plaid.Item == resp.__struct__
-      assert {:ok, _} = Jason.encode(resp)
-      assert Plaid.Item.Status == resp.status.__struct__
-      assert Plaid.Item.Status.Investments == resp.status.investments.__struct__
-      assert Plaid.Item.Status.Transactions == resp.status.transactions.__struct__
-      assert Plaid.Item.Status.LastWebhook == resp.status.last_webhook.__struct__
-      assert resp.status.last_webhook.code_sent == body["status"]["last_webhook"]["code_sent"]
+      assert {:ok, %Plaid.Item{}} = Plaid.Item.get(params, config)
     end
 
-    test "exchange_public_token/1 requests POST and returns map", %{bypass: bypass} do
+    @tag :integration
+    test "error integration test", %{params: params} do
+      bypass = Bypass.open()
+
+      config = %{
+        client_id: "test_id",
+        secret: "test_secret",
+        root_uri: "http://localhost:#{bypass.port}/"
+      }
+
+      body = http_response_body(:error)
+
+      Bypass.expect(bypass, fn conn ->
+        conn
+        |> Plug.Conn.put_resp_header("content-type", "application/json")
+        |> Plug.Conn.resp(400, Poison.encode!(body))
+      end)
+
+      assert {:error, %Plaid.Error{}} = Plaid.Item.get(params, config)
+    end
+  end
+
+  describe "item exchange_public_token/2" do
+    @tag :unit
+    test "submits request and unmarshalls response", %{params: params, config: config} do
+      PlaidMock
+      |> expect(:send_request, fn request, _client ->
+        assert request.method == :post
+        assert request.endpoint == "item/public_token/exchange"
+        assert %{metadata: _} = request.opts
+        {:ok, %Tesla.Env{}}
+      end)
+      |> expect(:handle_response, fn _response, mapper ->
+        body = http_response_body(:exchange_public_token)
+        {:ok, mapper.(body)}
+      end)
+
+      assert {:ok, r} = Plaid.Item.exchange_public_token(params, config)
+      assert r.access_token
+      assert r.request_id
+      assert r.item_id
+    end
+
+    @tag :integration
+    test "success integration test", %{params: params} do
+      bypass = Bypass.open()
+
+      config = %{
+        client_id: "test_id",
+        secret: "test_secret",
+        root_uri: "http://localhost:#{bypass.port}/"
+      }
+
       body = http_response_body(:exchange_public_token)
 
       Bypass.expect(bypass, fn conn ->
-        assert "POST" == conn.method
-        assert "item/public_token/exchange" == Enum.join(conn.path_info, "/")
-        Plug.Conn.resp(conn, 200, Poison.encode!(body))
+        conn
+        |> Plug.Conn.put_resp_header("content-type", "application/json")
+        |> Plug.Conn.resp(200, Poison.encode!(body))
       end)
 
-      assert {:ok, resp} = Plaid.Item.exchange_public_token(%{public_token: "public-token"})
-      assert resp.access_token == body["access_token"]
-      assert resp.item_id == body["item_id"]
-      assert resp.request_id == body["request_id"]
+      assert {:ok, %{access_token: _, request_id: _, item_id: _}} =
+               Plaid.Item.exchange_public_token(params, config)
+    end
+  end
+
+  describe "item create_public_token/2" do
+    @tag :unit
+    test "submits request and unmarshalls response", %{params: params, config: config} do
+      PlaidMock
+      |> expect(:send_request, fn request, _client ->
+        assert request.method == :post
+        assert request.endpoint == "item/public_token/create"
+        assert %{metadata: _} = request.opts
+        {:ok, %Tesla.Env{}}
+      end)
+      |> expect(:handle_response, fn _response, mapper ->
+        body = http_response_body(:create_public_token)
+        {:ok, mapper.(body)}
+      end)
+
+      assert {:ok, r} = Plaid.Item.create_public_token(params, config)
+      assert r.public_token
+      assert r.expiration
+      assert r.request_id
     end
 
-    test "create_public_token/1 request POST and returns map", %{bypass: bypass} do
+    @tag :integration
+    test "success integration test", %{params: params} do
+      bypass = Bypass.open()
+
+      config = %{
+        client_id: "test_id",
+        secret: "test_secret",
+        root_uri: "http://localhost:#{bypass.port}/"
+      }
+
       body = http_response_body(:create_public_token)
 
       Bypass.expect(bypass, fn conn ->
-        assert "POST" == conn.method
-        assert "item/public_token/create" == Enum.join(conn.path_info, "/")
-        Plug.Conn.resp(conn, 200, Poison.encode!(body))
+        conn
+        |> Plug.Conn.put_resp_header("content-type", "application/json")
+        |> Plug.Conn.resp(200, Poison.encode!(body))
       end)
 
-      assert {:ok, resp} = Plaid.Item.create_public_token(%{access_token: "my-token"})
-      assert resp.public_token == body["public_token"]
-      assert resp.expiration == body["expiration"]
-      assert resp.request_id == body["request_id"]
+      assert {:ok, %{public_token: _, expiration: _, request_id: _}} =
+               Plaid.Item.create_public_token(params, config)
+    end
+  end
+
+  describe "item update_webhook/2" do
+    @tag :unit
+    test "sends request and unmarshalls response", %{params: params, config: config} do
+      PlaidMock
+      |> expect(:send_request, fn request, _client ->
+        assert request.method == :post
+        assert request.endpoint == "item/webhook/update"
+        assert %{metadata: _} = request.opts
+        {:ok, %Tesla.Env{}}
+      end)
+      |> expect(:handle_response, fn _response, mapper ->
+        body = http_response_body(:webhook)
+        {:ok, mapper.(body)}
+      end)
+
+      assert {:ok, ds} = Plaid.Item.update_webhook(params, config)
+      assert Plaid.Item == ds.__struct__
+      assert ds.request_id
     end
 
-    test "update_webhook/1 requests POST and returns Plaid.Item", %{bypass: bypass} do
+    @tag :integration
+    test "success integration test", %{params: params} do
+      bypass = Bypass.open()
+
+      config = %{
+        client_id: "test_id",
+        secret: "test_secret",
+        root_uri: "http://localhost:#{bypass.port}/"
+      }
+
       body = http_response_body(:webhook)
 
       Bypass.expect(bypass, fn conn ->
-        {:ok, req_body, _conn} = Plug.Conn.read_body(conn)
-        assert "POST" == conn.method
-        assert "item/webhook/update" == Enum.join(conn.path_info, "/")
-        assert String.starts_with?(req_body, "{\"webhook\":\"https://plaid.com/updated/hook\"")
-        Plug.Conn.resp(conn, 200, Poison.encode!(body))
+        conn
+        |> Plug.Conn.put_resp_header("content-type", "application/json")
+        |> Plug.Conn.resp(200, Poison.encode!(body))
       end)
 
-      params = %{access_token: "my-token", webhook: "https://plaid.com/updated/hook"}
-      assert {:ok, resp} = Plaid.Item.update_webhook(params)
-      assert Plaid.Item == resp.__struct__
-      assert {:ok, _} = Jason.encode(resp)
+      assert {:ok, %Plaid.Item{}} = Plaid.Item.update_webhook(params, config)
+    end
+  end
+
+  describe "item rotate_access_token/2" do
+    @tag :unit
+    test "submits request and unmarshalls response", %{params: params, config: config} do
+      PlaidMock
+      |> expect(:send_request, fn request, _client ->
+        assert request.method == :post
+        assert request.endpoint == "item/access_token/invalidate"
+        assert %{metadata: _} = request.opts
+        {:ok, %Tesla.Env{}}
+      end)
+      |> expect(:handle_response, fn _response, mapper ->
+        body = http_response_body(:rotate_access_token)
+        {:ok, mapper.(body)}
+      end)
+
+      assert {:ok, r} = Plaid.Item.rotate_access_token(params, config)
+      assert r.new_access_token
+      assert r.request_id
     end
 
-    test "rotate_access_token/1 requests POST and returns success", %{bypass: bypass} do
+    @tag :integration
+    test "success integration test", %{params: params} do
+      bypass = Bypass.open()
+
+      config = %{
+        client_id: "test_id",
+        secret: "test_secret",
+        root_uri: "http://localhost:#{bypass.port}/"
+      }
+
       body = http_response_body(:rotate_access_token)
 
       Bypass.expect(bypass, fn conn ->
-        {:ok, req_body, _conn} = Plug.Conn.read_body(conn)
-        assert "POST" == conn.method
-        assert "item/access_token/invalidate" == Enum.join(conn.path_info, "/")
-        assert String.ends_with?(req_body, "\"access_token\":\"my-token\"}")
-        Plug.Conn.resp(conn, 200, Poison.encode!(body))
+        conn
+        |> Plug.Conn.put_resp_header("content-type", "application/json")
+        |> Plug.Conn.resp(200, Poison.encode!(body))
       end)
 
-      assert {:ok, resp} = Plaid.Item.rotate_access_token(%{access_token: "my-token"})
-      assert resp.new_access_token == body["new_access_token"]
+      assert {:ok, %{new_access_token: _, request_id: _}} =
+               Plaid.Item.rotate_access_token(params, config)
+    end
+  end
+
+  describe "item update_version_access_token/2" do
+    @tag :unit
+    test "submits request and unmarshalls response", %{params: params, config: config} do
+      PlaidMock
+      |> expect(:send_request, fn request, _client ->
+        assert request.method == :post
+        assert request.endpoint == "item/access_token/update_version"
+        assert %{metadata: _} = request.opts
+        {:ok, %Tesla.Env{}}
+      end)
+      |> expect(:handle_response, fn _response, mapper ->
+        body = http_response_body(:update_version_access_token)
+        {:ok, mapper.(body)}
+      end)
+
+      assert {:ok, r} = Plaid.Item.update_version_access_token(params, config)
+      assert r.access_token
+      assert r.request_id
     end
 
-    test "update_version_access_token/1 requests POST and returns success", %{bypass: bypass} do
+    @tag :integration
+    test "success integration test", %{params: params} do
+      bypass = Bypass.open()
+
+      config = %{
+        client_id: "test_id",
+        secret: "test_secret",
+        root_uri: "http://localhost:#{bypass.port}/"
+      }
+
       body = http_response_body(:update_version_access_token)
 
       Bypass.expect(bypass, fn conn ->
-        {:ok, req_body, _conn} = Plug.Conn.read_body(conn)
-        assert "POST" == conn.method
-        assert "item/access_token/update_version" == Enum.join(conn.path_info, "/")
-        assert String.ends_with?(req_body, "\"access_token_v1\":\"my-token\"}")
-        Plug.Conn.resp(conn, 200, Poison.encode!(body))
+        conn
+        |> Plug.Conn.put_resp_header("content-type", "application/json")
+        |> Plug.Conn.resp(200, Poison.encode!(body))
       end)
 
-      assert {:ok, resp} = Plaid.Item.update_version_access_token(%{access_token_v1: "my-token"})
-      assert resp.access_token == body["access_token"]
+      assert {:ok, %{access_token: _, request_id: _}} =
+               Plaid.Item.update_version_access_token(params, config)
+    end
+  end
+
+  describe "item remove/2" do
+    @tag :unit
+    test "submits request and unmarshalls response", %{params: params, config: config} do
+      PlaidMock
+      |> expect(:send_request, fn request, _client ->
+        assert request.method == :post
+        assert request.endpoint == "item/remove"
+        assert %{metadata: _} = request.opts
+        {:ok, %Tesla.Env{}}
+      end)
+      |> expect(:handle_response, fn _response, mapper ->
+        body = http_response_body(:remove)
+        {:ok, mapper.(body)}
+      end)
+
+      assert {:ok, r} = Plaid.Item.remove(params, config)
+      assert r.request_id
     end
 
-    test "remove/1 requests POST and returns success", %{bypass: bypass} do
+    @tag :integration
+    test "success integration test", %{params: params} do
+      bypass = Bypass.open()
+
+      config = %{
+        client_id: "test_id",
+        secret: "test_secret",
+        root_uri: "http://localhost:#{bypass.port}/"
+      }
+
       body = http_response_body(:remove)
 
       Bypass.expect(bypass, fn conn ->
-        assert "POST" == conn.method
-        assert "item/remove" == Enum.join(conn.path_info, "/")
-        Plug.Conn.resp(conn, 200, Poison.encode!(body))
+        conn
+        |> Plug.Conn.put_resp_header("content-type", "application/json")
+        |> Plug.Conn.resp(200, Poison.encode!(body))
       end)
 
-      assert {:ok, resp} = Plaid.Item.remove(%{access_token: "my-token"})
-      assert resp.request_id == body["request_id"]
+      assert {:ok, %{request_id: _}} = Plaid.Item.remove(params, config)
+    end
+  end
+
+  describe "item create_processor_token/2" do
+    @tag :unit
+    test "submits request and unmarshalls response", %{params: params, config: config} do
+      PlaidMock
+      |> expect(:send_request, fn request, _client ->
+        assert request.method == :post
+        assert request.endpoint == "processor/token/create"
+        assert %{metadata: _} = request.opts
+        {:ok, %Tesla.Env{}}
+      end)
+      |> expect(:handle_response, fn _response, mapper ->
+        body = http_response_body(:processor_token)
+        {:ok, mapper.(body)}
+      end)
+
+      assert {:ok, r} = Plaid.Item.create_processor_token(params, config)
+      assert r.processor_token
+      assert r.request_id
     end
 
-    test "deprecated: create_processor_token/1 request POST and returns token", %{bypass: bypass} do
+    @tag :integration
+    test "success integration test", %{params: params} do
+      bypass = Bypass.open()
+
+      config = %{
+        client_id: "test_id",
+        secret: "test_secret",
+        root_uri: "http://localhost:#{bypass.port}/"
+      }
+
       body = http_response_body(:processor_token)
 
       Bypass.expect(bypass, fn conn ->
-        assert "POST" == conn.method
-        assert "processor/token/create" == Enum.join(conn.path_info, "/")
-        Plug.Conn.resp(conn, 200, Poison.encode!(body))
+        conn
+        |> Plug.Conn.put_resp_header("content-type", "application/json")
+        |> Plug.Conn.resp(200, Poison.encode!(body))
       end)
 
-      assert {:ok, resp} =
-               Plaid.Item.create_processor_token(%{access_token: "token", account_id: "id"})
-
-      assert resp.processor_token
+      assert {:ok, %{processor_token: _, request_id: _}} =
+               Plaid.Item.create_processor_token(params, config)
     end
+  end
 
-    test "create_processor_token/3 request POST and returns token", %{bypass: bypass} do
-      body = http_response_body(:processor_token)
-
-      Bypass.expect(bypass, fn conn ->
-        assert "POST" == conn.method
-        assert "processor/token/create" == Enum.join(conn.path_info, "/")
-        Plug.Conn.resp(conn, 200, Poison.encode!(body))
+  describe "item create_stripe_bank_account_token/2" do
+    @tag :unit
+    test "submits request and unmarshalls response", %{params: params, config: config} do
+      PlaidMock
+      |> expect(:send_request, fn request, _client ->
+        assert request.method == :post
+        assert request.endpoint == "processor/stripe/bank_account_token/create"
+        assert %{metadata: _} = request.opts
+        {:ok, %Tesla.Env{}}
+      end)
+      |> expect(:handle_response, fn _response, mapper ->
+        body = http_response_body(:stripe_bank_account_token)
+        {:ok, mapper.(body)}
       end)
 
-      assert {:ok, resp} =
-               Plaid.Item.create_processor_token(
-                 %{access_token: "token", account_id: "id"},
-                 :dwolla,
-                 %{}
-               )
-
-      assert resp.processor_token
+      assert {:ok, r} = Plaid.Item.create_stripe_bank_account_token(params, config)
+      assert r.stripe_bank_account_token
+      assert r.request_id
     end
 
-    test "create_stripe_bank_account_token/1 request POST and returns token", %{bypass: bypass} do
+    @tag :integration
+    test "success integration test", %{params: params} do
+      bypass = Bypass.open()
+
+      config = %{
+        client_id: "test_id",
+        secret: "test_secret",
+        root_uri: "http://localhost:#{bypass.port}/"
+      }
+
       body = http_response_body(:stripe_bank_account_token)
 
       Bypass.expect(bypass, fn conn ->
-        assert "POST" == conn.method
-        assert "processor/stripe/bank_account_token/create" == Enum.join(conn.path_info, "/")
-        Plug.Conn.resp(conn, 200, Poison.encode!(body))
+        conn
+        |> Plug.Conn.put_resp_header("content-type", "application/json")
+        |> Plug.Conn.resp(200, Poison.encode!(body))
       end)
 
-      assert {:ok, resp} =
-               Plaid.Item.create_stripe_bank_account_token(%{
-                 access_token: "token",
-                 account_id: "id"
-               })
-
-      assert resp.stripe_bank_account_token
+      assert {:ok, %{stripe_bank_account_token: _}} =
+               Plaid.Item.create_stripe_bank_account_token(params, config)
     end
   end
 end

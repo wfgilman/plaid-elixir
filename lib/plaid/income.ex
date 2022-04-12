@@ -3,9 +3,8 @@ defmodule Plaid.Income do
   Functions for Plaid `income` endpoint.
   """
 
-  import Plaid, only: [make_request_with_cred: 4, validate_cred: 1]
-
-  alias Plaid.Utils
+  alias Plaid.Client.Request
+  alias Plaid.Client
 
   @derive Jason.Encoder
   defstruct item: nil, income: nil, request_id: nil
@@ -15,12 +14,9 @@ defmodule Plaid.Income do
           income: Plaid.Income.Income.t(),
           request_id: String.t()
         }
-  @type params :: %{
-          required(:access_token) => String.t()
-        }
-  @type config :: %{required(atom) => String.t()}
-
-  @endpoint :income
+  @type params :: %{required(atom) => term}
+  @type config :: %{required(atom) => String.t() | keyword}
+  @type error :: {:error, Plaid.Error.t() | any()} | no_return
 
   defmodule Income do
     @moduledoc """
@@ -73,13 +69,30 @@ defmodule Plaid.Income do
   }
   ```
   """
-  @spec get(params, config | nil) :: {:ok, Plaid.Income.t()} | {:error, Plaid.Error.t()}
+  @spec get(params, config) :: {:ok, Plaid.Income.t()} | error
   def get(params, config \\ %{}) do
-    config = validate_cred(config)
-    endpoint = "#{@endpoint}/get"
+    c = config[:client] || Plaid
 
-    :post
-    |> make_request_with_cred(endpoint, config, params)
-    |> Utils.handle_resp(@endpoint)
+    Request
+    |> struct(method: :post, endpoint: "income/get", body: params)
+    |> Request.add_metadata(config)
+    |> c.send_request(Client.new(config))
+    |> c.handle_response(&map_income(&1))
+  end
+
+  defp map_income(body) do
+    Poison.Decode.transform(
+      body,
+      %{
+        as: %Plaid.Income{
+          item: %Plaid.Item{},
+          income: %Plaid.Income.Income{
+            income_streams: [
+              %Plaid.Income.Income.IncomeStream{}
+            ]
+          }
+        }
+      }
+    )
   end
 end

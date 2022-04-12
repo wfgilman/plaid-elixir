@@ -3,9 +3,8 @@ defmodule Plaid.Link do
   Functions for Plaid `link` endpoint.
   """
 
-  import Plaid, only: [make_request_with_cred: 4, validate_cred: 1]
-
-  alias Plaid.Utils
+  alias Plaid.Client.Request
+  alias Plaid.Client
 
   @derive Jason.Encoder
   defstruct link_token: nil,
@@ -22,10 +21,9 @@ defmodule Plaid.Link do
           created_at: String.t(),
           metadata: Plaid.Link.Metadata.t()
         }
-  @type params :: %{required(atom) => String.t() | [String.t()] | map}
-  @type config :: %{required(atom) => String.t()}
-
-  @endpoint :link
+  @type params :: %{required(atom) => term}
+  @type config :: %{required(atom) => String.t() | keyword}
+  @type error :: {:error, Plaid.Error.t() | any()} | no_return
 
   defmodule Metadata do
     @moduledoc """
@@ -71,14 +69,28 @@ defmodule Plaid.Link do
   }
   ```
   """
-  @spec create_link_token(params, config | nil) ::
-          {:ok, Plaid.Link.t()} | {:error, Plaid.Error.t()}
+  @spec create_link_token(params, config) :: {:ok, Plaid.Link.t()} | error
   def create_link_token(params, config \\ %{}) do
-    config = validate_cred(config)
-    endpoint = "#{@endpoint}/token/create"
+    request_operation("link/token/create", params, config)
+  end
 
-    make_request_with_cred(:post, endpoint, config, params)
-    |> Utils.handle_resp(@endpoint)
+  defp request_operation(endpoint, params, config) do
+    c = config[:client] || Plaid
+
+    Request
+    |> struct(method: :post, endpoint: endpoint, body: params)
+    |> Request.add_metadata(config)
+    |> c.send_request(Client.new(config))
+    |> c.handle_response(&map_link(&1))
+  end
+
+  defp map_link(body) do
+    Poison.Decode.transform(
+      body,
+      %{
+        as: %Plaid.Link{metadata: %Plaid.Link.Metadata{}}
+      }
+    )
   end
 
   @doc """
@@ -91,13 +103,8 @@ defmodule Plaid.Link do
   }
   ```
   """
-  @spec get_link_token(params, config | nil) ::
-          {:ok, Plaid.Link.t()} | {:error, Plaid.Error.t()}
+  @spec get_link_token(params, config) :: {:ok, Plaid.Link.t()} | error
   def get_link_token(params, config \\ %{}) do
-    config = validate_cred(config)
-    endpoint = "#{@endpoint}/token/get"
-
-    make_request_with_cred(:post, endpoint, config, params)
-    |> Utils.handle_resp(@endpoint)
+    request_operation("link/token/get", params, config)
   end
 end

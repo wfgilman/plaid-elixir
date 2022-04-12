@@ -3,27 +3,25 @@ defmodule Plaid.PaymentInitiation.Payments do
   Functions for Plaid `payment_initiation/payment` endpoints.
   """
 
-  import Plaid, only: [make_request_with_cred: 4, validate_cred: 1]
-
-  alias Plaid.Utils
+  alias Plaid.Client.Request
+  alias Plaid.Client
 
   @derive Jason.Encoder
-  defstruct payment_id: nil,
-            status: nil,
+  defstruct payments: [],
+            next_cursor: nil,
             request_id: nil
 
   @type t :: %__MODULE__{
-          payment_id: String.t(),
-          status: String.t(),
+          payments: [Plaid.PaymentInitiation.Payments.Payment.t()],
+          next_cursor: String.t(),
           request_id: String.t()
         }
-  @type params :: %{required(atom) => String.t() | map}
-  @type config :: %{required(atom) => String.t()}
-
-  @endpoint :"payment_initiation/payment"
+  @type params :: %{required(atom) => term}
+  @type config :: %{required(atom) => String.t() | keyword}
+  @type error :: {:error, Plaid.Error.t() | any()} | no_return
 
   defmodule Payment do
-    @doc """
+    @moduledoc """
     Plaid Payment data structure.
     """
 
@@ -32,7 +30,7 @@ defmodule Plaid.PaymentInitiation.Payments do
               payment_token: nil,
               payment_token_expiration_time: nil,
               reference: nil,
-              amount: 0,
+              amount: nil,
               status: nil,
               last_status_update: nil,
               recipient_id: nil,
@@ -57,6 +55,7 @@ defmodule Plaid.PaymentInitiation.Payments do
       Plaid Payment Amount data structure.
       """
 
+      @derive Jason.Encoder
       defstruct currency: nil,
                 amount: 0
 
@@ -71,6 +70,7 @@ defmodule Plaid.PaymentInitiation.Payments do
       Plaid Payment Schedule data structure.
       """
 
+      @derive Jason.Encoder
       defstruct interval: nil,
                 interval_execution_day: nil,
                 start_date: nil
@@ -103,14 +103,36 @@ defmodule Plaid.PaymentInitiation.Payments do
   }
   ```
   """
-  @spec create(params, config | nil) ::
-          {:ok, Plaid.PaymentInitiation.Payments.t()} | {:error, Plaid.Error.t()}
+  @spec create(params, config) :: {:ok, Plaid.PaymentInitiation.Payments.Payment.t()} | error
   def create(params, config \\ %{}) do
-    config = validate_cred(config)
-    endpoint = "#{@endpoint}/create"
+    request_operation("payment_initiation/payment/create", params, config, &map_payment(&1))
+  end
 
-    make_request_with_cred(:post, endpoint, config, params)
-    |> Utils.handle_resp(@endpoint)
+  defp request_operation(endpoint, params, config, mapper) do
+    c = config[:client] || Plaid
+
+    Request
+    |> struct(method: :post, endpoint: endpoint, body: params)
+    |> Request.add_metadata(config)
+    |> c.send_request(Client.new(config))
+    |> c.handle_response(mapper)
+  end
+
+  defp map_payments(body) do
+    Poison.Decode.transform(body, %{
+      as: %Plaid.PaymentInitiation.Payments{payments: [full_struct()]}
+    })
+  end
+
+  defp map_payment(body) do
+    Poison.Decode.transform(body, %{as: full_struct()})
+  end
+
+  defp full_struct do
+    %Plaid.PaymentInitiation.Payments.Payment{
+      amount: %Plaid.PaymentInitiation.Payments.Payment.Amount{},
+      schedule: %Plaid.PaymentInitiation.Payments.Payment.Schedule{}
+    }
   end
 
   @doc """
@@ -123,14 +145,9 @@ defmodule Plaid.PaymentInitiation.Payments do
   }
   ```
   """
-  @spec get(params, config | nil) ::
-          {:ok, Plaid.PaymentInitiation.Payments.Payment.t()} | {:error, Plaid.Error.t()}
+  @spec get(params, config) :: {:ok, Plaid.PaymentInitiation.Payments.Payment.t()} | error
   def get(params, config \\ %{}) do
-    config = validate_cred(config)
-    endpoint = "#{@endpoint}/get"
-
-    make_request_with_cred(:post, endpoint, config, params)
-    |> Utils.handle_resp(@endpoint)
+    request_operation("payment_initiation/payment/get", params, config, &map_payment(&1))
   end
 
   @doc """
@@ -146,13 +163,8 @@ defmodule Plaid.PaymentInitiation.Payments do
   }
   ```
   """
-  @spec list(params, config | nil) ::
-          {:ok, [Plaid.PaymentInitiation.Payments.Payment.t()]} | {:error, Plaid.Error.t()}
+  @spec list(params, config) :: {:ok, Plaid.PaymentInitiation.Payments.t()} | error
   def list(params, config \\ %{}) do
-    config = validate_cred(config)
-    endpoint = "#{@endpoint}/list"
-
-    make_request_with_cred(:post, endpoint, config, params)
-    |> Utils.handle_resp(@endpoint)
+    request_operation("payment_initiation/payment/list", params, config, &map_payments(&1))
   end
 end

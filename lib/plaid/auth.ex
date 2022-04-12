@@ -3,9 +3,8 @@ defmodule Plaid.Auth do
   Functions for Plaid `auth` endpoint.
   """
 
-  import Plaid, only: [make_request_with_cred: 4, validate_cred: 1]
-
-  alias Plaid.Utils
+  alias Plaid.Client.Request
+  alias Plaid.Client
 
   @derive Jason.Encoder
   defstruct accounts: [], item: nil, numbers: [], request_id: nil
@@ -13,7 +12,7 @@ defmodule Plaid.Auth do
   @type t :: %__MODULE__{
           accounts: [Plaid.Accounts.Account.t()],
           item: Plaid.Item.t(),
-          numbers: %{
+          numbers: %Plaid.Auth.Numbers{
             ach: [Plaid.Auth.Numbers.ACH.t()],
             eft: [Plaid.Auth.Numbers.EFT.t()],
             international: [Plaid.Auth.Numbers.International.t()],
@@ -21,18 +20,9 @@ defmodule Plaid.Auth do
           },
           request_id: String.t()
         }
-  @type params :: %{
-          required(:access_token) => String.t(),
-          optional(:options) => %{
-            optional(:account_ids) => [String.t()]
-          }
-        }
-  @type config :: %{
-          required(atom) => String.t(),
-          optional(:httpoison_options) => [map()]
-        }
-
-  @endpoint :auth
+  @type params :: %{required(atom) => term}
+  @type config :: %{required(atom) => String.t() | keyword}
+  @type error :: {:error, Plaid.Error.t() | any()} | no_return
 
   defmodule Numbers do
     @moduledoc """
@@ -128,13 +118,36 @@ defmodule Plaid.Auth do
   }
   ```
   """
-  @spec get(params, config | nil) :: {:ok, Plaid.Auth.t()} | {:error, Plaid.Error.t()}
+  @spec get(params, config) :: {:ok, Plaid.Auth.t()} | error
   def get(params, config \\ %{}) do
-    config = validate_cred(config)
-    endpoint = "#{@endpoint}/get"
+    c = config[:client] || Plaid
 
-    :post
-    |> make_request_with_cred(endpoint, config, params)
-    |> Utils.handle_resp(@endpoint)
+    Request
+    |> struct(method: :post, endpoint: "auth/get", body: params)
+    |> Request.add_metadata(config)
+    |> c.send_request(Client.new(config))
+    |> c.handle_response(&map_auth(&1))
+  end
+
+  defp map_auth(body) do
+    Poison.Decode.transform(
+      body,
+      %{
+        as: %Plaid.Auth{
+          numbers: %Plaid.Auth.Numbers{
+            ach: [%Plaid.Auth.Numbers.ACH{}],
+            eft: [%Plaid.Auth.Numbers.EFT{}],
+            international: [%Plaid.Auth.Numbers.International{}],
+            bacs: [%Plaid.Auth.Numbers.BACS{}]
+          },
+          item: %Plaid.Item{},
+          accounts: [
+            %Plaid.Accounts.Account{
+              balances: %Plaid.Accounts.Account.Balance{}
+            }
+          ]
+        }
+      }
+    )
   end
 end

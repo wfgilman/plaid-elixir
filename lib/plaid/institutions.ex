@@ -3,9 +3,8 @@ defmodule Plaid.Institutions do
   Functions for Plaid `institutions` endpoint.
   """
 
-  import Plaid, only: [make_request_with_cred: 4, validate_cred: 1]
-
-  alias Plaid.Utils
+  alias Plaid.Client.Request
+  alias Plaid.Client
 
   @derive Jason.Encoder
   defstruct institutions: [], request_id: nil, total: nil
@@ -15,10 +14,9 @@ defmodule Plaid.Institutions do
           request_id: String.t(),
           total: integer
         }
-  @type params :: %{required(atom) => integer | String.t() | list | map}
-  @type config :: %{required(atom) => String.t()}
-
-  @endpoint :institutions
+  @type params :: %{required(atom) => term}
+  @type config :: %{required(atom) => String.t() | keyword}
+  @type error :: {:error, Plaid.Error.t() | any()} | no_return
 
   defmodule Institution do
     @moduledoc """
@@ -256,13 +254,52 @@ defmodule Plaid.Institutions do
   %{count: 50, offset: 0}
   ```
   """
-  @spec get(params, config | nil) :: {:ok, Plaid.Institutions.t()} | {:error, Plaid.Error.t()}
+  @spec get(params, config) :: {:ok, Plaid.Institutions.t()} | error
   def get(params, config \\ %{}) do
-    config = validate_cred(config)
-    endpoint = "#{@endpoint}/get"
+    request_operation("institutions/get", params, config, &map_institutions(&1))
+  end
 
-    make_request_with_cred(:post, endpoint, config, params)
-    |> Utils.handle_resp(@endpoint)
+  defp request_operation(endpoint, params, config, mapper) do
+    c = config[:client] || Plaid
+
+    Request
+    |> struct(method: :post, endpoint: endpoint, body: params)
+    |> Request.add_metadata(config)
+    |> c.send_request(Client.new(config))
+    |> c.handle_response(mapper)
+  end
+
+  defp map_institutions(body) do
+    Poison.Decode.transform(body, %{as: %Plaid.Institutions{institutions: [full_struct()]}})
+  end
+
+  defp map_institution(%{"institution" => ins, "request_id" => request_id}) do
+    ins
+    |> Map.put_new("request_id", request_id)
+    |> Poison.Decode.transform(%{as: full_struct()})
+  end
+
+  defp full_struct do
+    %Plaid.Institutions.Institution{
+      credentials: [%Plaid.Institutions.Institution.Credentials{}],
+      status: %Plaid.Institutions.Institution.Status{
+        item_logins: %Plaid.Institutions.Institution.Status.ItemLogins{
+          breakdown: %Plaid.Institutions.Institution.Status.ItemLogins.Breakdown{}
+        },
+        transactions_updates: %Plaid.Institutions.Institution.Status.TransactionsUpdates{
+          breakdown: %Plaid.Institutions.Institution.Status.TransactionsUpdates.Breakdown{}
+        },
+        auth: %Plaid.Institutions.Institution.Status.Auth{
+          breakdown: %Plaid.Institutions.Institution.Status.Auth.Breakdown{}
+        },
+        balance: %Plaid.Institutions.Institution.Status.Balance{
+          breakdown: %Plaid.Institutions.Institution.Status.Balance.Breakdown{}
+        },
+        identity: %Plaid.Institutions.Institution.Status.Identity{
+          breakdown: %Plaid.Institutions.Institution.Status.Identity.Breakdown{}
+        }
+      }
+    }
   end
 
   @doc """
@@ -277,15 +314,12 @@ defmodule Plaid.Institutions do
   %{institution_id: "ins_109512", options: %{include_optional_metadata: true, include_status: false}}
   ```
   """
-  @spec get_by_id(String.t() | params, config | nil) ::
-          {:ok, Plaid.Institutions.Institution.t()} | {:error, Plaid.Error.t()}
+  @spec get_by_id(String.t() | params, config) ::
+          {:ok, Plaid.Institutions.Institution.t()} | error
   def get_by_id(params, config \\ %{}) do
-    config = validate_cred(config)
     params = if is_binary(params), do: %{institution_id: params}, else: params
-    endpoint = "#{@endpoint}/get_by_id"
 
-    make_request_with_cred(:post, endpoint, config, params)
-    |> Utils.handle_resp(:institution)
+    request_operation("institutions/get_by_id", params, config, &map_institution(&1))
   end
 
   @doc """
@@ -296,12 +330,8 @@ defmodule Plaid.Institutions do
   %{query: "Wells", products: ["transactions"], options: %{limit: 40, include_display_data: true}}
   ```
   """
-  @spec search(params, config | nil) :: {:ok, Plaid.Institutions.t()} | {:error, Plaid.Error.t()}
+  @spec search(params, config) :: {:ok, Plaid.Institutions.t()} | error
   def search(params, config \\ %{}) do
-    config = validate_cred(config)
-    endpoint = "#{@endpoint}/search"
-
-    make_request_with_cred(:post, endpoint, config, params)
-    |> Utils.handle_resp(@endpoint)
+    request_operation("institutions/search", params, config, &map_institutions(&1))
   end
 end

@@ -3,9 +3,8 @@ defmodule Plaid.Item do
   Functions for Plaid `item` endpoint.
   """
 
-  import Plaid, only: [make_request_with_cred: 4, validate_cred: 1]
-
-  alias Plaid.Utils
+  alias Plaid.Client.Request
+  alias Plaid.Client
 
   @derive Jason.Encoder
   defstruct available_products: [],
@@ -29,11 +28,9 @@ defmodule Plaid.Item do
           request_id: String.t(),
           status: Plaid.Item.Status.t()
         }
-  @type params :: %{required(atom) => String.t() | [String.t()] | map}
-  @type config :: %{required(atom) => String.t()}
-  @type service :: :dwolla | :modern_treasury | :svb_api
-
-  @endpoint :item
+  @type params :: %{required(atom) => term}
+  @type config :: %{required(atom) => String.t() | keyword}
+  @type error :: {:error, Plaid.Error.t() | any()} | no_return
 
   defmodule Status do
     @moduledoc """
@@ -90,13 +87,38 @@ defmodule Plaid.Item do
   %{access_token: "access-env-identifier"}
   ```
   """
-  @spec get(params, config | nil) :: {:ok, Plaid.Item.t()} | {:error, Plaid.Error.t()}
+  @spec get(params, config) :: {:ok, Plaid.Item.t()} | error
   def get(params, config \\ %{}) do
-    config = validate_cred(config)
-    endpoint = "#{@endpoint}/get"
+    mapper = fn %{"item" => item, "request_id" => r, "status" => s} ->
+      map_item(Map.merge(item, %{"request_id" => r, "status" => s}))
+    end
 
-    make_request_with_cred(:post, endpoint, config, params)
-    |> Utils.handle_resp(@endpoint)
+    request_operation("item/get", params, config, mapper)
+  end
+
+  defp request_operation(endpoint, params, config, mapper) do
+    c = config[:client] || Plaid
+
+    Request
+    |> struct(method: :post, endpoint: endpoint, body: params)
+    |> Request.add_metadata(config)
+    |> c.send_request(Client.new(config))
+    |> c.handle_response(mapper)
+  end
+
+  defp map_item(body) do
+    Poison.Decode.transform(
+      body,
+      %{
+        as: %Plaid.Item{
+          status: %Plaid.Item.Status{
+            investments: %Plaid.Item.Status.Investments{},
+            transactions: %Plaid.Item.Status.Transactions{},
+            last_webhook: %Plaid.Item.Status.LastWebhook{}
+          }
+        }
+      }
+    )
   end
 
   @doc """
@@ -112,13 +134,13 @@ defmodule Plaid.Item do
   {:ok, %{access_token: "access-env-identifier", item_id: "some-id", request_id: "f24wfg"}}
   ```
   """
-  @spec exchange_public_token(params, config | nil) :: {:ok, map} | {:error, Plaid.Error.t()}
+  @spec exchange_public_token(params, config) :: {:ok, map} | error
   def exchange_public_token(params, config \\ %{}) do
-    config = validate_cred(config)
-    endpoint = "#{@endpoint}/public_token/exchange"
+    mapper = fn %{"access_token" => t, "item_id" => i, "request_id" => r} ->
+      %{access_token: t, item_id: i, request_id: r}
+    end
 
-    make_request_with_cred(:post, endpoint, config, params)
-    |> Utils.handle_resp(@endpoint)
+    request_operation("item/public_token/exchange", params, config, mapper)
   end
 
   @doc """
@@ -134,13 +156,13 @@ defmodule Plaid.Item do
   {:ok, %{public_token: "access-env-identifier", expiration: 3600, request_id: "kg414f"}}
   ```
   """
-  @spec create_public_token(params, config | nil) :: {:ok, map} | {:error, Plaid.Error.t()}
+  @spec create_public_token(params, config) :: {:ok, map} | error
   def create_public_token(params, config \\ %{}) do
-    config = validate_cred(config)
-    endpoint = "#{@endpoint}/public_token/create"
+    mapper = fn %{"public_token" => t, "expiration" => e, "request_id" => r} ->
+      %{public_token: t, expiration: e, request_id: r}
+    end
 
-    make_request_with_cred(:post, endpoint, config, params)
-    |> Utils.handle_resp(@endpoint)
+    request_operation("item/public_token/create", params, config, mapper)
   end
 
   @doc """
@@ -151,13 +173,13 @@ defmodule Plaid.Item do
   %{access_token: "access-env-identifier", webhook: "http://mywebsite/api"}
   ```
   """
-  @spec update_webhook(params, config | nil) :: {:ok, Plaid.Item.t()} | {:error, Plaid.Error.t()}
+  @spec update_webhook(params, config) :: {:ok, Plaid.Item.t()} | error
   def update_webhook(params, config \\ %{}) do
-    config = validate_cred(config)
-    endpoint = "#{@endpoint}/webhook/update"
+    mapper = fn %{"item" => item, "request_id" => r} ->
+      map_item(Map.merge(item, %{"request_id" => r}))
+    end
 
-    make_request_with_cred(:post, endpoint, config, params)
-    |> Utils.handle_resp(@endpoint)
+    request_operation("item/webhook/update", params, config, mapper)
   end
 
   @doc """
@@ -173,13 +195,13 @@ defmodule Plaid.Item do
   {:ok, %{new_access_token: "access-env-identifier", request_id: "gag8fs"}}
   ```
   """
-  @spec rotate_access_token(params, config | nil) :: {:ok, map} | {:error, Plaid.Error.t()}
+  @spec rotate_access_token(params, config) :: {:ok, map} | error
   def rotate_access_token(params, config \\ %{}) do
-    config = validate_cred(config)
-    endpoint = "#{@endpoint}/access_token/invalidate"
+    mapper = fn %{"new_access_token" => t, "request_id" => r} ->
+      %{new_access_token: t, request_id: r}
+    end
 
-    make_request_with_cred(:post, endpoint, config, params)
-    |> Utils.handle_resp(@endpoint)
+    request_operation("item/access_token/invalidate", params, config, mapper)
   end
 
   @doc """
@@ -195,14 +217,13 @@ defmodule Plaid.Item do
   {:ok, %{access_token: "access-env-identifier", item_id: "some-id", request_id: "f24wfg"}}
   ```
   """
-  @spec update_version_access_token(params, config | nil) ::
-          {:ok, map} | {:error, Plaid.Error.t()}
+  @spec update_version_access_token(params, config) :: {:ok, map} | error
   def update_version_access_token(params, config \\ %{}) do
-    config = validate_cred(config)
-    endpoint = "#{@endpoint}/access_token/update_version"
+    mapper = fn %{"access_token" => t, "request_id" => r} ->
+      %{access_token: t, request_id: r}
+    end
 
-    make_request_with_cred(:post, endpoint, config, params)
-    |> Utils.handle_resp(@endpoint)
+    request_operation("item/access_token/update_version", params, config, mapper)
   end
 
   @doc """
@@ -218,22 +239,26 @@ defmodule Plaid.Item do
   {:ok, %{request_id: "[Unique request ID]"}}
   ```
   """
-  @spec remove(params, config | nil) :: {:ok, map} | {:error, Plaid.Error.t()}
+  @spec remove(params, config) :: {:ok, map} | error
   def remove(params, config \\ %{}) do
-    config = validate_cred(config)
-    endpoint = "#{@endpoint}/remove"
+    mapper = fn %{"request_id" => r} ->
+      %{request_id: r}
+    end
 
-    make_request_with_cred(:post, endpoint, config, params)
-    |> Utils.handle_resp(@endpoint)
+    request_operation("item/remove", params, config, mapper)
   end
 
   @doc """
-  [Creates a processor token](https://developers.dwolla.com/resources/dwolla-plaid-integration.html)
-  used to create an authenticated funding source with Dwolla.
+  [Creates a processor token](https://plaid.com/docs/api/processors)
+  used to integrate with services external to Plaid.
 
   Parameters
   ```
-  %{access_token: "access-env-identifier", account_id: "plaid-account-id"}
+  %{
+    access_token: "access-env-identifier",
+    account_id: "plaid-account-id",
+    processor: "dwolla"
+  }
   ```
 
   Response
@@ -241,34 +266,13 @@ defmodule Plaid.Item do
   {:ok, %{processor_token: "some-token", request_id: "k522f2"}}
   ```
   """
-  @deprecated "Use create_processor_token/3 instead"
-  @spec create_processor_token(params, config | nil) :: {:ok, map} | {:error, Plaid.Error.t()}
-  def create_processor_token(params, config \\ %{}) do
-    create_processor_token(params, :dwolla, config)
-  end
+  @spec create_processor_token(params, config) :: {:ok, map} | error
+  def create_processor_token(params, config) do
+    mapper = fn %{"processor_token" => t, "request_id" => r} ->
+      %{processor_token: t, request_id: r}
+    end
 
-  @doc """
-  Creates a processor token used to integrate with services external to Plaid.
-
-  Parameters
-  ```
-  %{access_token: "access-env-identifier", account_id: "plaid-account-id"}
-  ```
-
-  Response
-  ```
-  {:ok, %{processor_token: "some-token", request_id: "k522f2"}}
-  ```
-  """
-  @spec create_processor_token(params, service, config | nil) ::
-          {:ok, map} | {:error, Plaid.Error.t()}
-  def create_processor_token(params, service, config) do
-    config = validate_cred(config)
-    endpoint = "processor/token/create"
-    param_with_processor = Map.put(params, :processor, service)
-
-    make_request_with_cred(:post, endpoint, config, param_with_processor)
-    |> Utils.handle_resp(@endpoint)
+    request_operation("processor/token/create", params, config, mapper)
   end
 
   @doc """
@@ -285,13 +289,12 @@ defmodule Plaid.Item do
   {:ok, %{stripe_bank_account_token: "btok_Kb62HbBqrrvdf8pBsAdt", request_id: "[Unique request ID]"}}
   ```
   """
-  @spec create_stripe_bank_account_token(params, config | nil) ::
-          {:ok, map} | {:error, Plaid.Error.t()}
+  @spec create_stripe_bank_account_token(params, config) :: {:ok, map} | error
   def create_stripe_bank_account_token(params, config \\ %{}) do
-    config = validate_cred(config)
-    endpoint = "processor/stripe/bank_account_token/create"
+    mapper = fn %{"stripe_bank_account_token" => t, "request_id" => r} ->
+      %{stripe_bank_account_token: t, request_id: r}
+    end
 
-    make_request_with_cred(:post, endpoint, config, params)
-    |> Utils.handle_resp(@endpoint)
+    request_operation("processor/stripe/bank_account_token/create", params, config, mapper)
   end
 end
