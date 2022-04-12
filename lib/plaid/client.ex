@@ -48,10 +48,11 @@ defmodule Plaid.Client do
   Creates a new Tesla client.
 
   Optional `config` argument sets the following values at runtime:
-  - base url
+  - base url (aka root uri)
   - client_id
   - secret
   - `Tesla.Adapter`
+  - `Tesla.Middleware`
   - HTTP options for selected `Tesla.Adapter`
 
   Example
@@ -61,6 +62,7 @@ defmodule Plaid.Client do
     client_id: "my-client-id",
     secret: "shhhh",
     adapter: Tesla.Adapter.Httpc,
+    middleware: [Tesla.Middleware.Logger],
     http_options: [recv_timeout: 10_000]
   }
 
