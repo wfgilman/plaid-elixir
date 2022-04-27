@@ -1284,4 +1284,331 @@ defmodule Plaid.Factory do
       "request_id" => "4zlKapIkTm8p5KM"
     }
   end
+
+  def http_response_body(:create_asset_report) do
+    %{
+      "asset_report_token" => "assets-sandbox-6f12f5bb-22dd-4855-b918-f47ec439198a",
+      "asset_report_id" => "1f414183-220c-44f5-b0c8-bc0e6d4053bb",
+      "request_id" => "Iam3b"
+    }
+  end
+
+  def http_response_body(:get_asset_report) do
+    %{
+      "report" => %{
+        "asset_report_id" => "bf3a0490-344c-4620-a219-2693162e4b1d",
+        "client_report_id" => "123abc",
+        "date_generated" => "2020-06-05T22:47:53Z",
+        "days_requested" => 3,
+        "items" => [
+          %{
+            "accounts" => [
+              %{
+                "account_id" => "3gE5gnRzNyfXpBK5wEEKcymJ5albGVUqg77gr",
+                "balances" => %{
+                  "available" => 200,
+                  "current" => 210,
+                  "iso_currency_code" => "USD",
+                  "limit" => nil,
+                  "unofficial_currency_code" => nil
+                },
+                "days_available" => 3,
+                "historical_balances" => [
+                  %{
+                    "current" => 210,
+                    "date" => "2020-06-04",
+                    "iso_currency_code" => "USD",
+                    "unofficial_currency_code" => nil
+                  },
+                  %{
+                    "current" => 210,
+                    "date" => "2020-06-03",
+                    "iso_currency_code" => "USD",
+                    "unofficial_currency_code" => nil
+                  },
+                  %{
+                    "current" => 210,
+                    "date" => "2020-06-02",
+                    "iso_currency_code" => "USD",
+                    "unofficial_currency_code" => nil
+                  }
+                ],
+                "mask" => "1111",
+                "name" => "Plaid Saving",
+                "official_name" => "Plaid Silver Standard 0.1% Interest Saving",
+                "owners" => [
+                  %{
+                    "addresses" => [
+                      %{
+                        "data" => %{
+                          "city" => "Malakoff",
+                          "country" => "US",
+                          "postal_code" => "14236",
+                          "region" => "NY",
+                          "street" => "2992 Cameron Road"
+                        },
+                        "primary" => true
+                      },
+                      %{
+                        "data" => %{
+                          "city" => "San Matias",
+                          "country" => "US",
+                          "postal_code" => "93405-2255",
+                          "region" => "CA",
+                          "street" => "2493 Leisure Lane"
+                        },
+                        "primary" => false
+                      }
+                    ],
+                    "emails" => [
+                      %{
+                        "data" => "accountholder0@example.com",
+                        "primary" => true,
+                        "type" => "primary"
+                      },
+                      %{
+                        "data" => "accountholder1@example.com",
+                        "primary" => false,
+                        "type" => "secondary"
+                      },
+                      %{
+                        "data" =>
+                          "extraordinarily.long.email.username.123456@reallylonghostname.com",
+                        "primary" => false,
+                        "type" => "other"
+                      }
+                    ],
+                    "names" => [
+                      "Alberta Bobbeth Charleson"
+                    ],
+                    "phone_numbers" => [
+                      %{
+                        "data" => "1112223333",
+                        "primary" => false,
+                        "type" => "home"
+                      },
+                      %{
+                        "data" => "1112224444",
+                        "primary" => false,
+                        "type" => "work"
+                      },
+                      %{
+                        "data" => "1112225555",
+                        "primary" => false,
+                        "type" => "mobile"
+                      }
+                    ]
+                  }
+                ],
+                "ownership_type" => nil,
+                "subtype" => "savings",
+                "transactions" => [],
+                "type" => "depository"
+              },
+              %{
+                "account_id" => "BxBXxLj1m4HMXBm9WZJyUg9XLd4rKEhw8Pb1J",
+                "balances" => %{
+                  "available" => nil,
+                  "current" => 56302.06,
+                  "iso_currency_code" => "USD",
+                  "limit" => nil,
+                  "unofficial_currency_code" => nil
+                },
+                "days_available" => 3,
+                "historical_balances" => [],
+                "mask" => "8888",
+                "name" => "Plaid Mortgage",
+                "official_name" => nil,
+                "owners" => [
+                  %{
+                    "addresses" => [
+                      %{
+                        "data" => %{
+                          "city" => "Malakoff",
+                          "country" => "US",
+                          "postal_code" => "14236",
+                          "region" => "NY",
+                          "street" => "2992 Cameron Road"
+                        },
+                        "primary" => true
+                      },
+                      %{
+                        "data" => %{
+                          "city" => "San Matias",
+                          "country" => "US",
+                          "postal_code" => "93405-2255",
+                          "region" => "CA",
+                          "street" => "2493 Leisure Lane"
+                        },
+                        "primary" => false
+                      }
+                    ],
+                    "emails" => [
+                      %{
+                        "data" => "accountholder0@example.com",
+                        "primary" => true,
+                        "type" => "primary"
+                      },
+                      %{
+                        "data" => "accountholder1@example.com",
+                        "primary" => false,
+                        type: "secondary"
+                      },
+                      %{
+                        "data" =>
+                          "extraordinarily.long.email.username.123456@reallylonghostname.com",
+                        "primary" => false,
+                        "type" => "other"
+                      }
+                    ],
+                    "names" => [
+                      "Alberta Bobbeth Charleson"
+                    ],
+                    "phone_numbers" => [
+                      %{
+                        "data" => "1112223333",
+                        "primary" => false,
+                        "type" => "home"
+                      },
+                      %{
+                        "data" => "1112224444",
+                        "primary" => false,
+                        "type" => "work"
+                      },
+                      %{
+                        "data" => "1112225555",
+                        "primary" => false,
+                        "type" => "mobile"
+                      }
+                    ]
+                  }
+                ],
+                "ownership_type" => nil,
+                "subtype" => "mortgage",
+                "transactions" => [],
+                "type" => "loan"
+              },
+              %{
+                "account_id" => "dVzbVMLjrxTnLjX4G66XUp5GLklm4oiZy88yK",
+                "balances" => %{
+                  "available" => nil,
+                  "current" => 410,
+                  "iso_currency_code" => "USD",
+                  "limit" => nil,
+                  "unofficial_currency_code" => nil
+                },
+                "days_available" => 3,
+                "historical_balances" => [
+                  %{
+                    "current" => 410,
+                    "date" => "2020-06-04",
+                    "iso_currency_code" => "USD",
+                    "unofficial_currency_code" => nil
+                  },
+                  %{
+                    "current" => 410,
+                    "date" => "2020-06-03",
+                    "iso_currency_code" => "USD",
+                    "unofficial_currency_code" => nil
+                  },
+                  %{
+                    "current" => 410,
+                    "date" => "2020-06-02",
+                    "iso_currency_code" => "USD",
+                    "unofficial_currency_code" => nil
+                  }
+                ],
+                "mask" => "3333",
+                "name" => "Plaid Credit Card",
+                "official_name" => "Plaid Diamond 12.5% APR Interest Credit Card",
+                "owners" => [
+                  %{
+                    "addresses" => [
+                      %{
+                        "data" => %{
+                          "city" => "Malakoff",
+                          "country" => "US",
+                          "postal_code" => "14236",
+                          "region" => "NY",
+                          "street" => "2992 Cameron Road"
+                        },
+                        "primary" => true
+                      },
+                      %{
+                        "data" => %{
+                          "city" => "San Matias",
+                          "country" => "US",
+                          "postal_code" => "93405-2255",
+                          "region" => "CA",
+                          "street" => "2493 Leisure Lane"
+                        },
+                        "primary" => false
+                      }
+                    ],
+                    "emails" => [
+                      %{
+                        "data" => "accountholder0@example.com",
+                        "primary" => true,
+                        "type" => "primary"
+                      },
+                      %{
+                        "data" => "accountholder1@example.com",
+                        "primary" => false,
+                        "type" => "secondary"
+                      },
+                      %{
+                        "data" =>
+                          "extraordinarily.long.email.username.123456@reallylonghostname.com",
+                        "primary" => false,
+                        "type" => "other"
+                      }
+                    ],
+                    "names" => [
+                      "Alberta Bobbeth Charleson"
+                    ],
+                    "phone_numbers" => [
+                      %{
+                        "data" => "1112223333",
+                        "primary" => false,
+                        "type" => "home"
+                      },
+                      %{
+                        "data" => "1112224444",
+                        "primary" => false,
+                        "type" => "work"
+                      },
+                      %{
+                        "data" => "1112225555",
+                        "primary" => false,
+                        "type" => "mobile"
+                      }
+                    ]
+                  }
+                ],
+                "ownership_type" => nil,
+                "subtype" => "credit card",
+                "transactions" => [],
+                "type" => "credit"
+              }
+            ],
+            "date_last_updated" => "2020-06-05T22:47:52Z",
+            "institution_id" => "ins_3",
+            "institution_name" => "Chase",
+            "item_id" => "eVBnVMp7zdTJLkRNr33Rs6zr7KNJqBFL9DrE6"
+          }
+        ],
+        "user" => %{
+          "client_user_id" => "123456789",
+          "email" => "accountholder0@example.com",
+          "first_name" => "Alberta",
+          "last_name" => "Charleson",
+          "middle_name" => "Bobbeth",
+          "phone_number" => "111-222-3333",
+          "ssn" => "123-45-6789"
+        }
+      },
+      "request_id" => "eYupqX1mZkEuQRx",
+      "warnings" => []
+    }
+  end
 end
