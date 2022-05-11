@@ -8,7 +8,7 @@ defmodule Plaid.AssetReportTest do
     verify_on_exit!()
 
     {:ok,
-     options: %{client_report_id: "123"},
+     params: %{client_report_id: "123"},
      config: %{
        client: PlaidMock,
        client_id: "test_id",
@@ -19,7 +19,7 @@ defmodule Plaid.AssetReportTest do
 
   describe "asset create_asset_report/4" do
     @tag :unit
-    test "submits request and unmarshalls response", %{options: options, config: config} do
+    test "submits request and unmarshalls response", %{params: params, config: config} do
       PlaidMock
       |> expect(:send_request, fn request, _client ->
         assert request.method == :post
@@ -32,8 +32,7 @@ defmodule Plaid.AssetReportTest do
         {:ok, mapper.(body)}
       end)
 
-      assert {:ok, r} =
-               Plaid.AssetReport.create_asset_report(["test-token"], 365, options, config)
+      assert {:ok, r} = Plaid.AssetReport.create_asset_report(params, config)
 
       assert r.asset_report_token
       assert r.asset_report_id
@@ -41,7 +40,7 @@ defmodule Plaid.AssetReportTest do
     end
 
     @tag :integration
-    test "success integration test", %{options: options} do
+    test "success integration test", %{params: params} do
       bypass = Bypass.open()
 
       config = %{
@@ -60,13 +59,13 @@ defmodule Plaid.AssetReportTest do
 
       assert {:ok,
               %Plaid.AssetReport.Request{asset_report_id: _, asset_report_token: _, request_id: _}} =
-               Plaid.AssetReport.create_asset_report(["test-token"], 365, options, config)
+               Plaid.AssetReport.create_asset_report(params, config)
     end
   end
 
   describe "asset get/2" do
     @tag :unit
-    test "submits request and unmarshalls response", %{config: config} do
+    test "submits request and unmarshalls response", %{params: params, config: config} do
       PlaidMock
       |> expect(:send_request, fn request, _client ->
         assert request.method == :post
@@ -79,14 +78,14 @@ defmodule Plaid.AssetReportTest do
         {:ok, mapper.(body)}
       end)
 
-      assert {:ok, r} = Plaid.AssetReport.get("test-token", true, config)
+      assert {:ok, r} = Plaid.AssetReport.get(params, config)
       assert r.report
       assert r.warnings
       assert r.request_id
     end
 
     @tag :integration
-    test "success integration test" do
+    test "success integration test", %{params: params} do
       bypass = Bypass.open()
 
       config = %{
@@ -104,7 +103,7 @@ defmodule Plaid.AssetReportTest do
       end)
 
       assert {:ok, %Plaid.AssetReport{report: _, warnings: _, request_id: _}} =
-               Plaid.AssetReport.get("test-token", true, config)
+               Plaid.AssetReport.get(params, config)
     end
   end
 end

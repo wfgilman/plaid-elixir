@@ -26,6 +26,7 @@ defmodule Plaid.AssetReport do
       Additional information of the user for the asset report.
       """
 
+      @derive Jason.Encoder
       defstruct client_user_id: nil,
                 first_name: nil,
                 middle_name: nil,
@@ -45,16 +46,21 @@ defmodule Plaid.AssetReport do
             }
     end
 
+    @derive Jason.Encoder
     defstruct asset_report_id: nil,
               client_report_id: nil,
               date_generated: nil,
-              days_requested: nil
+              days_requested: nil,
+              items: nil,
+              user: nil
 
     @type t :: %__MODULE__{
             asset_report_id: String.t(),
             client_report_id: String.t(),
             date_generated: String.t(),
-            days_requested: integer()
+            days_requested: integer(),
+            items: [Item.t()],
+            user: User.t()
           }
   end
 
@@ -63,6 +69,7 @@ defmodule Plaid.AssetReport do
     Data about each of the items in the asset report.
     """
 
+    @derive Jason.Encoder
     defstruct item_id: nil,
               institution_name: nil,
               institution_id: nil,
@@ -118,11 +125,11 @@ defmodule Plaid.AssetReport do
     @type t :: %__MODULE__{warning_type: String.t(), warning_code: String.t(), cause: Cause.t()}
   end
 
+  @derive Jason.Encoder
   defstruct report: nil, request_id: nil, warnings: nil
 
   @type t :: %__MODULE__{report: Report.t(), request_id: String.t(), warnings: [Warning.t()]}
-
-  @type options :: %{required(atom) => term}
+  @type params :: %{required(atom) => term}
   @type config :: %{required(atom) => String.t() | keyword}
   @type error :: {:error, Plaid.Error.t() | any()} | no_return
 
@@ -134,25 +141,17 @@ defmodule Plaid.AssetReport do
   ["access-env-identifier"], 356, %{}
   ```
   """
-  @spec create_asset_report([String.t()], integer(), options(), config()) ::
-          {:ok, Request.t()} | error()
-  def create_asset_report(access_tokens, days_requested, options \\ %{}, config \\ %{}) do
-    request_operation(
-      "asset_report/create",
-      %{access_tokens: access_tokens, days_requested: days_requested, options: options},
-      config, &map_asset_report_request/1
-    )
+  @spec create_asset_report(params(), config()) :: {:ok, Request.t()} | error()
+  def create_asset_report(params, config \\ %{}) do
+    request_operation("asset_report/create", params, config, &map_asset_report_request/1)
   end
 
   @doc """
+  Gets the Asset Report from Plaid.
   """
-  @spec get(String.t(), boolean(), config()) :: {:ok, t()} | error()
-  def get(asset_report_token, include_insights \\ false, config \\ %{}) do
-    request_operation(
-      "asset_report/get",
-      %{asset_report_token: asset_report_token, include_insights: include_insights},
-      config, &map_asset_report/1
-    )
+  @spec get(params(), config()) :: {:ok, t()} | error()
+  def get(params, config \\ %{}) do
+    request_operation("asset_report/get", params, config, &map_asset_report/1)
   end
 
   defp request_operation(endpoint, params, config, mapper) do
@@ -167,5 +166,30 @@ defmodule Plaid.AssetReport do
 
   defp map_asset_report_request(body), do: Poison.Decode.transform(body, %{as: %Request{}})
 
-  defp map_asset_report(body), do: Poison.Decode.transform(body, %{as: %__MODULE__{}})
+  defp map_asset_report(body),
+    do:
+      Poison.Decode.transform(body, %{
+        as: %__MODULE__{
+          report: %Report{
+            items: [
+              %Item{
+                accounts: [
+                  %Plaid.Accounts.Account{
+                    balances: %Plaid.Accounts.Account.Balance{},
+                    owners: [
+                      %Plaid.Accounts.Account.Owner{
+                        addresses: [%Plaid.Accounts.Account.Owner.Address{}],
+                        emails: [%Plaid.Accounts.Account.Owner.Email{}],
+                        phone_numbers: [%Plaid.Accounts.Account.Owner.PhoneNumber{}]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ],
+            user: %Report.User{}
+          },
+          warnings: [%Warning{}]
+        }
+      })
 end
