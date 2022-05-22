@@ -536,6 +536,27 @@ defmodule Plaid.Factory do
     }
   end
 
+  def http_response_body(:processor_token_balance) do
+    %{
+      "account" => %{
+        "account_id" => "QKKzevvp33HxPWpoqn6rI13BxW4awNSjnw4xv",
+        "balances" => %{
+          "available" => 100,
+          "current" => 110,
+          "limit" => nil,
+          "iso_currency_code" => "USD",
+          "unofficial_currency_code" => nil
+        },
+        "mask" => "0000",
+        "name" => "Plaid Checking",
+        "official_name" => "Plaid Gold Checking",
+        "subtype" => "checking",
+        "type" => "depository"
+      },
+      "request_id" => "1zlMf"
+    }
+  end
+
   def http_response_body(:stripe_bank_account_token) do
     %{
       "stripe_bank_account_token" => "stripe-sandbox-asda9-a99c1-ca3g",

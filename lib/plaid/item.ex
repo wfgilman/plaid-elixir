@@ -79,6 +79,13 @@ defmodule Plaid.Item do
     end
   end
 
+  defmodule AccountBalance do
+    @derive Jason.Encoder
+    defstruct account: nil, request_id: nil
+
+    @type t :: %__MODULE__{account: Plaid.Accounts.Account.t(), request_id: String.t()}
+  end
+
   @doc """
   Gets an Item.
 
@@ -267,12 +274,49 @@ defmodule Plaid.Item do
   ```
   """
   @spec create_processor_token(params, config) :: {:ok, map} | error
-  def create_processor_token(params, config) do
+  def create_processor_token(params, config \\ %{}) do
     mapper = fn %{"processor_token" => t, "request_id" => r} ->
       %{processor_token: t, request_id: r}
     end
 
     request_operation("processor/token/create", params, config, mapper)
+  end
+
+  @doc """
+  Gets the balance using the processor token.
+
+  Parameters
+  ```
+  %{
+    processor_token: "processor-token"
+  }
+  ```
+  """
+  @spec get_balance(params, config) :: {:ok, Plaid.Accounts.Account.t()} | error
+  def get_balance(params, config \\ %{}) do
+    request_balance_operation("processor/balance/get", params, config)
+  end
+
+  defp request_balance_operation(endpoint, params, config) do
+    c = config[:client] || Plaid
+
+    Request
+    |> struct(method: :post, endpoint: endpoint, body: params)
+    |> Request.add_metadata(config)
+    |> c.send_request(Client.new(config))
+    |> c.handle_response(&map_account/1)
+  end
+
+  defp map_account(body) do
+    Poison.Decode.transform(
+      body,
+      %{
+        as: %Plaid.Item.AccountBalance{
+          account: %Plaid.Accounts.Account{balances: %Plaid.Accounts.Account.Balance{}},
+          request_id: nil
+        }
+      }
+    )
   end
 
   @doc """
