@@ -95,7 +95,7 @@ defmodule Plaid do
   end
 
   def process_response_body(body) do
-    Poison.Parser.parse!(body, %{})
+    Poison.Parser.parse!(body)
   end
 
   defp get_request_headers do
