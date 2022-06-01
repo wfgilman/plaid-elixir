@@ -140,7 +140,7 @@ defmodule Plaid.Utils do
   end
 
   def map_response(%{"item" => item} = response, :item) do
-    new_response = response |> Map.take(["request_id"]) |> Map.merge(item)
+    new_response = response |> Map.take(["request_id", "status"]) |> Map.merge(item)
     Poison.Decode.decode(new_response, as: %Plaid.Item{})
   end
 
@@ -218,6 +218,13 @@ defmodule Plaid.Utils do
         securities: [%Plaid.Investments.Security{}],
         investment_transactions: [%Plaid.Investments.Transactions.Transaction{}],
         item: %Plaid.Item{}
+      }
+    )
+  end
+
+  def map_response(response, :link) do
+    Poison.Decode.decode(response, %{
+        as: %Plaid.Link{}
       }
     )
   end
