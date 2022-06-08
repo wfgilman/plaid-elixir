@@ -59,7 +59,9 @@ defmodule Plaid.Factory do
         "error" => nil,
         "institution_id" => "ins_109508",
         "item_id" => "Ed6bjNrDLJfGvZWwnkQlfxwoNz54B5C97ejBr",
-        "webhook" => "https://plaid.com/example/hook"
+        "webhook" => "https://plaid.com/example/hook",
+        "consented_products" => [],
+        "consent_expiration_time" => nil
       },
       "request_id" => "45QSn"
     }
@@ -95,7 +97,9 @@ defmodule Plaid.Factory do
         "error" => nil,
         "institution_id" => "ins_109508",
         "item_id" => "Ed6bjNrDLJfGvZWwnkQlfxwoNz54B5C97ejBr",
-        "webhook" => "https://plaid.com/example/hook"
+        "webhook" => "https://plaid.com/example/hook",
+        "consented_products" => nil,
+        "consent_expiration_time" => nil
       },
       "request_id" => "qpCtl"
     }
@@ -126,7 +130,9 @@ defmodule Plaid.Factory do
         "error" => nil,
         "institution_id" => "ins_109508",
         "item_id" => "Ed6bjNrDLJfGvZWwnkQlfxwoNz54B5C97ejBr",
-        "webhook" => "https://plaid.com/updated/hook"
+        "webhook" => "https://plaid.com/updated/hook",
+        "consented_products" => [],
+        "consent_expiration_time" => nil
       },
       "request_id" => "qpCtl"
     }
@@ -184,7 +190,9 @@ defmodule Plaid.Factory do
         "error" => nil,
         "institution_id" => "ins_109508",
         "item_id" => "Ed6bjNrDLJfGvZWwnkQlfxwoNz54B5C97ejBr",
-        "webhook" => "https://plaid.com/example/hook"
+        "webhook" => "https://plaid.com/example/hook",
+        "consented_products" => [],
+        "consent_expiration_time" => nil
       },
       "income" => %{
         "income_streams" => [
@@ -378,7 +386,8 @@ defmodule Plaid.Factory do
         "error" => nil,
         "institution_id" => "ins_109508",
         "item_id" => "Ed6bjNrDLJfGvZWwnkQlfxwoNz54B5C97ejBr",
-        "webhook" => "https://plaid.com/example/hook"
+        "webhook" => "https://plaid.com/example/hook",
+        "consent_expiration_time" => nil
       },
       "request_id" => "45QSn"
     }

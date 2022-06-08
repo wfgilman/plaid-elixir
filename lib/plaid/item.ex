@@ -10,6 +10,8 @@ defmodule Plaid.Item do
   @derive Jason.Encoder
   defstruct available_products: [],
             billed_products: [],
+            consented_products: [],
+            consent_expiration_time: nil,
             error: nil,
             institution_id: nil,
             item_id: nil,
@@ -20,6 +22,8 @@ defmodule Plaid.Item do
   @type t :: %__MODULE__{
           available_products: [String.t()],
           billed_products: [String.t()],
+          consented_products: [String.t()],
+          consent_expiration_time: String.t(),
           error: String.t(),
           institution_id: String.t(),
           item_id: String.t(),
