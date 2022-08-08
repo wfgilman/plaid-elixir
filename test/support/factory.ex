@@ -529,6 +529,101 @@ defmodule Plaid.Factory do
     }
   end
 
+  def http_response_body(:transactions_sync) do
+    %{
+      "added" => [
+        %{
+          "account_id" => "BxBXxLj1m4HMXBm9WZZmCWVbPjX16EHwv99vp",
+          "account_owner" => nil,
+          "amount" => 2307.21,
+          "authorized_date" => "2022-02-03",
+          "authorized_datetime" => "2022-02-03T10:34:50Z",
+          "category" => ["Shops", "Computers and Electronics"],
+          "category_id" => "19013000",
+          "check_number" => nil,
+          "date" => "2022-02-03",
+          "datetime" => "2022-02-03T11:00:00Z",
+          "iso_currency_code" => "USD",
+          "location" => %{
+            "address" => "300 Post St",
+            "city" => "San Francisco",
+            "country" => "US",
+            "lat" => 40.740352,
+            "lon" => -74.001761,
+            "postal_code" => "94108",
+            "region" => "CA",
+            "store_number" => "1235"
+          },
+          "merchant_name" => "Apple",
+          "name" => "Apple Store",
+          "payment_channel" => "in store",
+          "payment_meta" => %{
+            "by_order_of" => nil,
+            "payee" => nil,
+            "payer" => nil,
+            "payment_method" => nil,
+            "payment_processor" => nil,
+            "ppd_id" => nil,
+            "reason" => nil,
+            "reference_number" => nil
+          },
+          "pending" => false,
+          "pending_transaction_id" => nil,
+          "transaction_code" => nil,
+          "transaction_id" => "lPNjeW1nR6CDn5okmGQ6hEpMo4lLNoSrzqDje",
+          "unofficial_currency_code" => nil
+        }
+      ],
+      "has_more" => false,
+      "modified" => [
+        %{
+          "account_id" => "BxBXxLj1m4HMXBm9WZZmCWVbPjX16EHwv99vp",
+          "account_owner" => nil,
+          "amount" => 98.05,
+          "authorized_date" => "2022-02-28",
+          "authorized_datetime" => "2022-02-28T10:34:50Z",
+          "category" => ["Service", "Utilities", "Electric"],
+          "category_id" => "18068005",
+          "check_number" => nil,
+          "date" => "2022-02-28",
+          "datetime" => "2022-02-28T11:00:00Z",
+          "iso_currency_code" => "USD",
+          "location" => %{
+            "address" => nil,
+            "city" => nil,
+            "country" => nil,
+            "lat" => nil,
+            "lon" => nil,
+            "postal_code" => nil,
+            "region" => nil,
+            "store_number" => nil
+          },
+          "merchant_name" => "ConEd",
+          "name" => "ConEd Bill Payment",
+          "payment_channel" => "online",
+          "payment_meta" => %{
+            "by_order_of" => nil,
+            "payee" => nil,
+            "payer" => nil,
+            "payment_method" => nil,
+            "payment_processor" => nil,
+            "ppd_id" => nil,
+            "reason" => nil,
+            "reference_number" => nil
+          },
+          "pending" => false,
+          "pending_transaction_id" => nil,
+          "transaction_code" => nil,
+          "transaction_id" => "yhnUVvtcGGcCKU0bcz8PDQr5ZUxUXebUvbKC0",
+          "unofficial_currency_code" => nil
+        }
+      ],
+      "next_cursor" => "tVUUL15lYQN5rBnfDIc1I8xudpGdIlw9nsgeXWvhOfkECvUeR663i3Dt1uf/94S8ASkitgLcIiOSqNwzzp+bh89kirazha5vuZHBb2ZA5NtCDkkV",
+      "removed" => [%{"transaction_id" => "CmdQTNgems8BT1B7ibkoUXVPyAeehT3Tmzk0l"}],
+      "request_id" => "45QSn"
+    }
+  end
+
   def http_response_body(:processor_token) do
     %{
       "processor_token" => "processor-sandbox-asda9-a99c1-ca3g",
