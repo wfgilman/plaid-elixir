@@ -26,7 +26,12 @@ defmodule Plaid.Transactions do
     """
 
     @derive Jason.Encoder
-    defstruct added: [], has_more: nil, modified: [], next_cursor: nil, removed: [], request_id: nil
+    defstruct added: [],
+              has_more: nil,
+              modified: [],
+              next_cursor: nil,
+              removed: [],
+              request_id: nil
 
     @type t :: %__MODULE__{
             added: [Plaid.Transactions.Transaction.t()],

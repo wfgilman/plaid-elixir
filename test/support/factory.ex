@@ -618,7 +618,8 @@ defmodule Plaid.Factory do
           "unofficial_currency_code" => nil
         }
       ],
-      "next_cursor" => "tVUUL15lYQN5rBnfDIc1I8xudpGdIlw9nsgeXWvhOfkECvUeR663i3Dt1uf/94S8ASkitgLcIiOSqNwzzp+bh89kirazha5vuZHBb2ZA5NtCDkkV",
+      "next_cursor" =>
+        "tVUUL15lYQN5rBnfDIc1I8xudpGdIlw9nsgeXWvhOfkECvUeR663i3Dt1uf/94S8ASkitgLcIiOSqNwzzp+bh89kirazha5vuZHBb2ZA5NtCDkkV",
       "removed" => [%{"transaction_id" => "CmdQTNgems8BT1B7ibkoUXVPyAeehT3Tmzk0l"}],
       "request_id" => "45QSn"
     }
