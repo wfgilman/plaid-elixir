@@ -22,7 +22,7 @@ defmodule Plaid.Transactions do
 
   defmodule Sync do
     @moduledoc """
-    Data structure for transaction/sync APi
+    Data structure for transactions/sync API
     """
 
     @derive Jason.Encoder
