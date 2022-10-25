@@ -20,6 +20,29 @@ defmodule Plaid.Transactions do
   @type config :: %{required(atom) => String.t() | keyword}
   @type error :: {:error, Plaid.Error.t() | any()} | no_return
 
+  defmodule Sync do
+    @moduledoc """
+    Data structure for transactions/sync API
+    """
+
+    @derive Jason.Encoder
+    defstruct added: [],
+              has_more: nil,
+              modified: [],
+              next_cursor: nil,
+              removed: [],
+              request_id: nil
+
+    @type t :: %__MODULE__{
+            added: [Plaid.Transactions.Transaction.t()],
+            has_more: boolean(),
+            modified: [Plaid.Transactions.Transaction.t()],
+            next_cursor: String.t(),
+            removed: [Plaid.Transactions.RemovedTransaction.t()],
+            request_id: String.t()
+          }
+  end
+
   defmodule Transaction do
     @moduledoc """
     Plaid Transaction data structure.
@@ -129,6 +152,19 @@ defmodule Plaid.Transactions do
     end
   end
 
+  defmodule RemovedTransaction do
+    @moduledoc """
+    Removed transaction data structure
+    """
+
+    @derive Jason.Encoder
+    defstruct transaction_id: nil
+
+    @type t :: %__MODULE__{
+            transaction_id: String.t()
+          }
+  end
+
   @doc """
   Gets transactions data associated with an Item.
 
@@ -173,6 +209,54 @@ defmodule Plaid.Transactions do
             }
           ],
           item: %Plaid.Item{}
+        }
+      }
+    )
+  end
+
+  @doc """
+  Sync transactions data associated with an Item.
+
+  Parameters
+  ```
+  %{
+    access_token: "access-env-identifier",
+    count: 20,
+    cursor: "last-request-cursor-value"
+  }
+  ```
+  """
+  @spec sync(params, config) :: {:ok, Plaid.Transactions.Sync.t()} | error
+  def sync(params, config \\ %{}) do
+    c = config[:client] || Plaid
+
+    Request
+    |> struct(method: :post, endpoint: "transactions/sync", body: params)
+    |> Request.add_metadata(config)
+    |> c.send_request(Client.new(config))
+    |> c.handle_response(&map_sync_transactions(&1))
+  end
+
+  defp map_sync_transactions(body) do
+    Poison.Decode.transform(
+      body,
+      %{
+        as: %Plaid.Transactions.Sync{
+          added: [
+            %Plaid.Transactions.Transaction{
+              location: %Plaid.Transactions.Transaction.Location{},
+              payment_meta: %Plaid.Transactions.Transaction.PaymentMeta{}
+            }
+          ],
+          modified: [
+            %Plaid.Transactions.Transaction{
+              location: %Plaid.Transactions.Transaction.Location{},
+              payment_meta: %Plaid.Transactions.Transaction.PaymentMeta{}
+            }
+          ],
+          removed: [
+            %Plaid.Transactions.RemovedTransaction{}
+          ]
         }
       }
     )

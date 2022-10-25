@@ -75,7 +75,8 @@ defmodule Plaid do
   end
 
   def handle_response({:ok, %Tesla.Env{} = env}, _mapper) do
-    {:error, Poison.Decode.transform(env.body, %{as: %Plaid.Error{}})}
+    error = Poison.Decode.transform(env.body, %{as: %Plaid.Error{}})
+    {:error, %{error | http_code: env.status}}
   end
 
   def handle_response({:error, _reason} = error, _mapper) do

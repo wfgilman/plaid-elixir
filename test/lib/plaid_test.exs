@@ -292,7 +292,9 @@ defmodule PlaidTest do
 
       mapper = fn body -> body end
 
-      assert {:error, %Plaid.Error{}} = Plaid.handle_response({:ok, env}, mapper)
+      assert {:error, error} = Plaid.handle_response({:ok, env}, mapper)
+      assert Plaid.Error == error.__struct__
+      assert error.http_code == env.status
     end
 
     test "returns http failure" do
