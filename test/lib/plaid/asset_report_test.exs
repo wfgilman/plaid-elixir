@@ -8,7 +8,7 @@ defmodule Plaid.AssetReportTest do
     verify_on_exit!()
 
     {:ok,
-     params: %{client_report_id: "123"},
+     params: %{asset_report_token: "assets-sandbox-6f12f5bb"},
      config: %{
        client: PlaidMock,
        client_id: "test_id",
@@ -17,9 +17,21 @@ defmodule Plaid.AssetReportTest do
      }}
   end
 
+  @moduletag :asset_report
+
+  @tag :unit
+  test "asset_report data structure encodes with Jason" do
+    assert {:ok, _} =
+             Jason.encode(%Plaid.AssetReport{
+               items: [%Plaid.AssetReport.Item{}],
+               user: %Plaid.AssetReport.User{},
+               warnings: [%Plaid.AssetReport.Warning{cause: %Plaid.AssetReport.Warning.Cause{}}]
+             })
+  end
+
   describe "asset create_asset_report/4" do
     @tag :unit
-    test "submits request and unmarshalls response", %{params: params, config: config} do
+    test "submits request and unmarshalls response", %{config: config} do
       PlaidMock
       |> expect(:send_request, fn request, _client ->
         assert request.method == :post
@@ -32,6 +44,7 @@ defmodule Plaid.AssetReportTest do
         {:ok, mapper.(body)}
       end)
 
+      params = %{access_token: "my-token", days_requested: 30}
       assert {:ok, r} = Plaid.AssetReport.create_asset_report(params, config)
 
       assert r.asset_report_token
@@ -58,7 +71,7 @@ defmodule Plaid.AssetReportTest do
       end)
 
       assert {:ok,
-              %Plaid.AssetReport.Request{asset_report_id: _, asset_report_token: _, request_id: _}} =
+              %{asset_report_id: _, asset_report_token: _, request_id: _}} =
                Plaid.AssetReport.create_asset_report(params, config)
     end
   end
@@ -78,10 +91,13 @@ defmodule Plaid.AssetReportTest do
         {:ok, mapper.(body)}
       end)
 
-      assert {:ok, r} = Plaid.AssetReport.get(params, config)
-      assert r.report
-      assert r.warnings
-      assert r.request_id
+      assert {:ok, ds} = Plaid.AssetReport.get(params, config)
+      assert Plaid.AssetReport == ds.__struct__
+      assert Plaid.AssetReport.Item == List.first(ds.items).__struct__
+      assert Plaid.AssetReport.User == ds.user.__struct__
+      assert ds.user.client_user_id
+      assert Plaid.AssetReport.Warning == List.first(ds.warnings).__struct__
+      assert Plaid.AssetReport.Warning.Cause == List.first(ds.warnings).cause.__struct__
     end
 
     @tag :integration
@@ -102,8 +118,7 @@ defmodule Plaid.AssetReportTest do
         |> Plug.Conn.resp(200, Poison.encode!(body))
       end)
 
-      assert {:ok, %Plaid.AssetReport{report: _, warnings: _, request_id: _}} =
-               Plaid.AssetReport.get(params, config)
+      assert {:ok, %Plaid.AssetReport{}} = Plaid.AssetReport.get(params, config)
     end
   end
 end
