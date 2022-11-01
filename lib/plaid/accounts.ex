@@ -88,20 +88,25 @@ defmodule Plaid.Accounts do
       defmodule Address do
         @moduledoc """
         Plaid Account Owner Address data structure.
+
+        In the `data` key is a map of relevant address fields. For example:
+        ```
+        %{
+          "city" => "Malakoff",
+          "country" => "US",
+          "postal_code" => "14236",
+          "region": "NY",
+          "street": "2992 Cameron Road"
+        }
+        ```
         """
 
         @derive Jason.Encoder
-        defstruct data: %{city: nil, region: nil, street: nil, postal_code: nil, country: nil},
+        defstruct data: nil,
                   primary: false
 
         @type t :: %__MODULE__{
-                data: %{
-                  city: String.t(),
-                  region: String.t(),
-                  street: String.t(),
-                  postal_code: String.t(),
-                  country: String.t()
-                },
+                data: map,
                 primary: boolean()
               }
       end
@@ -171,7 +176,14 @@ defmodule Plaid.Accounts do
       %{
         as: %Plaid.Accounts{
           accounts: [
-            %Plaid.Accounts.Account{balances: %Plaid.Accounts.Account.Balance{}}
+            %Plaid.Accounts.Account{
+              balances: %Plaid.Accounts.Account.Balance{},
+              owners: [%Plaid.Accounts.Account.Owner{
+                  addresses: [%Plaid.Accounts.Account.Owner.Address{}],
+                  emails: [%Plaid.Accounts.Account.Owner.Email{}],
+                  phone_numbers: [%Plaid.Accounts.Account.Owner.PhoneNumber{}]
+              }]
+            }
           ],
           item: %Plaid.Item{}
         }
