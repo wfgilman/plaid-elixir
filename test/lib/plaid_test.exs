@@ -108,6 +108,7 @@ defmodule PlaidTest do
 
       assert metadata.u == :native
       assert metadata.service == :plaid
+      # TODO: fix intermittent test failures
       assert metadata.type == :cowabunga
       assert metadata.env.status == nil
       assert metadata.env.method == :post
@@ -153,6 +154,7 @@ defmodule PlaidTest do
 
       assert metadata.u == :native
       assert metadata.service == :plaid
+      # TODO: fix intermittent test failures
       assert metadata.error == :econnrefused
       assert metadata.env.method == :post
       assert metadata.env.url =~ "some/endpoint"
