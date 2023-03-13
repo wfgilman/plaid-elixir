@@ -34,7 +34,7 @@ defmodule Plaid.Mixfile do
       {:poison, "~> 4.0"},
       {:jason, "~> 1.1"},
       {:bypass, "~> 2.1", only: [:test]},
-      {:credo, "~> 0.5", only: [:dev], runtime: false},
+      {:credo, "~> 1.6", only: [:dev], runtime: false},
       {:excoveralls, "~> 0.14", only: [:test]},
       {:ex_doc, ">= 0.0.0", only: [:dev], runtime: false},
       {:dialyxir, "~> 1.0", only: [:dev], runtime: false},
