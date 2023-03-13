@@ -1,4 +1,4 @@
-use Mix.Config
+import Config
 
 config :plaid,
   client_id: "test_id",
