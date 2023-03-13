@@ -31,7 +31,7 @@ defmodule Plaid.Mixfile do
     [
       {:tesla, "~> 1.4"},
       {:hackney, "~> 1.18"},
-      {:poison, "~> 4.0"},
+      {:poison, "~> 5.0"},
       {:jason, "~> 1.1"},
       {:bypass, "~> 2.1", only: [:test]},
       {:credo, "~> 1.6", only: [:dev], runtime: false},
