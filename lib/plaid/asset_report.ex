@@ -80,7 +80,7 @@ defmodule Plaid.AssetReport do
     @derive Jason.Encoder
     defstruct warning_type: nil, warning_code: nil, cause: nil
 
-    @type t :: %__MODULE__{warning_type: String.t(), warning_code: String.t(), cause: Cause.t()}
+    @type t :: %__MODULE__{warning_type: String.t(), warning_code: String.t(), cause: Plaid.AssetReport.Warning.Cause.t()}
 
     defmodule Cause do
       @moduledoc """
