@@ -235,10 +235,10 @@ defmodule Plaid.Factory do
             "name" => "BAGUETTES INC"
           }
         ],
-        "last_year_income" => 28072,
-        "last_year_income_before_tax" => 38681,
-        "projected_yearly_income" => 19444,
-        "projected_yearly_income_before_tax" => 26291,
+        "last_year_income" => 28_072,
+        "last_year_income_before_tax" => 38_681,
+        "projected_yearly_income" => 19_444,
+        "projected_yearly_income_before_tax" => 26_291,
         "max_number_of_overlapping_income_streams" => 2,
         "number_of_income_streams" => 3
       },
@@ -319,7 +319,7 @@ defmodule Plaid.Factory do
         }
       ],
       "request_id" => "jReUm681mVpt1Ck",
-      "total" => 11389
+      "total" => 11_389
     }
   end
 
@@ -809,7 +809,7 @@ defmodule Plaid.Factory do
           "account_id" => "aZDr3gRDLRcaaQ4gDlkdsLJKWjAZZgC74dLXJ",
           "balances" => %{
             "available" => nil,
-            "current" => 23631.9805,
+            "current" => 23_631.9805,
             "iso_currency_code" => "USD",
             "limit" => nil,
             "unofficial_currency_code" => nil
@@ -862,7 +862,7 @@ defmodule Plaid.Factory do
           "institution_price_as_of" => nil,
           "institution_value" => 110,
           "iso_currency_code" => "USD",
-          "quantity" => 10000,
+          "quantity" => 10_000,
           "security_id" => "8E4L9XLl6MudjEpwPAAgivmdZRdBPJuvMPlPb",
           "unofficial_currency_code" => nil
         }
@@ -1505,7 +1505,7 @@ defmodule Plaid.Factory do
                 "account_id" => "BxBXxLj1m4HMXBm9WZJyUg9XLd4rKEhw8Pb1J",
                 "balances" => %{
                   "available" => nil,
-                  "current" => 56302.06,
+                  "current" => 56_302.06,
                   "iso_currency_code" => "USD",
                   "limit" => nil,
                   "unofficial_currency_code" => nil
