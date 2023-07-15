@@ -1716,8 +1716,7 @@ defmodule Plaid.Factory do
         }
       },
       "request_id" => "eYupqX1mZkEuQRx",
-      "warnings" => [
-        %{
+      "warnings" => [%{
           "warning_type" => "ASSET_REPORT_WARNING",
           "warning_code" => "OWNERS_UNAVAILABLE",
           "cause" => %{
@@ -1728,13 +1727,11 @@ defmodule Plaid.Factory do
             "request_id" => "Iam3b",
             "causes" => [],
             "status" => 400,
-            "documentation_url" =>
-              "https://plaid.com/docs/api/products/assets/#asset_reportcreate",
+            "documentation_url" => "https://plaid.com/docs/api/products/assets/#asset_reportcreate",
             "suggested_action" => "Please retry request",
             "item_id" => "eYupqX1mZkEuQRx"
           }
-        }
-      ]
+      }]
     }
   end
 end
