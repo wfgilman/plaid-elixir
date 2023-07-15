@@ -28,7 +28,9 @@ defmodule Plaid.TransactionsTest do
                transactions: [
                  %Plaid.Transactions.Transaction{
                    location: %Plaid.Transactions.Transaction.Location{},
-                   payment_meta: %Plaid.Transactions.Transaction.PaymentMeta{}
+                   payment_meta: %Plaid.Transactions.Transaction.PaymentMeta{},
+                   personal_finance_category:
+                     %Plaid.Transactions.Transaction.PersonalFinanceCategory{}
                  }
                ]
              })

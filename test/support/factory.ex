@@ -469,6 +469,10 @@ defmodule Plaid.Factory do
           "payment_channel" => "in store",
           "pending" => false,
           "pending_transaction_id" => nil,
+          "personal_finance_category" => %{
+            "primary" => "GENERAL_MERCHANDISE",
+            "detailed" => "GENERAL_MERCHANDISE_ELECTRONICS"
+          },
           "account_owner" => nil,
           "transaction_id" => "lPNjeW1nR6CDn5okmGQ6hEpMo4lLNoSrzqDje",
           "transaction_code" => nil,
@@ -569,6 +573,10 @@ defmodule Plaid.Factory do
           },
           "pending" => false,
           "pending_transaction_id" => nil,
+          "personal_finance_category" => %{
+            "primary" => "GENERAL_MERCHANDISE",
+            "detailed" => "GENERAL_MERCHANDISE_ELECTRONICS"
+          },
           "transaction_code" => nil,
           "transaction_id" => "lPNjeW1nR6CDn5okmGQ6hEpMo4lLNoSrzqDje",
           "unofficial_currency_code" => nil
@@ -613,6 +621,10 @@ defmodule Plaid.Factory do
           },
           "pending" => false,
           "pending_transaction_id" => nil,
+          "personal_finance_category" => %{
+            "primary" => "RENT_AND_UTILITIES",
+            "detailed" => "RENT_AND_UTILITIES_GAS_AND_ELECTRICITY"
+          },
           "transaction_code" => nil,
           "transaction_id" => "yhnUVvtcGGcCKU0bcz8PDQr5ZUxUXebUvbKC0",
           "unofficial_currency_code" => nil
@@ -1704,7 +1716,8 @@ defmodule Plaid.Factory do
         }
       },
       "request_id" => "eYupqX1mZkEuQRx",
-      "warnings" => [%{
+      "warnings" => [
+        %{
           "warning_type" => "ASSET_REPORT_WARNING",
           "warning_code" => "OWNERS_UNAVAILABLE",
           "cause" => %{
@@ -1715,11 +1728,13 @@ defmodule Plaid.Factory do
             "request_id" => "Iam3b",
             "causes" => [],
             "status" => 400,
-            "documentation_url" => "https://plaid.com/docs/api/products/assets/#asset_reportcreate",
+            "documentation_url" =>
+              "https://plaid.com/docs/api/products/assets/#asset_reportcreate",
             "suggested_action" => "Please retry request",
             "item_id" => "eYupqX1mZkEuQRx"
           }
-      }]
+        }
+      ]
     }
   end
 end
