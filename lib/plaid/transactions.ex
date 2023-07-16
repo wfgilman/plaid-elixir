@@ -67,7 +67,9 @@ defmodule Plaid.Transactions do
               merchant_name: nil,
               authorized_date: nil,
               payment_channel: nil,
-              transaction_code: nil
+              transaction_code: nil,
+              check_number: nil,
+              personal_finance_category: nil
 
     @type t :: %__MODULE__{
             account_id: String.t(),
@@ -88,7 +90,8 @@ defmodule Plaid.Transactions do
             merchant_name: String.t(),
             authorized_date: String.t(),
             payment_channel: String.t(),
-            transaction_code: String.t()
+            transaction_code: String.t(),
+            personal_finance_category: Plaid.Transactions.Transaction.PersonalFinanceCategory.t()
           }
 
     defmodule Location do
@@ -150,6 +153,21 @@ defmodule Plaid.Transactions do
               reference_number: String.t()
             }
     end
+
+    defmodule PersonalFinanceCategory do
+      @moduledoc """
+      Plaid Transaction Personal Finance Category data structure.
+      """
+
+      @derive Jason.Encoder
+      defstruct primary: nil,
+                detailed: nil
+
+      @type t :: %__MODULE__{
+              primary: String.t(),
+              detailed: String.t()
+            }
+    end
   end
 
   defmodule RemovedTransaction do
@@ -205,7 +223,8 @@ defmodule Plaid.Transactions do
           transactions: [
             %Plaid.Transactions.Transaction{
               location: %Plaid.Transactions.Transaction.Location{},
-              payment_meta: %Plaid.Transactions.Transaction.PaymentMeta{}
+              payment_meta: %Plaid.Transactions.Transaction.PaymentMeta{},
+              personal_finance_category: %Plaid.Transactions.Transaction.PersonalFinanceCategory{}
             }
           ],
           item: %Plaid.Item{}
@@ -245,13 +264,15 @@ defmodule Plaid.Transactions do
           added: [
             %Plaid.Transactions.Transaction{
               location: %Plaid.Transactions.Transaction.Location{},
-              payment_meta: %Plaid.Transactions.Transaction.PaymentMeta{}
+              payment_meta: %Plaid.Transactions.Transaction.PaymentMeta{},
+              personal_finance_category: %Plaid.Transactions.Transaction.PersonalFinanceCategory{}
             }
           ],
           modified: [
             %Plaid.Transactions.Transaction{
               location: %Plaid.Transactions.Transaction.Location{},
-              payment_meta: %Plaid.Transactions.Transaction.PaymentMeta{}
+              payment_meta: %Plaid.Transactions.Transaction.PaymentMeta{},
+              personal_finance_category: %Plaid.Transactions.Transaction.PersonalFinanceCategory{}
             }
           ],
           removed: [

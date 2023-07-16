@@ -469,6 +469,10 @@ defmodule Plaid.Factory do
           "payment_channel" => "in store",
           "pending" => false,
           "pending_transaction_id" => nil,
+          "personal_finance_category" => %{
+            "primary" => "GENERAL_MERCHANDISE",
+            "detailed" => "GENERAL_MERCHANDISE_ELECTRONICS"
+          },
           "account_owner" => nil,
           "transaction_id" => "lPNjeW1nR6CDn5okmGQ6hEpMo4lLNoSrzqDje",
           "transaction_code" => nil,
@@ -569,6 +573,10 @@ defmodule Plaid.Factory do
           },
           "pending" => false,
           "pending_transaction_id" => nil,
+          "personal_finance_category" => %{
+            "primary" => "GENERAL_MERCHANDISE",
+            "detailed" => "GENERAL_MERCHANDISE_ELECTRONICS"
+          },
           "transaction_code" => nil,
           "transaction_id" => "lPNjeW1nR6CDn5okmGQ6hEpMo4lLNoSrzqDje",
           "unofficial_currency_code" => nil
@@ -613,6 +621,10 @@ defmodule Plaid.Factory do
           },
           "pending" => false,
           "pending_transaction_id" => nil,
+          "personal_finance_category" => %{
+            "primary" => "RENT_AND_UTILITIES",
+            "detailed" => "RENT_AND_UTILITIES_GAS_AND_ELECTRICITY"
+          },
           "transaction_code" => nil,
           "transaction_id" => "yhnUVvtcGGcCKU0bcz8PDQr5ZUxUXebUvbKC0",
           "unofficial_currency_code" => nil
