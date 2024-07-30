@@ -19,6 +19,7 @@ Supported Plaid products:
 - [x] Income
 - [x] Assets
 - [x] Investments
+- [x] Signal
 
 [Plaid Documentation](https://plaid.com/docs/api)
 
