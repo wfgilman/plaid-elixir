@@ -1734,4 +1734,48 @@ defmodule Plaid.Factory do
       }]
     }
   end
+
+  def http_response_body(:signal_evaluate) do
+    %{
+      "scores" => %{
+        "customer_initiated_return_risk" => %{
+          "score" => 9,
+          "risk_tier" => 1
+        },
+        "bank_initiated_return_risk" => %{
+          "score" => 72,
+          "risk_tier" => 7
+        }
+      },
+      "core_attributes" => %{
+        "days_since_first_plaid_connection" => 510,
+        "plaid_connections_count_7d" => 6,
+        "plaid_connections_count_30d" => 7,
+        "total_plaid_connections_count" => 15,
+        "is_savings_or_money_market_account" => false
+      },
+      "warnings" => [%{
+        "warning_type" => "mock",
+        "warning_code" => "mock",
+        "warning_message" => "mock",
+      }],
+      "ruleset" => %{
+        "ruleset_key" => "mock",
+        "outcome" => "accept"
+      },
+      "request_id" => "mdqfuVxeoza6mhu"
+    }
+  end
+
+  def http_response_body(:signal_report_decision) do
+    %{"request_id" => "mdqfuVxeoza6mhu"}
+  end
+
+  def http_response_body(:signal_report_return) do
+    %{"request_id" => "mdqfuVxeoza6mhu"}
+  end
+
+  def http_response_body(:signal_prepare) do
+    %{"request_id" => "mdqfuVxeoza6mhu"}
+  end
 end
