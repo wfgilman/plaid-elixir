@@ -115,6 +115,7 @@ defmodule Plaid.Factory do
         "billed_products" => ["identity", "transactions"],
         "error" => nil,
         "institution_id" => "ins_109508",
+        "institution_name" => "Chase",
         "item_id" => "Ed6bjNrDLJfGvZWwnkQlfxwoNz54B5C97ejBr",
         "webhook" => "https://plaid.com/example/hook"
       },
