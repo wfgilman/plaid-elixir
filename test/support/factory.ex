@@ -16,6 +16,8 @@ defmodule Plaid.Factory do
           "mask" => "0000",
           "name" => "Plaid Checking",
           "official_name" => "Plaid Gold Checking",
+          "verification_name" => "Account A",
+          "persistent_account_id" => "pa_0001",
           "subtype" => "checking",
           "type" => "depository",
           "verification_status" => nil,
@@ -33,6 +35,8 @@ defmodule Plaid.Factory do
           "mask" => "3333",
           "name" => "Plaid Credit Card",
           "official_name" => "Plaid Diamond Credit Card",
+          "verification_name" => "Account B",
+          "persistent_account_id" => "pa_0002",
           "subtype" => "credit card",
           "type" => "credit",
           "verification_status" => nil,
@@ -50,6 +54,8 @@ defmodule Plaid.Factory do
           "mask" => "9876",
           "name" => "Plaid Platinum Checking",
           "official_name" => "Plaid Platinum Checking",
+          "verification_name" => "Account C",
+          "persistent_account_id" => "pa_0003",
           "subtype" => "checking",
           "type" => "depository",
           "verification_status" => "automatically_verified",
@@ -59,8 +65,12 @@ defmodule Plaid.Factory do
       "item" => %{
         "available_products" => ["balance", "auth"],
         "billed_products" => ["identity", "transactions"],
+        "products" => ["auth", "transactions"],
+        "consented_products" => ["auth"],
         "error" => nil,
         "institution_id" => "ins_109508",
+        "institution_name" => "Chase",
+        "auth_method" => "oauth",
         "item_id" => "Ed6bjNrDLJfGvZWwnkQlfxwoNz54B5C97ejBr",
         "webhook" => "https://plaid.com/example/hook"
       },
@@ -116,8 +126,12 @@ defmodule Plaid.Factory do
       "item" => %{
         "available_products" => ["balance", "auth"],
         "billed_products" => ["identity", "transactions"],
+        "products" => ["auth", "transactions"],
+        "consented_products" => ["auth"],
         "error" => nil,
         "institution_id" => "ins_109508",
+        "institution_name" => "Chase",
+        "auth_method" => "oauth",
         "item_id" => "Ed6bjNrDLJfGvZWwnkQlfxwoNz54B5C97ejBr",
         "webhook" => "https://plaid.com/example/hook"
       },
@@ -161,8 +175,12 @@ defmodule Plaid.Factory do
       "item" => %{
         "available_products" => ["balance", "auth"],
         "billed_products" => ["identity", "transactions"],
+        "products" => ["auth", "transactions"],
+        "consented_products" => ["auth"],
         "error" => nil,
         "institution_id" => "ins_109508",
+        "institution_name" => "Chase",
+        "auth_method" => "oauth",
         "item_id" => "Ed6bjNrDLJfGvZWwnkQlfxwoNz54B5C97ejBr",
         "webhook" => "https://plaid.com/updated/hook"
       },
@@ -218,8 +236,12 @@ defmodule Plaid.Factory do
       "item" => %{
         "available_products" => ["balance", "auth"],
         "billed_products" => ["identity", "transactions"],
+        "products" => ["auth", "transactions"],
+        "consented_products" => ["auth"],
         "error" => nil,
         "institution_id" => "ins_109508",
+        "institution_name" => "Chase",
+        "auth_method" => "oauth",
         "item_id" => "Ed6bjNrDLJfGvZWwnkQlfxwoNz54B5C97ejBr",
         "webhook" => "https://plaid.com/example/hook"
       },
