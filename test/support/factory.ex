@@ -16,9 +16,12 @@ defmodule Plaid.Factory do
           "mask" => "0000",
           "name" => "Plaid Checking",
           "official_name" => "Plaid Gold Checking",
+          "verification_name" => "Account A",
+          "persistent_account_id" => "pa_0001",
           "subtype" => "checking",
           "type" => "depository",
-          "verification_status" => nil
+          "verification_status" => nil,
+          "holder_category" => "individual"
         },
         %{
           "account_id" => "6Myq63K1KDSe3lBwp7K1fnEbNGLV4nSxalVdW",
@@ -32,9 +35,12 @@ defmodule Plaid.Factory do
           "mask" => "3333",
           "name" => "Plaid Credit Card",
           "official_name" => "Plaid Diamond Credit Card",
+          "verification_name" => "Account B",
+          "persistent_account_id" => "pa_0002",
           "subtype" => "credit card",
           "type" => "credit",
-          "verification_status" => nil
+          "verification_status" => nil,
+          "holder_category" => "individual"
         },
         %{
           "account_id" => "dhfDuX0N3Yia57IMOGE3m7faUlwvPQLbxs7Oc",
@@ -48,16 +54,23 @@ defmodule Plaid.Factory do
           "mask" => "9876",
           "name" => "Plaid Platinum Checking",
           "official_name" => "Plaid Platinum Checking",
+          "verification_name" => "Account C",
+          "persistent_account_id" => "pa_0003",
           "subtype" => "checking",
           "type" => "depository",
-          "verification_status" => "automatically_verified"
+          "verification_status" => "automatically_verified",
+          "holder_category" => "business"
         }
       ],
       "item" => %{
         "available_products" => ["balance", "auth"],
         "billed_products" => ["identity", "transactions"],
+        "products" => ["auth", "transactions"],
+        "consented_products" => ["auth"],
         "error" => nil,
         "institution_id" => "ins_109508",
+        "institution_name" => "Chase",
+        "auth_method" => "oauth",
         "item_id" => "Ed6bjNrDLJfGvZWwnkQlfxwoNz54B5C97ejBr",
         "webhook" => "https://plaid.com/example/hook"
       },
@@ -113,8 +126,12 @@ defmodule Plaid.Factory do
       "item" => %{
         "available_products" => ["balance", "auth"],
         "billed_products" => ["identity", "transactions"],
+        "products" => ["auth", "transactions"],
+        "consented_products" => ["auth"],
         "error" => nil,
         "institution_id" => "ins_109508",
+        "institution_name" => "Chase",
+        "auth_method" => "oauth",
         "item_id" => "Ed6bjNrDLJfGvZWwnkQlfxwoNz54B5C97ejBr",
         "webhook" => "https://plaid.com/example/hook"
       },
@@ -158,8 +175,12 @@ defmodule Plaid.Factory do
       "item" => %{
         "available_products" => ["balance", "auth"],
         "billed_products" => ["identity", "transactions"],
+        "products" => ["auth", "transactions"],
+        "consented_products" => ["auth"],
         "error" => nil,
         "institution_id" => "ins_109508",
+        "institution_name" => "Chase",
+        "auth_method" => "oauth",
         "item_id" => "Ed6bjNrDLJfGvZWwnkQlfxwoNz54B5C97ejBr",
         "webhook" => "https://plaid.com/updated/hook"
       },
@@ -215,8 +236,12 @@ defmodule Plaid.Factory do
       "item" => %{
         "available_products" => ["balance", "auth"],
         "billed_products" => ["identity", "transactions"],
+        "products" => ["auth", "transactions"],
+        "consented_products" => ["auth"],
         "error" => nil,
         "institution_id" => "ins_109508",
+        "institution_name" => "Chase",
+        "auth_method" => "oauth",
         "item_id" => "Ed6bjNrDLJfGvZWwnkQlfxwoNz54B5C97ejBr",
         "webhook" => "https://plaid.com/example/hook"
       },
@@ -413,7 +438,8 @@ defmodule Plaid.Factory do
           "name" => "Plaid Checking",
           "official_name" => "Plaid Gold Checking",
           "subtype" => "checking",
-          "type" => "depository"
+          "type" => "depository",
+          "holder_category" => "individual"
         },
         %{
           "account_id" => "6Myq63K1KDSe3lBwp7K1fnEbNGLV4nSxalVdW",
@@ -428,7 +454,8 @@ defmodule Plaid.Factory do
           "name" => "Plaid Credit Card",
           "official_name" => "Plaid Diamond Credit Card",
           "subtype" => "credit card",
-          "type" => "credit"
+          "type" => "credit",
+          "holder_category" => "individual"
         }
       ],
       "transactions" => [
@@ -667,7 +694,8 @@ defmodule Plaid.Factory do
           "name" => "Plaid Checking",
           "official_name" => "Plaid Gold Standard 0% Interest Checking",
           "subtype" => "checking",
-          "type" => "depository"
+          "type" => "depository",
+          "holder_category" => "individual"
         },
         %{
           "account_id" => "dLb3JWRbARtppGe9PEMlIKwdP5lEE7tZNgeXy",
@@ -682,7 +710,8 @@ defmodule Plaid.Factory do
           "name" => "Plaid IRA",
           "official_name" => nil,
           "subtype" => "ira",
-          "type" => "investment"
+          "type" => "investment",
+          "holder_category" => "retirement"
         }
       ],
       "investment_transactions" => [
@@ -800,7 +829,8 @@ defmodule Plaid.Factory do
           "name" => "Plaid Checking",
           "official_name" => "Plaid Gold Standard 0% Interest Checking",
           "subtype" => "checking",
-          "type" => "depository"
+          "type" => "depository",
+          "holder_category" => "individual"
         },
         %{
           "account_id" => "dLb3JWRbARtppGe9PEMlIKwdP5lEE7tZNgeXy",
@@ -815,7 +845,8 @@ defmodule Plaid.Factory do
           "name" => "Plaid IRA",
           "official_name" => nil,
           "subtype" => "ira",
-          "type" => "investment"
+          "type" => "investment",
+          "holder_category" => "retirement"
         },
         %{
           "account_id" => "aZDr3gRDLRcaaQ4gDlkdsLJKWjAZZgC74dLXJ",
@@ -830,7 +861,8 @@ defmodule Plaid.Factory do
           "name" => "Plaid 401k",
           "official_name" => nil,
           "subtype" => "401k",
-          "type" => "investment"
+          "type" => "investment",
+          "holder_category" => "retirement"
         }
       ],
       "holdings" => [
@@ -1125,7 +1157,8 @@ defmodule Plaid.Factory do
             }
           ],
           "subtype" => "checking",
-          "type" => "depository"
+          "type" => "depository",
+          "holder_category" => "individual"
         },
         %{
           "account_id" => "3gE5gnRzNyfXpBK5wEEKcymJ5albGVUqg77gr",
@@ -1203,7 +1236,8 @@ defmodule Plaid.Factory do
             }
           ],
           "subtype" => "savings",
-          "type" => "depository"
+          "type" => "depository",
+          "holder_category" => "individual"
         }
       ],
       "item" => %{
@@ -1511,7 +1545,8 @@ defmodule Plaid.Factory do
                 "ownership_type" => nil,
                 "subtype" => "savings",
                 "transactions" => [],
-                "type" => "depository"
+                "type" => "depository",
+                "holder_category" => "individual"
               },
               %{
                 "account_id" => "BxBXxLj1m4HMXBm9WZJyUg9XLd4rKEhw8Pb1J",
@@ -1594,7 +1629,8 @@ defmodule Plaid.Factory do
                 "ownership_type" => nil,
                 "subtype" => "mortgage",
                 "transactions" => [],
-                "type" => "loan"
+                "type" => "loan",
+                "holder_category" => "individual"
               },
               %{
                 "account_id" => "dVzbVMLjrxTnLjX4G66XUp5GLklm4oiZy88yK",
@@ -1696,7 +1732,8 @@ defmodule Plaid.Factory do
                 "ownership_type" => nil,
                 "subtype" => "credit card",
                 "transactions" => [],
-                "type" => "credit"
+                "type" => "credit",
+                "holder_category" => "individual"
               }
             ],
             "date_last_updated" => "2020-06-05T22:47:52Z",

@@ -50,6 +50,11 @@ defmodule Plaid.ItemTest do
       assert Plaid.Item == ds.__struct__
       assert Plaid.Item.Status == ds.status.__struct__
       assert ds.request_id
+      # New fields present and typed
+      assert is_list(ds.products)
+      assert is_list(ds.consented_products)
+      assert is_binary(ds.institution_name)
+      assert is_binary(ds.auth_method)
     end
 
     @tag :integration

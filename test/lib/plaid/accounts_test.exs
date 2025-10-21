@@ -55,7 +55,10 @@ defmodule Plaid.AccountsTest do
 
       assert {:ok, ds} = Plaid.Accounts.get(params, config)
       assert Plaid.Accounts == ds.__struct__
-      assert Plaid.Accounts.Account == List.first(ds.accounts).__struct__
+      first = List.first(ds.accounts)
+      assert Plaid.Accounts.Account == first.__struct__
+      assert first.verification_name == "Account A"
+      assert first.persistent_account_id == "pa_0001"
       assert Plaid.Item == ds.item.__struct__
     end
 
@@ -119,7 +122,10 @@ defmodule Plaid.AccountsTest do
 
       assert {:ok, ds} = Plaid.Accounts.get_balance(params, config)
       assert Plaid.Accounts == ds.__struct__
-      assert Plaid.Accounts.Account == List.first(ds.accounts).__struct__
+      first = List.first(ds.accounts)
+      assert Plaid.Accounts.Account == first.__struct__
+      assert first.verification_name == "Account A"
+      assert first.persistent_account_id == "pa_0001"
       assert Plaid.Item == ds.item.__struct__
     end
 
