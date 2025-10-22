@@ -6,7 +6,7 @@ defmodule Plaid.Mixfile do
   def project do
     [
       app: :plaid,
-      version: "3.3.0",
+      version: "3.4.0",
       elixir: "~> 1.9",
       elixirc_paths: elixirc_paths(Mix.env()),
       package: package(),
