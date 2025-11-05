@@ -400,6 +400,49 @@ defmodule Plaid.ItemTest do
     end
   end
 
+  describe "item get_balance/2" do
+    setup do: {:ok, params: %{processor_token: "my-token"}}
+    @tag :unit
+    test "submits request and unmarshalls response", %{params: params, config: config} do
+      PlaidMock
+      |> expect(:send_request, fn request, _client ->
+        assert request.method == :post
+        assert request.endpoint == "processor/balance/get"
+        assert %{metadata: _} = request.opts
+        {:ok, %Tesla.Env{}}
+      end)
+      |> expect(:handle_response, fn _response, mapper ->
+        body = http_response_body(:processor_token_balance)
+        {:ok, mapper.(body)}
+      end)
+
+      assert {:ok, r} = Plaid.Item.get_balance(params, config)
+      assert r.account
+      assert r.request_id
+    end
+
+    @tag :integration
+    test "success integration test", %{params: params} do
+      bypass = Bypass.open()
+
+      config = %{
+        client_id: "test_id",
+        secret: "test_secret",
+        root_uri: "http://localhost:#{bypass.port}/"
+      }
+
+      body = http_response_body(:processor_token_balance)
+
+      Bypass.expect(bypass, fn conn ->
+        conn
+        |> Plug.Conn.put_resp_header("content-type", "application/json")
+        |> Plug.Conn.resp(200, Poison.encode!(body))
+      end)
+
+      assert {:ok, %{account: _, request_id: _}} = Plaid.Item.get_balance(params, config)
+    end
+  end
+
   describe "item create_stripe_bank_account_token/2" do
     @tag :unit
     test "submits request and unmarshalls response", %{params: params, config: config} do
