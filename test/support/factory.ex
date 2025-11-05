@@ -1753,7 +1753,8 @@ defmodule Plaid.Factory do
         }
       },
       "request_id" => "eYupqX1mZkEuQRx",
-      "warnings" => [%{
+      "warnings" => [
+        %{
           "warning_type" => "ASSET_REPORT_WARNING",
           "warning_code" => "OWNERS_UNAVAILABLE",
           "cause" => %{
@@ -1764,11 +1765,13 @@ defmodule Plaid.Factory do
             "request_id" => "Iam3b",
             "causes" => [],
             "status" => 400,
-            "documentation_url" => "https://plaid.com/docs/api/products/assets/#asset_reportcreate",
+            "documentation_url" =>
+              "https://plaid.com/docs/api/products/assets/#asset_reportcreate",
             "suggested_action" => "Please retry request",
             "item_id" => "eYupqX1mZkEuQRx"
           }
-      }]
+        }
+      ]
     }
   end
 
@@ -1791,11 +1794,13 @@ defmodule Plaid.Factory do
         "total_plaid_connections_count" => 15,
         "is_savings_or_money_market_account" => false
       },
-      "warnings" => [%{
-        "warning_type" => "mock",
-        "warning_code" => "mock",
-        "warning_message" => "mock",
-      }],
+      "warnings" => [
+        %{
+          "warning_type" => "mock",
+          "warning_code" => "mock",
+          "warning_message" => "mock"
+        }
+      ],
       "ruleset" => %{
         "ruleset_key" => "mock",
         "outcome" => "accept"
@@ -1814,5 +1819,162 @@ defmodule Plaid.Factory do
 
   def http_response_body(:signal_prepare) do
     %{"request_id" => "mdqfuVxeoza6mhu"}
+  end
+
+  def http_response_body(:identity_verification) do
+    %{
+      "id" => "idv_52xR9LKo77r1Np",
+      "client_user_id" => "your-db-id-3b24110",
+      "created_at" => "2022-05-01T10:00:00Z",
+      "completed_at" => "2022-05-01T10:15:00Z",
+      "previous_attempt_id" => nil,
+      "shareable_url" => "https://my-idv.plaid.com/v/12345abc",
+      "status" => "success",
+      "template" => %{
+        "id" => "idvtmp_4FrXJvfQU3zGUR",
+        "version" => 1
+      },
+      "user" => %{
+        "email_address" => "user@example.com",
+        "phone_number" => "+1 415 555 0100",
+        "date_of_birth" => "1990-01-01",
+        "ip_address" => "192.0.2.42",
+        "name" => %{
+          "given_name" => "John",
+          "family_name" => "Doe"
+        },
+        "address" => %{
+          "street" => "123 Main St",
+          "street2" => "Apt 4",
+          "city" => "San Francisco",
+          "region" => "CA",
+          "postal_code" => "94108",
+          "country" => "US"
+        },
+        "id_number" => %{
+          "value" => "123456789",
+          "type" => "us_ssn"
+        }
+      },
+      "steps" => %{
+        "accept_tos" => "success",
+        "verify_sms" => "success",
+        "kyc_check" => "success",
+        "documentary_verification" => "success",
+        "selfie_check" => "success",
+        "watchlist_screening" => "success",
+        "risk_check" => "success"
+      },
+      "documentary_verification" => %{
+        "status" => "success",
+        "documents" => [
+          %{
+            "status" => "success",
+            "attempt" => 1,
+            "images" => [
+              %{
+                "url" => "https://assets.plaid.com/identity_verification/documents/12345.jpg",
+                "capture_method" => "upload"
+              }
+            ],
+            "extracted_data" => %{
+              "date_of_birth" => "1990-01-01",
+              "expiration_date" => "2025-12-31",
+              "issued_date" => "2020-01-01",
+              "issuing_country" => "US",
+              "id_number" => "D1234567",
+              "category" => "drivers_license",
+              "address" => %{
+                "street" => "123 Main St",
+                "street2" => nil,
+                "city" => "San Francisco",
+                "region" => "CA",
+                "postal_code" => "94108",
+                "country" => "US"
+              },
+              "name" => %{
+                "given_name" => "John",
+                "family_name" => "Doe"
+              }
+            },
+            "analysis" => %{
+              "authenticity" => "pass",
+              "image_quality" => "pass",
+              "extracted_data" => "pass"
+            },
+            "redacted_images" => [
+              %{
+                "url" =>
+                  "https://assets.plaid.com/identity_verification/documents/12345_redacted.jpg",
+                "capture_method" => "upload"
+              }
+            ]
+          }
+        ]
+      },
+      "selfie_check" => %{
+        "status" => "success",
+        "attempt" => 1,
+        "capture" => [
+          %{
+            "url" => "https://assets.plaid.com/identity_verification/selfie/12345.jpg",
+            "video_url" => nil,
+            "capture_method" => "selfie"
+          }
+        ],
+        "analysis" => %{
+          "face_match" => "pass",
+          "image_quality" => "pass"
+        }
+      },
+      "kyc_check" => %{
+        "status" => "success",
+        "address" => "match",
+        "name" => "match",
+        "date_of_birth" => "match",
+        "id_number" => "match",
+        "phone_number" => "match"
+      },
+      "risk_check" => %{
+        "status" => "success",
+        "risk_score" => 15,
+        "linked_services" => ["email", "phone"],
+        "behavior" => %{
+          "is_velocity_high" => false
+        },
+        "email" => %{
+          "is_deliverable" => true
+        },
+        "phone" => %{
+          "is_valid" => true
+        }
+      },
+      "watchlist_screening" => %{
+        "status" => "cleared",
+        "audit_trail" =>
+          "https://dashboard.plaid.com/activity/identity-verification/idv_52xR9LKo77r1Np",
+        "search_terms" => %{
+          "country" => "US",
+          "legal_name" => "John Doe",
+          "date_of_birth" => "1990-01-01"
+        }
+      },
+      "request_id" => "45QSn"
+    }
+  end
+
+  def http_response_body(:identity_verification_list) do
+    %{
+      "identity_verifications" => [
+        http_response_body(:identity_verification),
+        Map.merge(http_response_body(:identity_verification), %{
+          "id" => "idv_52xR9LKo77r1Nq",
+          "status" => "pending",
+          "completed_at" => nil
+        })
+      ],
+      "next_cursor" => "eyJkaXJlY3Rpb24iOiJuZXh0Iiwib2Zmc2V0IjoiMTU5NDM",
+      "request_id" => "45QSn"
+    }
   end
 end
