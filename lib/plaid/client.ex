@@ -76,7 +76,6 @@ defmodule Plaid.Client do
         {Tesla.Middleware.BaseUrl, get_base_url(config)},
         {Tesla.Middleware.Headers,
          [
-           {"Content-Type", "application/json"},
            {"user-agent", "Elixir-SDK"},
            {"Plaid-Version", "2020-09-14"},
            {"PLAID-CLIENT-ID", get_client_id(config)},

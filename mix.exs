@@ -30,7 +30,7 @@ defmodule Plaid.Mixfile do
   defp deps do
     [
       {:tesla, "~> 1.5"},
-      {:hackney, "~> 1.18"},
+      {:hackney, "~> 1.18 or ~> 4.0"},
       {:poison, "~> 5.0"},
       {:jason, "~> 1.4"},
       {:bypass, "~> 2.1", only: [:test]},
