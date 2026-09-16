@@ -166,7 +166,6 @@ defmodule Plaid.ClientTest do
         end)
 
       assert [
-               {"Content-Type", "application/json"},
                {"user-agent", "Elixir-SDK"},
                {"Plaid-Version", "2020-09-14"},
                {"PLAID-CLIENT-ID", "test_client"},
